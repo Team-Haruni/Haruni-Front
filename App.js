@@ -1,20 +1,41 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-export default function App() {
+import React from "react";
+import Home from "./src/screens/BottomTabScreen/Home";
+import Message from "./src/screens/BottomTabScreen/Message";
+import Calendar from "./src/screens/BottomTabScreen/Calendar";
+
+const App = () => {
+  const Stack = createNativeStackNavigator();
+  const Tab = createBottomTabNavigator();
+  const BottomTabScreen = () => {
+    return (
+      <Tab.Navigator
+        screenOptions={() => ({
+          tabBarHideOnKeyboard: true,
+          tabBarShowLabel: false,
+          headerShown: false,
+          tabBarStyle: {
+            height: 70,
+          },
+        })}
+      >
+        <Tab.Screen name="Activity" component={Message} />
+        <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="Profile" component={Calendar} />
+      </Tab.Navigator>
+    );
+  };
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Bottom" component={BottomTabScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
