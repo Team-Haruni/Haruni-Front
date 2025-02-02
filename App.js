@@ -12,6 +12,8 @@ import CalendarIcon from "./assets/calendar-icon.svg";
 import HomeIcon from "./assets//home-icon.svg";
 import MessageIcon from "./assets/message-icon.svg";
 import { View, Text, ImageBackground } from "react-native";
+import { Provider } from "react-redux";
+import store from "./redux/store";
 
 const App = () => {
   const fontsLoaded = useCustomFonts();
@@ -75,7 +77,7 @@ const App = () => {
                   />
                   <Text
                     style={{
-                      fontFamily: "Cafe24SsurrondAir",
+                      fontFamily: "Cafe24Ssurrond",
                       color: focused ? Colors.yellow700 : Colors.yellow400, // 활성화 상태에 따라 색상 변경
                       marginTop: 4, // 아이콘과 텍스트 간의 간격
                       fontSize: 10,
@@ -101,11 +103,13 @@ const App = () => {
   };
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Bottom" component={BottomTabScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Bottom" component={BottomTabScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 };
 
