@@ -20,13 +20,16 @@ import SettingPopup from "../../components/Popup/SettingPopup/SettingPopup";
 import ListPopup from "../../components/Popup/ListPopup";
 import Itempopup from "../../components/Popup/ItemPopup";
 import VoiceButton from "../../components/VoiceButton";
-
+import TouchArea from "../../components/TouchArea";
+import LevelPopup from "../../components/Popup/LevelPopup";
 const Home = () => {
   const webviewRef = useRef(null);
+  const [chat, setChat] = useState("안녕 오늘 하루도 힘내자!");
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
   const [settingModalVisible, setSettingModalVisible] = useState(false);
   const [itemModalVisible, setItemModalVisible] = useState(false);
   const [listModalVisible, setListModalVisible] = useState(false);
+  const [levelModalVisible, setLevelModalVisible] = useState(false);
 
   const handleWebViewLoadEnd = () => {
     console.log("WebView loaded, waiting for 5 seconds...");
@@ -34,29 +37,6 @@ const Home = () => {
     setTimeout(() => {
       setIsLoading(false);
     }, 10000);
-  };
-
-  // WebView에 JavaScript를 삽입하는 함수
-  const sendMessageToUnity = (eventName, data) => {
-    if (webviewRef.current) {
-      const message = JSON.stringify({ eventName, data });
-      console.log(
-        `Unity로 메시지 전송: eventName=${eventName}, action=${data}`
-      );
-      webviewRef.current.injectJavaScript(`
-        if (window.UnityBridge && typeof window.UnityBridge.receiveMessage === "function") {
-          window.UnityBridge.receiveMessage('${message}');
-        } else {
-          console.error("UnityBridge가 정의되지 않았습니다.");
-        }
-      `);
-
-      console.log("UnityBridge 성공");
-    } else {
-      console.error(
-        "WebView ref가 null입니다. WebView가 렌더링되었는지 확인하세요."
-      );
-    }
   };
 
   return (
@@ -114,20 +94,32 @@ const Home = () => {
             <Itempopup
               visible={itemModalVisible}
               onClose={() => setItemModalVisible(false)}
+              webviewRef={webviewRef}
             />
 
-            <View style={styles.levelContainer}>
+            {/*레벨벨 팝업 컴포넌트 */}
+            <LevelPopup
+              visible={levelModalVisible}
+              onClose={() => setLevelModalVisible(false)}
+            />
+            <TouchableOpacity
+              style={styles.levelContainer}
+              onPress={() => setLevelModalVisible(true)}
+            >
               <LevelBar progress={50} />
-            </View>
+            </TouchableOpacity>
+
             <View style={styles.chatContainer}>
-              <MainScreenChat />
+              <MainScreenChat chat={chat} />
             </View>
             <View style={styles.voiceButtonContainer}>
               <VoiceButton />
             </View>
-            <Pressable
-              style={styles.touchScreenContainer}
-              onPress={() => sendMessageToUnity("touch", { action: "die" })}
+            <TouchArea
+              width={200}
+              height={230}
+              webviewRef={webviewRef}
+              setChat={setChat}
             />
           </>
         )}
@@ -152,9 +144,10 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     transform: [{ translateX: -75 }, { translateY: -75 }],
+    zIndex: 3,
   },
   unityContainer: {
-    position: "absolute",
+    position: "relative",
     ...StyleSheet.absoluteFillObject, // View를 화면 전체에 배치
     zIndex: 0, // 다른 컴포넌트 뒤에 배치
   },
@@ -194,15 +187,6 @@ const styles = StyleSheet.create({
     top: "20%",
     left: "50%",
     zIndex: 2,
-  },
-  touchScreenContainer: {
-    width: 300,
-    height: 400,
-    position: "absolute",
-    top: "40%",
-    transform: [{ translateX: -150 }],
-    left: "50%",
-    zIndex: 1,
   },
   voiceButtonContainer: {
     position: "absolute",
