@@ -10,20 +10,36 @@ import Colors from "../../styles/color";
 import LockIcon from "../../assets/lock-icon.svg";
 import { useDispatch } from "react-redux";
 import { toggleSelect } from "../../redux/slices/landscapeSlice";
+import Toast from "react-native-toast-message";
 
-const ItemSquare = ({ image, lock, index }) => {
+const ItemSquare = ({ image, lock, index, setCount, count }) => {
   const dispatch = useDispatch();
 
   //이건 로컬 seleted로 redux랑은 별개
   const [selected, setSelected] = useState(image.selected);
-  const [message, setMessage] = useState("");
   const handlePress = () => {
     if (lock) {
-      alert("레벨을 더 올리세요!");
-      setTimeout(() => setMessage(""), 2000); // 2초 후 메시지 사라짐
+      return Toast.show({
+        type: "error",
+        text1: "레벨이 낮습니다",
+      });
     } else {
-      setSelected(!selected);
-      dispatch(toggleSelect(index));
+      if (selected) {
+        setCount(count - 1);
+        setSelected(!selected);
+        dispatch(toggleSelect(index));
+      } else {
+        if (count == 5) {
+          return Toast.show({
+            type: "error",
+            text1: "아이템 개수를 5개 이하로 설정하세요!",
+          });
+        } else {
+          setCount(count + 1);
+          setSelected(!selected);
+          dispatch(toggleSelect(index));
+        }
+      }
     }
   };
   return (
@@ -45,7 +61,6 @@ const ItemSquare = ({ image, lock, index }) => {
           />
         )}
       </View>
-      {message ? <Text style={styles.lockMessage}>{message}</Text> : null}
     </TouchableOpacity>
   );
 };
@@ -75,11 +90,5 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-  },
-  lockMessage: {
-    marginTop: 5,
-    color: "red",
-    fontSize: 12,
-    textAlign: "center",
   },
 });

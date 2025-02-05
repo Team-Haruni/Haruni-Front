@@ -5,7 +5,6 @@ const landscapeSlice = createSlice({
   name: "landscape",
   initialState: {
     landscapeImages: landscapeImages,
-    savedLandScapeImages: landscapeImages,
   },
   reducers: {
     toggleSelect: (state, action) => {
@@ -17,10 +16,13 @@ const landscapeSlice = createSlice({
 
       // 새로운 배열을 상태로 업데이트
       state.landscapeImages = updatedImages;
-      console.log(state.landscapeImages);
+      //console.log(state.landscapeImages);
+    },
+    resetImages: (state) => {
+      state.landscapeImages = landscapeImages;
     },
   },
 });
 
-export const { toggleSelect } = landscapeSlice.actions;
+export const { toggleSelect, resetImages } = landscapeSlice.actions;
 export default landscapeSlice.reducer;

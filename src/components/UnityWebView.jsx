@@ -15,7 +15,7 @@ const UnityWebView = forwardRef(({ onLoadEnd }, ref) => {
     <WebView
       ref={ref}
       // source={{ uri: "https://kgs9843.github.io/HaruniWebView/" }}
-      source={{ uri: "http://192.168.219.243:8000/" }}
+      source={{ uri: "http://172.16.0.211:8000/" }}
       onLoadEnd={handleLoadEnd} // 로딩 완료 시 호출될 함수
       style={{ flex: 1, backgroundColor: "transparent" }} // WebView 배경을 투명으로 설정
       javaScriptEnabled={true}

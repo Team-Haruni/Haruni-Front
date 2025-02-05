@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,21 +11,46 @@ import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import CustomButton from "../CustomButton";
 import ItemSquare from "../ItemSquare";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { resetImages } from "../../../redux/slices/landscapeSlice";
+import { sendMessageToUnity } from "../../utils/unityBridge";
 
-const ItemPopup = ({ visible, onClose }) => {
+const ItemPopup = ({ visible, onClose, webviewRef }) => {
+  const dispatch = useDispatch();
   const landscapeImages = useSelector(
-    (state) => state.landscape.savedLandScapeImages
+    (state) => state.landscape.landscapeImages
   );
+  const initialCount = landscapeImages.filter((image) => image.selected).length;
+  const [count, setCount] = useState(initialCount);
   const fontsLoaded = useCustomFonts();
 
-  //lock 시작 인덱스
+  //레벨에 따라 다르게 변경
   const [lockStart, setLockStart] = useState(12);
+
+  useEffect(() => {
+    setCount(initialCount);
+    dispatch(resetImages());
+  }, [onClose]);
 
   const chunkArray = (array, size) => {
     return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
       array.slice(i * size, i * size + size)
     );
+  };
+
+  const onSubmit = () => {
+    //api 전송
+    //unity화면 에다가 추가!
+
+    //선택된 아이디디
+    const selectedImageIds = landscapeImages
+      .filter((image) => image.selected)
+      .map((image) => image.id);
+    console.log(selectedImageIds);
+
+    //유니티에 메시지 보내기
+    sendMessageToUnity(webviewRef, "landscape", { action: selectedImageIds });
+    onClose();
   };
   return (
     <Modal
@@ -41,6 +66,7 @@ const ItemPopup = ({ visible, onClose }) => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        flex: 1,
       }}
     >
       <Text style={styles.upperText}>
@@ -49,7 +75,7 @@ const ItemPopup = ({ visible, onClose }) => {
       <View style={styles.modalContent}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>아이템</Text>
-          <Text style={styles.number}>0/5</Text>
+          <Text style={styles.number}>{count}/5</Text>
         </View>
         <ScrollView style={styles.itemContainer}>
           {chunkArray(landscapeImages, 4).map((row, rowIndex) => (
@@ -64,6 +90,8 @@ const ItemPopup = ({ visible, onClose }) => {
                     image={image}
                     lock={isLocked}
                     index={index}
+                    setCount={setCount}
+                    count={count}
                   />
                 );
               })}
@@ -83,7 +111,7 @@ const ItemPopup = ({ visible, onClose }) => {
         />
         <CustomButton
           text="저장하기"
-          onPress={onClose}
+          onPress={onSubmit}
           width="45%"
           height="100%"
           textColor="white"

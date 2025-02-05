@@ -14,6 +14,7 @@ import MessageIcon from "./assets/message-icon.svg";
 import { View, Text, ImageBackground } from "react-native";
 import { Provider } from "react-redux";
 import store from "./redux/store";
+import Toast from "react-native-toast-message";
 
 const App = () => {
   const fontsLoaded = useCustomFonts();
@@ -103,13 +104,16 @@ const App = () => {
   };
 
   return (
-    <Provider store={store}>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Bottom" component={BottomTabScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </Provider>
+    <>
+      <Provider store={store}>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Bottom" component={BottomTabScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Provider>
+      <Toast />
+    </>
   );
 };
 
