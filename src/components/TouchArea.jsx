@@ -2,8 +2,17 @@ import { StyleSheet, Text, View, Pressable } from "react-native";
 import React, { useRef, useState } from "react";
 import { sendMessageToUnity } from "../utils/unityBridge";
 import characterDialogues from "../data/characterDialogues";
+import { useDispatch } from "react-redux";
+import { touchGrowExp } from "../../redux/slices/expSlice";
 
-const TouchArea = ({ width = 200, height = 200, webviewRef, setChat }) => {
+const TouchArea = ({
+  width = 200,
+  height = 230,
+  top = "40%",
+  webviewRef,
+  setChat,
+}) => {
+  const dispatch = useDispatch();
   const [disabled, setDisabled] = useState(false);
   const lastTapRef = useRef(0);
   const tapTimeoutRef = useRef(null);
@@ -29,6 +38,7 @@ const TouchArea = ({ width = 200, height = 200, webviewRef, setChat }) => {
       }, 50);
     }
     lastTapRef.current = now;
+    dispatch(touchGrowExp());
   };
 
   const handlePress = () => {
@@ -43,10 +53,16 @@ const TouchArea = ({ width = 200, height = 200, webviewRef, setChat }) => {
     setTimeout(() => {
       setDisabled(false); // 1초 후 다시 터치 활성화
     }, 300);
+    dispatch(touchGrowExp());
   };
 
   return (
-    <View style={[styles.touchContianer, { width, height }]}>
+    <View
+      style={[
+        styles.touchContianer,
+        { width, height, transform: [{ translateX: -width / 2 }], top: top },
+      ]}
+    >
       <Pressable
         style={styles.touchBodyScreenContainer}
         onPressIn={handleDoubleTap} // 더블 탭 감지
@@ -66,8 +82,7 @@ export default TouchArea;
 const styles = StyleSheet.create({
   touchContianer: {
     position: "absolute",
-    top: "40%",
-    transform: [{ translateX: -100 }],
+
     left: "50%",
     zIndex: 1,
     display: "flex",

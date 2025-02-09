@@ -47,9 +47,10 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       .filter((image) => image.selected)
       .map((image) => image.id);
     console.log(selectedImageIds);
+    const finalSend = JSON.stringify(selectedImageIds);
 
     //유니티에 메시지 보내기
-    sendMessageToUnity(webviewRef, "landscape", { action: selectedImageIds });
+    sendMessageToUnity(webviewRef, "landscape", { action: finalSend });
     onClose();
   };
   return (
@@ -86,12 +87,12 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
 
                 return (
                   <ItemSquare
-                    key={index}
                     image={image}
                     lock={isLocked}
-                    index={index}
+                    index={globalIndex}
                     setCount={setCount}
                     count={count}
+                    key={index}
                   />
                 );
               })}

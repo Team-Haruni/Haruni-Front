@@ -16,7 +16,9 @@ const LoadingBar = () => {
 const styles = StyleSheet.create({
   LoadingBar: {
     flex: 1,
-    zIndex: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    //zIndex: 100,
   },
 });
 
