@@ -22,6 +22,9 @@ import Itempopup from "../../components/Popup/ItemPopup";
 import VoiceButton from "../../components/VoiceButton";
 import TouchArea from "../../components/TouchArea";
 import LevelPopup from "../../components/Popup/LevelPopup";
+import characterData from "../../data/characterData";
+import { useSelector } from "react-redux";
+
 const Home = () => {
   const webviewRef = useRef(null);
   const [chat, setChat] = useState("안녕 오늘 하루도 힘내자!");
@@ -31,12 +34,20 @@ const Home = () => {
   const [listModalVisible, setListModalVisible] = useState(false);
   const [levelModalVisible, setLevelModalVisible] = useState(false);
 
+  //케릭터관련
+  const characterVersion = useSelector((state) => state.exp.characterVersion);
+  const exp = useSelector((state) => state.exp.exp);
+  const level = useSelector((state) => state.exp.level);
+
+  // // 버전 증가
+  // setCharacterVersion((prev) => prev + 1);
+
   const handleWebViewLoadEnd = () => {
     console.log("WebView loaded, waiting for 5 seconds...");
 
     setTimeout(() => {
       setIsLoading(false);
-    }, 10000);
+    }, 5000);
   };
 
   return (
@@ -48,7 +59,7 @@ const Home = () => {
       <SafeAreaView style={styles.safeContainer}>
         {isLoading && (
           <View style={styles.loadingBarContainer}>
-            <LoadingBar width={150} height={150} />
+            <LoadingBar />
           </View>
         )}
         <UnityWebView
@@ -106,7 +117,7 @@ const Home = () => {
               style={styles.levelContainer}
               onPress={() => setLevelModalVisible(true)}
             >
-              <LevelBar progress={50} />
+              <LevelBar progress={exp} level={level} />
             </TouchableOpacity>
 
             <View style={styles.chatContainer}>
@@ -116,8 +127,10 @@ const Home = () => {
               <VoiceButton />
             </View>
             <TouchArea
-              width={200}
-              height={230}
+              // 제일 작은 버전
+              width={characterData[characterVersion].width}
+              height={characterData[characterVersion].height}
+              top={characterData[characterVersion].top}
               webviewRef={webviewRef}
               setChat={setChat}
             />

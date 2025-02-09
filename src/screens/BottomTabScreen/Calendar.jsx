@@ -24,7 +24,7 @@ const Calendar = () => {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    paddingTop: Platform.OS === "android" ? 20 : 0,
+    paddingTop: Platform.OS === "android" ? 30 : 0,
   },
   background: {
     flex: 1, // 화면을 가득 채우도록 설정

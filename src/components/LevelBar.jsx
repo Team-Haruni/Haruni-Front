@@ -3,7 +3,7 @@ import { View, StyleSheet, Text, Animated } from "react-native";
 import Colors from "../../styles/color";
 import useCustomFonts from "../hooks/useCustomFonts";
 
-const LevelBar = ({ progress = 50 }) => {
+const LevelBar = ({ progress = 50, level = 1 }) => {
   const fontsLoaded = useCustomFonts();
   const [animatedValue] = useState(new Animated.Value(0));
 
@@ -21,7 +21,7 @@ const LevelBar = ({ progress = 50 }) => {
   });
   return (
     <View style={styles.container}>
-      <Text style={styles.levelText}>LV.1</Text>
+      <Text style={styles.levelText}>LV.{level}</Text>
       <View style={styles.progressBar}>
         <Animated.View
           style={[

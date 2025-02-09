@@ -11,10 +11,11 @@ import useCustomFonts from "./src/hooks/useCustomFonts";
 import CalendarIcon from "./assets/calendar-icon.svg";
 import HomeIcon from "./assets//home-icon.svg";
 import MessageIcon from "./assets/message-icon.svg";
-import { View, Text, ImageBackground } from "react-native";
+import { View, Text, ImageBackground, StyleSheet } from "react-native";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import Toast from "react-native-toast-message";
+import InitialSetter from "./src/components/AppStart/InitialSetter";
 
 const App = () => {
   const fontsLoaded = useCustomFonts();
@@ -81,7 +82,7 @@ const App = () => {
                       fontFamily: "Cafe24Ssurrond",
                       color: focused ? Colors.yellow700 : Colors.yellow400, // 활성화 상태에 따라 색상 변경
                       marginTop: 4, // 아이콘과 텍스트 간의 간격
-                      fontSize: 10,
+                      fontSize: 8,
                     }}
                   >
                     {label}
@@ -106,15 +107,23 @@ const App = () => {
   return (
     <>
       <Provider store={store}>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Bottom" component={BottomTabScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
+        <InitialSetter>
+          <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="Bottom" component={BottomTabScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </InitialSetter>
       </Provider>
       <Toast />
     </>
   );
 };
 
+const styles = StyleSheet.create({
+  unityContainer: {
+    width: "100%",
+    height: "100%",
+  },
+});
 export default App;

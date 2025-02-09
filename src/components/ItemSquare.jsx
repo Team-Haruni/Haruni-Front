@@ -37,6 +37,7 @@ const ItemSquare = ({ image, lock, index, setCount, count }) => {
         } else {
           setCount(count + 1);
           setSelected(!selected);
+          //console.log(index);
           dispatch(toggleSelect(index));
         }
       }
