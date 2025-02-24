@@ -9,9 +9,16 @@ import {
 } from 'react-native';
 import Colors from '../../../styles/color';
 
+import { AuthSession } from "expo"
+import { useNavigation } from '@react-navigation/native';
+import KakaoLogin from './WebView/KakaoLogin';
+
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  
+  const navigation = useNavigation();
 
   const handleLogin = () => {
     console.log('Login attempt with:', username, password);
@@ -61,7 +68,9 @@ const Login = () => {
             <TouchableOpacity style={styles.socialButton}>
               <Text style={styles.socialButtonText}>N</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
+            <TouchableOpacity 
+            onPress={()=>navigation.navigate("KakaoLogin")}
+            style={styles.socialButton}>
               <Text style={styles.socialButtonText}>K</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialButton}>
