@@ -10,26 +10,70 @@ import Modal from "react-native-modal";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import CustomButton from "../CustomButton";
-import ItemSquare from "../ItemSquare";
+import ItemSquareLandscape from "../ItemSquare/ItemSquareLandscape";
+import ItemSquareStructure from "../ItemSquare/ItemSquareStructure";
+import ItemSquareHat from "../ItemSquare/ItemSquareHat";
+import CarouselComponent from "../CarouselComponent";
 import { useSelector, useDispatch } from "react-redux";
+import { setCurrentPlaneIndex } from "../../../redux/slices/planeSlice";
 import { resetImages } from "../../../redux/slices/landscapeSlice";
 import { sendMessageToUnity } from "../../utils/unityBridge";
 
 const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const dispatch = useDispatch();
+
+  /*배경*/
+  const planeImages = useSelector((state) => state.plane.planeImages);
+  const currentPlaneIndex = useSelector((state) => state.plane.currentIndex);
+  useEffect(() => {
+    for (let i = 0; i < planeImages.length; i++) {
+      if (planeImages[i].selected) {
+        dispatch(setCurrentPlaneIndex(i));
+        break;
+      }
+    }
+  }, []);
+
+  const [lockStartPlane, setLockStartPlane] = useState(2); //레벨에 따라 다르게 변경
+
+  /*장난감*/
+  const structureImages = useSelector(
+    (state) => state.structure.structureImages
+  );
+  const initialStructureCount = structureImages.filter(
+    (image) => image.selected
+  ).length;
+  const [structureCount, setStructureCount] = useState(initialStructureCount);
+  const [lockStartStructure, setLockStartStructure] = useState(6); //레벨에 따라 다르게 변경
+
+  /*모자*/
+  const hatImages = useSelector((state) => state.hat.hatImages);
+  const initialHatCount = hatImages.filter((image) => image.selected).length;
+  const [hatCount, setHatCount] = useState(initialHatCount);
+  const [lockStartHat, setLockStartHat] = useState(3); //레벨에 따라 다르게 변경
+
+  /*구조물*/
   const landscapeImages = useSelector(
     (state) => state.landscape.landscapeImages
   );
-  const initialCount = landscapeImages.filter((image) => image.selected).length;
-  const [count, setCount] = useState(initialCount);
+  const initialLandScapeCount = landscapeImages.filter(
+    (image) => image.selected
+  ).length;
+  const [landScapeCount, setLandScapeCount] = useState(initialLandScapeCount);
+  const [lockStartLandScape, setLockStartLandScape] = useState(12); //레벨에 따라 다르게 변경
+
+  /////////////////////////////////////
+
+  const [menu, setMenu] = useState(0);
   const fontsLoaded = useCustomFonts();
 
-  //레벨에 따라 다르게 변경
-  const [lockStart, setLockStart] = useState(12);
-
   useEffect(() => {
-    setCount(initialCount);
-    dispatch(resetImages());
+    setLandScapeCount(initialLandScapeCount);
+    setHatCount(initialHatCount);
+    setStructureCount(initialStructureCount);
+
+    //나중에 서버 연결하면 할꺼
+    //dispatch(resetImages());
   }, [onClose]);
 
   const chunkArray = (array, size) => {
@@ -42,17 +86,38 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
     //api 전송
     //unity화면 에다가 추가!
 
-    //선택된 아이디디
-    const selectedImageIds = landscapeImages
+    //선택된 구조물
+    const selectedLandscapeImageIds = landscapeImages
       .filter((image) => image.selected)
       .map((image) => image.id);
-    console.log(selectedImageIds);
-    const finalSend = JSON.stringify(selectedImageIds);
+    console.log(selectedLandscapeImageIds);
+    const finalSend1 = JSON.stringify(selectedLandscapeImageIds);
+    sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 }); //유니티에 메시지 보내기
 
-    //유니티에 메시지 보내기
-    sendMessageToUnity(webviewRef, "landscape", { action: finalSend });
+    //선택된 장난감
+    const selectedStructureImageIds = structureImages
+      .filter((image) => image.selected)
+      .map((image) => image.id);
+    console.log(selectedStructureImageIds);
+    const finalSend2 = JSON.stringify(selectedStructureImageIds);
+    sendMessageToUnity(webviewRef, "structure", { action: finalSend2 }); //유니티에 메시지 보내기
+
+    //선택된 모자
+    const selectedHatImageIds = hatImages
+      .filter((image) => image.selected)
+      .map((image) => image.id);
+    console.log(selectedHatImageIds);
+    const finalSend3 = JSON.stringify(selectedHatImageIds);
+    sendMessageToUnity(webviewRef, "hat", { action: finalSend3 }); //유니티에 메시지 보내기
+
+    //배경
+    const finalSend4 = JSON.stringify([currentPlaneIndex]);
+    sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
+
     onClose();
   };
+
+  const categories = ["구조물", "장난감", "모자", "배경"];
   return (
     <Modal
       isVisible={visible} // 모달 표시 여부
@@ -68,6 +133,7 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
         alignItems: "center",
         justifyContent: "center",
         flex: 1,
+        zIndex: 0,
       }}
     >
       <Text style={styles.upperText}>
@@ -75,30 +141,112 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       </Text>
       <View style={styles.modalContent}>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>아이템</Text>
-          <Text style={styles.number}>{count}/5</Text>
-        </View>
-        <ScrollView style={styles.itemContainer}>
-          {chunkArray(landscapeImages, 4).map((row, rowIndex) => (
-            <View key={rowIndex} style={styles.itemRowContainer}>
-              {row.map((image, index) => {
-                const globalIndex = rowIndex * 4 + index; // 전체 리스트에서의 인덱스
-                const isLocked = globalIndex >= lockStart; // lockStart 이상이면 잠금
-
-                return (
-                  <ItemSquare
-                    image={image}
-                    lock={isLocked}
-                    index={globalIndex}
-                    setCount={setCount}
-                    count={count}
-                    key={index}
-                  />
-                );
-              })}
-            </View>
+          {categories.map((title, index) => (
+            <TouchableOpacity
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              key={index}
+              onPress={() => setMenu(index)}
+              style={[
+                styles.title,
+                index === 3
+                  ? {
+                      borderRightWidth: 1, // 오른쪽 테두리 두께
+                      borderRightColor: Colors.gray100,
+                    }
+                  : null,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.titleText,
+                  index === menu ? { color: "black" } : null,
+                ]}
+              >
+                {title}
+              </Text>
+            </TouchableOpacity>
           ))}
-        </ScrollView>
+          {/* <Text style={styles.number}>{count}/5</Text> */}
+        </View>
+        {menu === 0 && (
+          <ScrollView style={styles.itemContainer}>
+            {chunkArray(landscapeImages, 4).map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.itemRowContainer}>
+                {row.map((image, index) => {
+                  const globalIndex = rowIndex * 4 + index;
+                  const isLocked = globalIndex >= lockStartLandScape;
+
+                  return (
+                    <ItemSquareLandscape
+                      image={image}
+                      lock={isLocked}
+                      index={globalIndex}
+                      setCount={setLandScapeCount}
+                      count={landScapeCount}
+                      key={index}
+                    />
+                  );
+                })}
+              </View>
+            ))}
+          </ScrollView>
+        )}
+
+        {menu === 1 && (
+          <ScrollView style={styles.itemContainer}>
+            {chunkArray(structureImages, 4).map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.itemRowContainer}>
+                {row.map((image, index) => {
+                  const globalIndex = rowIndex * 4 + index;
+                  const isLocked = globalIndex >= lockStartStructure;
+
+                  return (
+                    <ItemSquareStructure
+                      image={image}
+                      lock={isLocked}
+                      index={globalIndex}
+                      setCount={setStructureCount}
+                      count={structureCount}
+                      key={index}
+                    />
+                  );
+                })}
+              </View>
+            ))}
+          </ScrollView>
+        )}
+        {menu === 2 && (
+          <ScrollView style={styles.itemContainer}>
+            {chunkArray(hatImages, 4).map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.itemRowContainer}>
+                {row.map((image, index) => {
+                  const globalIndex = rowIndex * 4 + index;
+                  const isLocked = globalIndex >= lockStartHat;
+
+                  return (
+                    <ItemSquareHat
+                      image={image}
+                      lock={isLocked}
+                      index={globalIndex}
+                      setCount={setHatCount}
+                      count={hatCount}
+                      key={index}
+                    />
+                  );
+                })}
+              </View>
+            ))}
+          </ScrollView>
+        )}
+
+        {menu === 3 && (
+          <View style={styles.planeContainer}>
+            <CarouselComponent
+              planeImages={planeImages}
+              lockStartPlane={lockStartPlane}
+            />
+          </View>
+        )}
       </View>
       <View style={styles.buttonContainer}>
         <CustomButton
@@ -138,7 +286,7 @@ const styles = StyleSheet.create({
     display: "flex",
     width: "100%",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
   },
   modalContent: {
     position: "relative",
@@ -162,15 +310,30 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: "10%",
   },
+
   title: {
+    flex: 1,
+    borderLeftWidth: 1, // 왼쪽 테두리 두께
+    borderLeftColor: Colors.gray100,
+    textAlign: "center",
+  },
+  titleText: {
+    textAlign: "center",
     fontFamily: "Cafe24Ssurrondair",
     fontSize: 20,
-    color: "black",
+    color: Colors.gray100,
   },
   number: {
     fontWeight: "400",
     fontSize: 17,
     color: "black",
+  },
+  planeContainer: {
+    position: "relative",
+    marginTop: 20,
+    display: "flex",
+    height: "92%",
+    flexDirection: "column",
   },
   itemContainer: {
     marginTop: 20,
@@ -182,9 +345,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     display: "flex",
     flex: 1,
-    justifyContent: "space-between",
+    justifyContent: "start",
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
   },
 });
 

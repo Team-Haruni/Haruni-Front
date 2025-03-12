@@ -6,13 +6,13 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState } from "react";
-import Colors from "../../styles/color";
-import LockIcon from "../../assets/lock-icon.svg";
+import Colors from "../../../styles/color";
+import LockIcon from "../../../assets/lock-icon.svg";
 import { useDispatch } from "react-redux";
-import { toggleSelect } from "../../redux/slices/landscapeSlice";
-import Toast from "react-native-toast-message";
+import { toggleSelect } from "../../../redux/slices/hatSlice";
+import Toast, { BaseToast } from "react-native-toast-message";
 
-const ItemSquare = ({ image, lock, index, setCount, count }) => {
+const ItemSquareHat = ({ image, lock, index, setCount, count }) => {
   const dispatch = useDispatch();
 
   //이건 로컬 seleted로 redux랑은 별개
@@ -21,7 +21,9 @@ const ItemSquare = ({ image, lock, index, setCount, count }) => {
     if (lock) {
       return Toast.show({
         type: "error",
-        text1: "레벨이 낮습니다",
+        text1: "15LV 이상",
+        text2: "레벨을 더 올리세요!",
+        visibilityTime: 1500,
       });
     } else {
       if (selected) {
@@ -29,10 +31,12 @@ const ItemSquare = ({ image, lock, index, setCount, count }) => {
         setSelected(!selected);
         dispatch(toggleSelect(index));
       } else {
-        if (count == 5) {
+        if (count == 1) {
           return Toast.show({
             type: "error",
-            text1: "아이템 개수를 5개 이하로 설정하세요!",
+            text1: "최대 1개 까지 가능해요",
+            text2: "아이템 개수를 초과했어요",
+            visibilityTime: 1500,
           });
         } else {
           setCount(count + 1);
@@ -66,7 +70,7 @@ const ItemSquare = ({ image, lock, index, setCount, count }) => {
   );
 };
 
-export default ItemSquare;
+export default ItemSquareHat;
 
 const styles = StyleSheet.create({
   container: {
@@ -79,8 +83,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   selectedBorder: {
-    borderColor: Colors.gray700,
+    borderColor: "black",
     borderWidth: 3,
+    backgroundColor: "white",
   },
   lockedContainer: {
     backgroundColor: "#AA9A6D",
