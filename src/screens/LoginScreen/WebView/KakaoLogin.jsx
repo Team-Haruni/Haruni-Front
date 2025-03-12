@@ -49,7 +49,7 @@ const KakaoLogin = () => {
     }).then((response) => {
       AccessToken = response.data.access_token;
       
-      //console.log(AccessToken);
+      console.log(AccessToken);
       //requestUserInfo(AccessToken);
       storeData(AccessToken);
     }).catch(function (error) {
