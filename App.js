@@ -16,6 +16,7 @@ import { Provider } from "react-redux";
 import store from "./redux/store";
 import Toast from "react-native-toast-message";
 import InitialSetter from "./src/components/AppStart/InitialSetter";
+import toastConfig from "./src/components/ToastConfig";
 
 const App = () => {
   const fontsLoaded = useCustomFonts();
@@ -115,7 +116,7 @@ const App = () => {
           </NavigationContainer>
         </InitialSetter>
       </Provider>
-      <Toast />
+      <Toast config={toastConfig} />
     </>
   );
 };
