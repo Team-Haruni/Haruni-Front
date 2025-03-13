@@ -9,20 +9,35 @@ const CustomButton = ({
   textColor,
   backgroundColor,
   borderRadius,
+  disabled = false,
+  fontSize = 16,
 }) => {
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={!disabled ? onPress : null}
       style={[
         styles.button,
-        { width, height, backgroundColor, borderRadius: borderRadius },
+        {
+          width,
+          height,
+          backgroundColor: disabled ? "#d3d3d3" : backgroundColor,
+          borderRadius: borderRadius,
+          opacity: disabled ? 0.8 : 1,
+        },
       ]}
+      disabled={disabled}
     >
-      <Text style={[styles.buttonText, { color: textColor }]}>{text}</Text>
+      <Text
+        style={[
+          styles.buttonText,
+          { color: disabled ? "#000" : textColor, fontSize: fontSize },
+        ]}
+      >
+        {text}
+      </Text>
     </TouchableOpacity>
   );
 };
-
 const styles = StyleSheet.create({
   button: {
     justifyContent: "center",
@@ -30,7 +45,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontFamily: "Cafe24Ssurrondair",
-    fontSize: 16,
   },
 });
 
