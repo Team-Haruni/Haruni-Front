@@ -21,6 +21,7 @@ import store from "./redux/store";
 import Toast from "react-native-toast-message";
 import InitialSetter from "./src/components/AppStart/InitialSetter";
 import toastConfig from "./src/components/ToastConfig";
+import Signup from "./src/screens/Signup/Signup";
 
 const App = () => {
   const fontsLoaded = useCustomFonts();
@@ -115,6 +116,7 @@ const App = () => {
         <InitialSetter>
           <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="Signup" component={Signup} />
               <Stack.Screen name="Bottom" component={BottomTabScreen} />
             </Stack.Navigator>
           </NavigationContainer>
@@ -125,10 +127,4 @@ const App = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  unityContainer: {
-    width: "100%",
-    height: "100%",
-  },
-});
 export default App;
