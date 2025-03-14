@@ -5,14 +5,43 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ImageBackground,
 } from "react-native";
 import Modal from "react-native-modal";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import CustomButton from "../CustomButton";
+import { useSelector } from "react-redux";
+import characterData from "../../data/characterData";
+import Toast, { BaseToast } from "react-native-toast-message";
 
 const LevelPopup = ({ visible, onClose }) => {
+  const characterVersion = useSelector((state) => state.exp.characterVersion);
+  const characterVersionArray = [false, false, false];
   const fontsLoaded = useCustomFonts();
+  useEffect(() => {
+    for (let i = 0; i <= characterVersion; i++) {
+      characterVersionArray[i] = true;
+    }
+  }, [characterVersion]);
+
+  const handlePress = (version) => {
+    if (version == 1) {
+      return Toast.show({
+        type: "error",
+        text1: "15LV 이상",
+        text2: "레벨을 더 올리세요!",
+        visibilityTime: 1500,
+      });
+    } else if (version == 2) {
+      return Toast.show({
+        type: "error",
+        text1: "30LV 이상",
+        text2: "레벨을 더 올리세요!",
+        visibilityTime: 1500,
+      });
+    }
+  };
 
   return (
     <Modal
@@ -30,9 +59,60 @@ const LevelPopup = ({ visible, onClose }) => {
         justifyContent: "center",
       }}
     >
+      {/* {lock && (
+                <View style={styles.lockOverlay}>
+                  <LockIcon />
+                </View>
+              )} */}
       <View style={styles.modalContent}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>레벨</Text>
+        <View style={styles.contentContainer}>
+          <View style={styles.container}>
+            <View style={styles.character1}>
+              <ImageBackground
+                source={characterData[0].url}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            </View>
+          </View>
+          <View style={styles.container}>
+            <View style={styles.character2}>
+              {characterVersionArray[1] ? (
+                <ImageBackground
+                  source={characterData[1].url}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              ) : (
+                <TouchableOpacity onPress={() => handlePress(1)}>
+                  <ImageBackground
+                    source={characterData[1].url2}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+          <View style={styles.container}>
+            <View style={styles.character3}>
+              {characterVersionArray[2] ? (
+                <ImageBackground
+                  source={characterData[2].url}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              ) : (
+                <TouchableOpacity onPress={() => handlePress(2)}>
+                  <ImageBackground
+                    source={characterData[1].url2}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
         </View>
       </View>
     </Modal>
@@ -40,12 +120,6 @@ const LevelPopup = ({ visible, onClose }) => {
 };
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    display: "flex",
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
   modalContent: {
     position: "relative",
     backgroundColor: "white",
@@ -53,9 +127,51 @@ const styles = StyleSheet.create({
     height: "200",
     borderRadius: 20,
     paddingHorizontal: 25,
-    paddingVertical: 40,
+    paddingVertical: 25,
     alignItems: "start",
     justifyContent: "start",
+  },
+  title: {
+    fontFamily: "Cafe24Ssurrond",
+    fontSize: 15,
+  },
+  contentContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+    marginTop: 15,
+    width: "100%",
+    height: "80%",
+    flexDirection: "row",
+  },
+  container: {
+    width: 90,
+    height: 90,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: Colors.gray200,
+    overflow: "hidden",
+    backgroundColor: Colors.gray50,
+  },
+
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  character1: {
+    width: "70%",
+    height: "70%",
+  },
+  character2: {
+    width: "85%",
+    height: "85%",
+  },
+  character3: {
+    width: "100%",
+    height: "100%",
   },
 });
 
