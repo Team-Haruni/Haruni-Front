@@ -11,43 +11,34 @@ import Colors from "../../../styles/color";
 import CustomButton from "../../components/CustomButton";
 import BackIcon from "../../../assets/back-icon.svg";
 import characterHobby from "../../data/characterHobby";
-
-const getRandomTraits = (traits, count) => {
-  const mbtiTraits = traits.slice(0, 16);
-  const otherTraits = traits.slice(16);
-
-  const shuffledOthers = otherTraits
-    .sort(() => 0.5 - Math.random())
-    .slice(0, count - mbtiTraits.length);
-  return [...mbtiTraits, ...shuffledOthers].sort(() => 0.5 - Math.random());
-};
+import { useSelector, useDispatch } from "react-redux";
+import { setTraits, toggleTrait } from "../../../redux/slices/hobbySlice";
 
 const SignupPage5 = ({ handleNext, handleBack, setCharacterHobby }) => {
+  const dispatch = useDispatch();
   const fontsLoaded = useCustomFonts();
-  const [traits, setTraits] = useState([]);
-  const [selectedTraits, setSelectedTraits] = useState([]);
+  const { traits, selectedTraits } = useSelector((state) => state.hobby);
 
   useEffect(() => {
-    setSelectedTraits([]);
-    const randomTraits = getRandomTraits(characterHobby, 60);
-    setTraits(randomTraits);
-  }, []);
+    const getRandomTraits = (traits, count) => {
+      const mbtiTraits = traits.slice(0, 16);
+      const otherTraits = traits.slice(16);
 
-  const toggleTrait = (trait) => {
-    if (selectedTraits.includes(trait)) {
-      setSelectedTraits(selectedTraits.filter((t) => t !== trait));
-    } else if (selectedTraits.length < 7) {
-      setSelectedTraits([...selectedTraits, trait]);
-    }
-  };
+      const shuffledOthers = otherTraits
+        .sort(() => 0.5 - Math.random())
+        .slice(0, count - mbtiTraits.length);
+      return [...mbtiTraits, ...shuffledOthers].sort(() => 0.5 - Math.random());
+    };
+
+    dispatch(setTraits(getRandomTraits(characterHobby, 60)));
+  }, [dispatch]);
 
   const handleSubmit = () => {
-    if (selectedTraits.length == 7) {
+    if (selectedTraits.length == 9) {
       setCharacterHobby(selectedTraits);
       handleNext();
     }
   };
-
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.svgContainer} onPress={handleBack}>
@@ -56,7 +47,7 @@ const SignupPage5 = ({ handleNext, handleBack, setCharacterHobby }) => {
       <View style={styles.contentContainer}>
         <Text style={styles.title}>
           캐릭터의 성격을 설정해 주세요{" "}
-          <Text style={styles.counter}>({selectedTraits.length}/7)</Text>
+          <Text style={styles.counter}>({selectedTraits.length}/9)</Text>
         </Text>
         <FlatList
           style={styles.listContainer}
@@ -70,7 +61,7 @@ const SignupPage5 = ({ handleNext, handleBack, setCharacterHobby }) => {
                 selectedTraits.includes(item.text) &&
                   styles.traitButtonSelected,
               ]}
-              onPress={() => toggleTrait(item.text)}
+              onPress={() => dispatch(toggleTrait(item.text))}
             >
               <Text
                 style={[
@@ -94,7 +85,7 @@ const SignupPage5 = ({ handleNext, handleBack, setCharacterHobby }) => {
           textColor="white"
           backgroundColor={Colors.pointColor}
           borderRadius={12}
-          disabled={selectedTraits.length < 7}
+          disabled={selectedTraits.length < 9}
         />
       </View>
     </View>
