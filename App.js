@@ -1,11 +1,9 @@
-import { Text, View } from 'react-native'
-import React, { Component } from 'react'
-import { ImageBackground } from'react-native'
-import Login from './src/screens/LoginScreen/Login'
-import KakaoLogin from './src/screens/LoginScreen/WebView/KakaoLogin'
-import { NavigationContainer } from '@react-navigation/native';
+import React, { Component } from "react";
+import Login from "./src/screens/LoginScreen/Login";
+import KakaoLogin from "./src/screens/LoginScreen/WebView/KakaoLogin";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import React from "react";
 import Home from "./src/screens/BottomTabScreen/Home";
 import Message from "./src/screens/BottomTabScreen/Message";
 import Calendar from "./src/screens/BottomTabScreen/Calendar";
@@ -116,6 +114,8 @@ const App = () => {
         <InitialSetter>
           <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="Login" component={Login} />
+              <Stack.Screen name="KaKaoLogin" component={KakaoLogin} />
               <Stack.Screen name="Signup" component={Signup} />
               <Stack.Screen name="Bottom" component={BottomTabScreen} />
             </Stack.Navigator>

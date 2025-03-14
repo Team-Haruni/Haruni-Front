@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,22 +6,22 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-} from 'react-native';
-import Colors from '../../../styles/color';
+  Alert,
+} from "react-native";
+import Colors from "../../../styles/color";
 
-import { AuthSession } from "expo"
-import { useNavigation } from '@react-navigation/native';
-import KakaoLogin from './WebView/KakaoLogin';
+const Login = ({ navigation }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-
-const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  
-  const navigation = useNavigation();
+  // 클릭 시 실행될 함수들
+  const handleSignup = () => navigation.push("Signup");
+  const handleFindID = () => Alert.alert("아이디 찾기 페이지 이동!");
+  const handleFindPassword = () => Alert.alert("비밀번호 찾기 페이지 이동!");
 
   const handleLogin = () => {
-    console.log('Login attempt with:', username, password);
+    navigation.replace("Bottom");
+    console.log("Login attempt with:", username, password);
   };
 
   return (
@@ -44,7 +44,7 @@ const Login = () => {
           onChangeText={setPassword}
           secureTextEntry
         />
-        
+
         <View style={styles.checkboxContainer}>
           <View style={styles.checkbox} />
           <Text style={styles.checkboxLabel}>아이디 저장</Text>
@@ -55,11 +55,24 @@ const Login = () => {
         </TouchableOpacity>
 
         <View style={styles.linkContainer}>
-          <Text style={styles.link}>회원가입</Text>
+          {/* 회원가입 버튼 */}
+          <TouchableOpacity onPress={handleSignup}>
+            <Text style={styles.link}>회원가입</Text>
+          </TouchableOpacity>
+
           <Text style={styles.separator}>|</Text>
-          <Text style={styles.link}>아이디 찾기</Text>
+
+          {/* 아이디 찾기 버튼 */}
+          <TouchableOpacity onPress={handleFindID}>
+            <Text style={styles.link}>아이디 찾기</Text>
+          </TouchableOpacity>
+
           <Text style={styles.separator}>|</Text>
-          <Text style={styles.link}>비밀번호 찾기</Text>
+
+          {/* 비밀번호 찾기 버튼 */}
+          <TouchableOpacity onPress={handleFindPassword}>
+            <Text style={styles.link}>비밀번호 찾기</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.socialContainer}>
@@ -68,9 +81,10 @@ const Login = () => {
             <TouchableOpacity style={styles.socialButton}>
               <Text style={styles.socialButtonText}>N</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
-            onPress={()=>navigation.navigate("KakaoLogin")}
-            style={styles.socialButton}>
+            <TouchableOpacity
+              onPress={() => navigation.push("KaKaoLogin")}
+              style={styles.socialButton}
+            >
               <Text style={styles.socialButtonText}>K</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialButton}>
@@ -86,9 +100,9 @@ const Login = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    paddingHorizontal: -20
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    paddingHorizontal: -20,
   },
   header: {
     padding: 20,
@@ -109,8 +123,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 38,
     marginTop: 4,
   },
@@ -118,63 +132,63 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     marginLeft: 3.5,
     marginRight: 10,
   },
   checkboxLabel: {
-    color: '#666',
+    color: "#666",
     // marginTop: 10,
   },
   loginButton: {
-    backgroundColor: '#FFB74D',
+    backgroundColor: "#FFB74D",
     padding: 15,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   loginButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   linkContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 30,
   },
   link: {
-    color: '#666',
+    color: "#666",
     padding: 10,
     fontFamily: "Cafe24Ssurroundair",
   },
   separator: {
-    color: '#ddd',
+    color: "#ddd",
     padding: 10,
   },
   socialContainer: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   socialText: {
-    color: '#666',
+    color: "#666",
     marginBottom: 15,
   },
   socialButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
   },
   socialButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#ddd',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#ddd",
+    justifyContent: "center",
+    alignItems: "center",
     marginHorizontal: 10,
   },
   socialButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
