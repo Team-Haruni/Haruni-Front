@@ -52,19 +52,21 @@ const ItemSquareLandScape = ({ image, lock, index, setCount, count }) => {
       <View
         style={[
           styles.container,
-          lock ? styles.lockedContainer : styles.unlockedContainer,
+          styles.unlockedContainer,
           selected && styles.selectedBorder, // 🔳 선택 시 검은 테두리 강조
         ]}
       >
-        {lock ? (
-          <LockIcon width={30} height={30} />
-        ) : (
-          <ImageBackground
-            source={image.url}
-            style={styles.image}
-            resizeMode="cover"
-          />
-        )}
+        <ImageBackground
+          source={image.url}
+          style={styles.image}
+          resizeMode="cover"
+        >
+          {lock && (
+            <View style={styles.lockOverlay}>
+              <LockIcon />
+            </View>
+          )}
+        </ImageBackground>
       </View>
     </TouchableOpacity>
   );
@@ -87,8 +89,11 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     backgroundColor: "white",
   },
-  lockedContainer: {
-    backgroundColor: "#AA9A6D",
+  lockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   unlockedContainer: {
     backgroundColor: Colors.gray50,

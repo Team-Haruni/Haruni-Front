@@ -111,8 +111,10 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
     sendMessageToUnity(webviewRef, "hat", { action: finalSend3 }); //유니티에 메시지 보내기
 
     //배경
-    const finalSend4 = JSON.stringify([currentPlaneIndex]);
-    sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
+    if (currentPlaneIndex < lockStartPlane) {
+      const finalSend4 = JSON.stringify([currentPlaneIndex]);
+      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
+    }
 
     onClose();
   };

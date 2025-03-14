@@ -11,7 +11,7 @@ import SignupPage6 from "./SignupPage6";
 const Signup = ({ navigation }) => {
   const progressArray = [16, 32, 50, 66, 84, 100];
   const [progress, setProgress] = useState(progressArray[0]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(5); //1로 설정
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");

@@ -25,7 +25,7 @@ import LevelPopup from "../../components/Popup/LevelPopup";
 import characterData from "../../data/characterData";
 import { useSelector } from "react-redux";
 
-const Home = () => {
+const Home = ({ navigation }) => {
   const webviewRef = useRef(null);
   const [chat, setChat] = useState("안녕 오늘 하루도 힘내자!");
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
@@ -94,6 +94,7 @@ const Home = () => {
             <ListPopup
               visible={listModalVisible}
               onClose={() => setListModalVisible(false)}
+              navigation={navigation}
             />
             <TouchableOpacity
               style={styles.itemIconContainer}

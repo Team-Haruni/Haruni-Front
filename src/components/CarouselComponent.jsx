@@ -1,8 +1,16 @@
 import React, { useState } from "react";
-import { View, FlatList, StyleSheet, ImageBackground } from "react-native";
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  ImageBackground,
+  TouchableOpacity,
+} from "react-native";
 import Colors from "../../styles/color";
 import { setCurrentPlaneIndex } from "../../redux/slices/planeSlice";
 import { useSelector, useDispatch } from "react-redux";
+import LockIcon from "../../assets/lock-icon.svg";
+import Toast, { BaseToast } from "react-native-toast-message";
 
 const CarouselComponent = ({ planeImages, lockStartPlane }) => {
   const dispatch = useDispatch();
@@ -12,6 +20,14 @@ const CarouselComponent = ({ planeImages, lockStartPlane }) => {
   const onLayout = (event) => {
     const { width } = event.nativeEvent.layout;
     setScreenWidth(width);
+  };
+  const handlePress = () => {
+    return Toast.show({
+      type: "error",
+      text1: "15LV 이상",
+      text2: "레벨을 더 올리세요!",
+      visibilityTime: 1500,
+    });
   };
 
   const onScroll = (event) => {
@@ -40,7 +56,7 @@ const CarouselComponent = ({ planeImages, lockStartPlane }) => {
             offset: (screenWidth + 15) * index,
             index,
           })}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <View
               style={[
                 styles.page,
@@ -54,7 +70,15 @@ const CarouselComponent = ({ planeImages, lockStartPlane }) => {
                 source={item.url}
                 style={[{ width: screenWidth, height: "100%" }]}
                 resizeMode="cover"
-              />
+              >
+                {index >= lockStartPlane && (
+                  <View style={styles.lockOverlay}>
+                    <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
+                      <LockIcon width={50} height={50} />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </ImageBackground>
             </View>
           )}
         />
@@ -96,6 +120,12 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5, // `borderRadius: "50%"` 대신 숫자로 설정
     marginHorizontal: 4,
+  },
+  lockOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
