@@ -20,7 +20,7 @@ const toastConfig = {
           width: 350,
           zIndex: 9999, // 가장 앞에 오도록 설정
           borderLeftWidth: 0, // ✅ 왼쪽 빨간색 선 제거
-          top: 20,
+
           opacity: 0.9, // 투명도 설정
         }}
         renderLeadingIcon={() => (

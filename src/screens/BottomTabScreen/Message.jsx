@@ -132,7 +132,7 @@ const Message = () => {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    paddingTop: Platform.OS === "android" ? 30 : 0,
+    paddingTop: Platform.OS === "android" ? 10 : 0,
   },
   background: {
     flex: 1,

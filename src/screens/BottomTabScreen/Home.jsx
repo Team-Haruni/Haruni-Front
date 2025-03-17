@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     position: "relative",
-    paddingTop: Platform.OS === "android" ? 30 : 0,
+    paddingTop: Platform.OS === "android" ? 10 : 0,
   },
   background: {
     flex: 1, // 화면을 가득 채우도록 설정
@@ -168,19 +168,19 @@ const styles = StyleSheet.create({
   settingIconContainer: {
     position: "absolute",
     right: 20,
-    top: 50,
+    top: 30,
     zIndex: 2,
   },
   itemIconContainer: {
     position: "absolute",
     right: 20,
-    top: 100,
+    top: 80,
     zIndex: 2,
   },
   listIconContainer: {
     position: "absolute",
     left: 20,
-    top: 50,
+    top: 30,
     zIndex: 2,
   },
   levelContainer: {
