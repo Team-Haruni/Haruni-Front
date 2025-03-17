@@ -22,6 +22,7 @@ export default {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff",
       },
+      package: "com.kgs9843.Haruni",
     },
     web: {
       favicon: "./assets/favicon.png",
