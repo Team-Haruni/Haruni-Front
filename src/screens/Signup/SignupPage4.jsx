@@ -6,33 +6,24 @@ import CustomButton from "../../components/CustomButton";
 import CustomTextInput from "../../components/CustomTextInput";
 import BackIcon from "../../../assets/back-icon.svg";
 import ErrorMessage from "../../components/ErrorMessage";
-import { Image } from "expo-image"; // expo-image에서 Image 컴포넌트 임포트
+import MALEIcon from "../../../assets/male-icon.svg";
+import FEMALEIcon from "../../../assets/female-icon.svg";
 
-const SignupPage4 = ({
-  characterNickname,
-  setCharacterNickname,
-  handleNext,
-  handleBack,
-}) => {
+const SignupPage4 = ({ gender, setGender, handleNext, handleBack }) => {
   const fontsLoaded = useCustomFonts();
-  const [nicknameErrorMessage, setNicknameErrorMessage] = useState("");
+  const [selectedGender, setSelectedGender] = useState(""); // 성별 상태 추가
+
   useEffect(() => {
-    setNicknameErrorMessage("");
-    setCharacterNickname("");
+    setGender("");
   }, []);
 
-  const isValidNickname = (nickname) => {
-    if (nickname.length < 2) {
-      setNicknameErrorMessage(" * 형식이 올바르지 않습니다");
-      return false;
-    }
-    return true;
+  const handleSubmitGender = () => {
+    handleNext();
   };
 
-  const handleSubmitNickname = () => {
-    if (isValidNickname(characterNickname)) {
-      handleNext();
-    }
+  const handleGenderSelect = (genderType) => {
+    setSelectedGender(genderType);
+    setGender(genderType); // 선택된 성별로 `gender` 상태 업데이트
   };
 
   return (
@@ -41,36 +32,38 @@ const SignupPage4 = ({
         <BackIcon />
       </TouchableOpacity>
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>캐릭터의 이름을 설정해 주세요</Text>
-        <View style={styles.imageContainer}>
-          <Image
-            source={require("../../../assets/haruni/medium.png")} // GIF 파일 경로
-            style={[styles.image]} // GIF 크기 조정
-            contentFit="contain" // 애니메이션 크기 조정 방식
-          />
+        <Text style={styles.title}>성별을 설정해주세요</Text>
+        <View style={styles.genderInputContainer}>
+          <TouchableOpacity
+            style={[
+              styles.genderContainer,
+              selectedGender === "MALE" && { borderColor: "black" }, // 선택된 성별에 borderColor 변경
+            ]}
+            onPress={() => handleGenderSelect("MALE")}
+          >
+            <MALEIcon />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.genderContainer,
+              selectedGender === "FEMALE" && { borderColor: "black" }, // 선택된 성별에 borderColor 변경
+            ]}
+            onPress={() => handleGenderSelect("FEMALE")}
+          >
+            <FEMALEIcon />
+          </TouchableOpacity>
         </View>
-        <CustomTextInput
-          placeholder="2자리 이상"
-          value={characterNickname}
-          onChangeText={setCharacterNickname}
-          autoCapitalize="none"
-          height={46}
-          width="100%"
-        />
-        {nicknameErrorMessage ? (
-          <ErrorMessage message={nicknameErrorMessage} />
-        ) : null}
       </View>
       <View style={styles.buttonContainer}>
         <CustomButton
           text="다음"
-          onPress={handleSubmitNickname}
+          onPress={handleSubmitGender}
           width="100%"
           height="100%"
           textColor="white"
           backgroundColor={Colors.pointColor}
           borderRadius={12}
-          disabled={!characterNickname}
+          disabled={selectedGender.length < 2} // 성별이 선택되지 않으면 버튼 비활성화
         />
       </View>
     </View>
@@ -88,20 +81,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 30,
     gap: 50,
-  },
-  imageContainer: {
-    marginTop: 50,
-    marginBottom: 10,
-    margin: "auto",
-    width: 300,
-    height: 300,
-  },
-  image: {
-    width: "100%",
-    height: 50,
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   contentContainer: {
     width: "100%",
@@ -126,6 +105,24 @@ const styles = StyleSheet.create({
     height: 60,
     width: "100%",
     bottom: 20,
+  },
+  genderInputContainer: {
+    alignItems: "center",
+    flexDirection: "row",
+    width: "100%",
+    height: 100,
+    gap: 60,
+    marginTop: 20,
+    justifyContent: "center",
+  },
+  genderContainer: {
+    height: 95,
+    width: 95,
+    borderColor: Colors.gray100,
+    borderRadius: 20,
+    borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
