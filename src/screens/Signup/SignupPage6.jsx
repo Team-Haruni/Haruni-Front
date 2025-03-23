@@ -1,61 +1,85 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import Colors from "../../../styles/color";
 import CustomButton from "../../components/CustomButton";
 import BackIcon from "../../../assets/back-icon.svg";
-import ErrorMessage from "../../components/ErrorMessage";
-import TimePicker from "../../components/TimePicker";
+import characterHobby from "../../data/characterHobby";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  setTraits,
+  toggleTrait,
+  resetTraits,
+} from "../../../redux/slices/hobbySlice";
 
-const AM_PM = ["오전", "오후"];
-const HOURS = Array.from({ length: 12 }, (_, i) => (i + 1).toString()); // 1~12시
-const MINUTES = Array.from({ length: 60 }, (_, i) => i.toString()); // 1~60분
-
-const SignupPage6 = ({ setAlertDate, handleSignup, handleBack }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState(AM_PM[0]); // "오전" or "오후"
-  const [selectedHour, setSelectedHour] = useState(HOURS[0]); // "1" ~ "12"
-  const [selectedMinutes, setSelectedMinutes] = useState(MINUTES[0]); // "0" ~ "59"
+const SignupPage6 = ({ handleNext, handleBack, setCharacterHobby }) => {
+  const dispatch = useDispatch();
   const fontsLoaded = useCustomFonts();
-  useEffect(() => {}, []);
+  const { traits, selectedTraits } = useSelector((state) => state.hobby);
+
+  useEffect(() => {
+    const getRandomTraits = (traits, count) => {
+      const mbtiTraits = traits.slice(0, 16);
+      const otherTraits = traits.slice(16);
+
+      const shuffledOthers = otherTraits
+        .sort(() => 0.5 - Math.random())
+        .slice(0, count - mbtiTraits.length);
+      return [...mbtiTraits, ...shuffledOthers].sort(() => 0.5 - Math.random());
+    };
+
+    dispatch(resetTraits());
+    dispatch(setTraits(getRandomTraits(characterHobby, 60)));
+  }, [dispatch]);
 
   const handleSubmit = () => {
-    let hour = parseInt(selectedHour, 10);
-
-    // "오후"일 때 12 더하고, 12시는 그대로 유지
-    if (selectedPeriod === "오후" && hour !== 12) {
-      hour += 12;
+    if (selectedTraits.length == 9) {
+      setCharacterHobby(selectedTraits);
+      handleNext();
     }
-
-    // "오전"일 때 12시는 0시로 변경
-    if (selectedPeriod === "오전" && hour === 12) {
-      hour = 0;
-    }
-
-    const formattedTime = `${hour
-      .toString()
-      .padStart(2, "0")}:${selectedMinutes.padStart(2, "0")}`;
-
-    setAlertDate(formattedTime);
-    handleSignup();
   };
-
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.svgContainer} onPress={handleBack}>
         <BackIcon />
       </TouchableOpacity>
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>알림 시간을 설정해 주세요</Text>
-        <View style={styles.dateContainer}>
-          <TimePicker
-            AM_PM={AM_PM}
-            HOURS={HOURS}
-            MINUTES={MINUTES}
-            setSelectedPeriod={setSelectedPeriod}
-            setSelectedHour={setSelectedHour}
-            setSelectedMinutes={setSelectedMinutes}
-          />
-        </View>
+        <Text style={styles.title}>
+          캐릭터의 성격을 설정해 주세요{" "}
+          <Text style={styles.counter}>({selectedTraits.length}/9)</Text>
+        </Text>
+        <FlatList
+          style={styles.listContainer}
+          data={traits}
+          numColumns={4}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.traitButton,
+                selectedTraits.includes(item.text) &&
+                  styles.traitButtonSelected,
+              ]}
+              onPress={() => dispatch(toggleTrait(item.text))}
+            >
+              <Text
+                style={[
+                  styles.traitText,
+                  selectedTraits.includes(item.text) &&
+                    styles.traitTextSelected,
+                ]}
+              >
+                {item.text}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
       </View>
       <View style={styles.buttonContainer}>
         <CustomButton
@@ -66,6 +90,7 @@ const SignupPage6 = ({ setAlertDate, handleSignup, handleBack }) => {
           textColor="white"
           backgroundColor={Colors.pointColor}
           borderRadius={12}
+          disabled={selectedTraits.length < 9}
         />
       </View>
     </View>
@@ -82,7 +107,11 @@ const styles = StyleSheet.create({
     justifyContent: "start",
     alignItems: "center",
     paddingVertical: 30,
-    gap: 50,
+    gap: 20,
+  },
+  listContainer: {
+    height: "80%",
+    width: " 100%",
   },
   contentContainer: {
     width: "100%",
@@ -90,10 +119,14 @@ const styles = StyleSheet.create({
     justifyContent: "start",
     alignItems: "start",
   },
+  counter: {
+    fontFamily: "Cafe24Ssurrondair",
+    fontSize: 17,
+  },
   title: {
     fontFamily: "Cafe24Ssurrondair",
     fontSize: 20,
-    marginBottom: 40,
+    marginBottom: 20,
   },
   svgContainer: {
     position: "absolute",
@@ -108,18 +141,24 @@ const styles = StyleSheet.create({
     width: "100%",
     bottom: 20,
   },
-  dateContainer: {
-    marginTop: 50,
-    marginBottom: 10,
-    margin: "auto",
-    width: "100%",
-    paddingHorizontal: 5,
-    height: 320,
-    justifyContent: "center",
+  traitButton: {
+    flex: 1,
+    margin: 5,
+    paddingVertical: 10,
     alignItems: "center",
-    borderColor: Colors.gray50,
     borderWidth: 1,
-    borderRadius: 10,
+    borderColor: Colors.pointColor,
+    borderRadius: 8,
+  },
+  traitButtonSelected: {
+    backgroundColor: Colors.pointColor,
+  },
+  traitText: {
+    fontSize: 14,
+    color: Colors.pointColor,
+  },
+  traitTextSelected: {
+    color: "white",
   },
 });
 

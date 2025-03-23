@@ -20,9 +20,12 @@ const SignupPage2 = ({ password, setPassword, handleNext, handleBack }) => {
 
   // 비밀번호 유효성 검사 함수 (8~12자리 숫자 및 영문)
   const isValidPassword = (password) => {
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,12}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\-_=+\\|\\[\]{};:'",<.>/?])(?=.*[a-z]).{8,15}$/;
     if (!passwordRegex.test(password)) {
-      setPasswordErrorMessage(" * 형식이 올바르지 않습니다");
+      setPasswordErrorMessage(
+        "* 비밀번호는 8~15자, 대문자, 숫자, 소문자, 특수문자를 모두 포함해야 합니다."
+      );
       return false;
     }
     return true;

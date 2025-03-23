@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setInitialLevel, setInitialExp } from "../../../redux/slices/expSlice";
 import { setLoading } from "../../../redux/slices/appStartLoadingSlice";
+import { initFCM } from "../../utils/fcm"; // FCM 초기화 함수 import
 import {
   View,
   StyleSheet,
@@ -24,6 +25,9 @@ const InitialSetter = ({ children }) => {
     // 백엔드에서 불러와서 초기 레벨을 설정 (예제: 1레벨로 설정)
     dispatch(setInitialLevel(1));
     dispatch(setInitialExp(30));
+
+    // FCM 초기화
+    initFCM();
 
     // 10초 후에 로딩 상태를 false로 변경
     setTimeout(() => {

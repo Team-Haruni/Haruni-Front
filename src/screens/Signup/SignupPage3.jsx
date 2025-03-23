@@ -10,12 +10,10 @@ import ErrorMessage from "../../components/ErrorMessage";
 const SignupPage3 = ({ nickname, setNickname, handleNext, handleBack }) => {
   const fontsLoaded = useCustomFonts();
   const [nicknameErrorMessage, setNicknameErrorMessage] = useState("");
-  const [checkFinish, setCheckFinish] = useState(0);
 
   useEffect(() => {
     setNicknameErrorMessage("");
     setNickname("");
-    setCheckFinish(0);
   }, []);
 
   const isValidNickname = (nickname) => {
@@ -29,14 +27,6 @@ const SignupPage3 = ({ nickname, setNickname, handleNext, handleBack }) => {
   const handleSubmitNickname = () => {
     if (isValidNickname(nickname)) {
       handleNext();
-    }
-  };
-
-  const handleVerification = () => {
-    if (isValidNickname(nickname)) {
-      setNicknameErrorMessage("");
-      setCheckFinish(1); //마지막 검사
-      // 서버로 중복 검사 보내기
     }
   };
 
@@ -54,17 +44,7 @@ const SignupPage3 = ({ nickname, setNickname, handleNext, handleBack }) => {
             onChangeText={setNickname}
             autoCapitalize="none"
             height={46}
-            width="75%"
-          />
-          <CustomButton
-            text="중복확인"
-            onPress={handleVerification}
-            width={60}
-            height="80%"
-            textColor="white"
-            backgroundColor={Colors.pointColor}
-            borderRadius={55}
-            fontSize={12}
+            width="100%"
           />
         </View>
         {nicknameErrorMessage ? (
@@ -80,7 +60,7 @@ const SignupPage3 = ({ nickname, setNickname, handleNext, handleBack }) => {
           textColor="white"
           backgroundColor={Colors.pointColor}
           borderRadius={12}
-          disabled={!nickname || checkFinish == 0}
+          disabled={nickname.length < 2}
         />
       </View>
     </View>

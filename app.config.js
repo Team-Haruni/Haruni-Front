@@ -36,6 +36,7 @@ export default {
       REST_API_KEY: process.env.REST_API_KEY,
       REST_API_SECRET: process.env.REST_API_SECRET,
       REDIRECT_URI: process.env.REDIRECT_URI,
+      REACT_NATIVE_API_URL: process.env.REACT_NATIVE_API_URL,
     },
   },
 };
