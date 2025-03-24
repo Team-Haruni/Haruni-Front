@@ -54,6 +54,7 @@ const setupFCMListeners = () => {
 
 // FCM 초기화 실행
 export const initFCM = async () => {
+  await requestNotificationPermission();
   await requestUserPermission();
   await getFCMToken();
   setupFCMListeners();

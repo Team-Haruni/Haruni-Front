@@ -1,17 +1,14 @@
 // src/api/signup.js
-import { post } from "./index"; // 기본 API 요청 함수 (axios 설정이 있는 index.js 파일)
-import { getTokenFromStorage } from "../utils/asyncStorage";
+import { patch, post } from "./index"; // 기본 API 요청 함수 (axios 설정이 있는 index.js 파일)
 
-export const signupApi = async (data) => {
+export const updateAlarmApi = async (data) => {
   try {
-    fcmToken = await getTokenFromStorage();
-    // 기본값 추가 또는 수정 (예: 기본값으로 isActive: true 추가)
     const requestData = {
-      ...data, // 전달받은 data 객체의 내용
-      fcmToken: fcmToken,
+      alarmActiveTime: "17:30",
     };
     console.log(requestData);
-    const response = await post("/v1/auth/sign-up", requestData); // 조작한 requestData 전송
+    const response = await patch("/v1/users/me/alarm", requestData); // 조작한 requestData 전송
+    console.log("success");
     return response.status;
   } catch (error) {
     console.log(error);
@@ -29,6 +26,6 @@ export const signupApi = async (data) => {
       // 다른 유형의 에러 (예: 코드 오류)
       console.error("오류 메시지:", error.message);
     }
-    throw new Error("회원가입에 실패했습니다.");
+    throw new Error("로그인에 실패했습니다.");
   }
 };
