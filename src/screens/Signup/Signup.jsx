@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Platform } from "react-native";
+import { View, StyleSheet, Platform, Alert } from "react-native";
 import ProgressBar from "../../components/Signup/ProgressBar";
 import SignupPage1 from "./SignupPage1";
 import SignupPage2 from "./SignupPage2";
@@ -52,10 +52,10 @@ const Signup = ({ navigation }) => {
 
     try {
       // 회원가입 API 호출
-      const response = await signupApi(signupData);
-      if (response) {
+      const status = await signupApi(signupData);
+      if (status == 200) {
         Alert.alert("회원가입 성공!", "회원가입이 완료되었습니다.");
-        navigation.replace("Bottom"); // 회원가입 성공 후 페이지 이동
+        navigation.replace("Login"); // 회원가입 성공 후 페이지 이동
       }
     } catch (error) {
       Alert.alert("회원가입 실패", error.message);

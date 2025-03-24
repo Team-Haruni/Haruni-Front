@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "180063525448",
-    "project_id": "haruni-5c48d",
-    "storage_bucket": "haruni-5c48d.firebasestorage.app"
+    "project_number": "307394390536",
+    "project_id": "haruni-f54b3",
+    "storage_bucket": "haruni-f54b3.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:180063525448:android:0bebcd8d16817f32b6d67d",
+        "mobilesdk_app_id": "1:307394390536:android:e1b9e879fe6a775d88ffbd",
         "android_client_info": {
           "package_name": "com.kgs9843.Haruni"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBUVwPTwfoDFq4D7wD8M2J5W_103RRbnwc"
+          "current_key": "AIzaSyBu1NA7KmsGV30aqAzIe1p7KAIg9C4nExU"
         }
       ],
       "services": {

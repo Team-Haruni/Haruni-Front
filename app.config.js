@@ -27,7 +27,12 @@ export default {
     web: {
       favicon: "./assets/favicon.png",
     },
-    plugins: ["expo-video", "expo-font"],
+    plugins: [
+      "expo-video",
+      "expo-font",
+      "expo-secure-store",
+      "@react-native-voice/voice",
+    ],
     jsEngine: "hermes", // 새 아키텍처용 엔진 설정
     experiments: {
       newArchEnabled: true, // 새 아키텍처 활성화

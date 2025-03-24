@@ -6,6 +6,9 @@ import Color from "../../styles/color";
 import Voice from "@react-native-voice/voice";
 import { Audio } from "expo-av";
 
+//나중에 수정
+import { updateAlarmApi } from "../api/updateAlarm";
+
 const VoiceButton = () => {
   const [isListening, setIsListening] = useState(false);
   const [text, setText] = useState("");
@@ -96,6 +99,8 @@ const VoiceButton = () => {
   };
 
   const handlePress = () => {
+    //나중에 수정
+    //updateAlarmApi();
     if (isListening) {
       stopListening();
     } else {

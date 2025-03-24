@@ -9,6 +9,7 @@ import {
   Alert,
 } from "react-native";
 import Colors from "../../../styles/color";
+import { loginApi } from "../../api/login";
 
 const Login = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -19,9 +20,16 @@ const Login = ({ navigation }) => {
   const handleFindID = () => Alert.alert("아이디 찾기 페이지 이동!");
   const handleFindPassword = () => Alert.alert("비밀번호 찾기 페이지 이동!");
 
-  const handleLogin = () => {
-    navigation.replace("Bottom");
-    console.log("Login attempt with:", username, password);
+  const handleLogin = async () => {
+    try {
+      // 로그인 API 호출
+      const status = await loginApi({ email: username, password });
+      if (status == 200) {
+        navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
+      }
+    } catch (error) {
+      Alert.alert("로그인 실패", error.message);
+    }
   };
 
   return (

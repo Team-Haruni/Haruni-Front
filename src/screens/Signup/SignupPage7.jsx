@@ -7,16 +7,20 @@ import BackIcon from "../../../assets/back-icon.svg";
 import ErrorMessage from "../../components/ErrorMessage";
 import TimePicker from "../../components/TimePicker";
 
-const AM_PM = ["오전", "오후"];
-const HOURS = Array.from({ length: 12 }, (_, i) => (i + 1).toString()); // 1~12시
-const MINUTES = Array.from({ length: 60 }, (_, i) => i.toString()); // 1~60분
-
 const SignupPage7 = ({ setAlertDate, handleSignup, handleBack }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState(AM_PM[0]); // "오전" or "오후"
-  const [selectedHour, setSelectedHour] = useState(HOURS[0]); // "1" ~ "12"
-  const [selectedMinutes, setSelectedMinutes] = useState(MINUTES[0]); // "0" ~ "59"
+  const [selectedPeriod, setSelectedPeriod] = useState(); // "오전" or "오후"
+  const [selectedHour, setSelectedHour] = useState(); // "1" ~ "12"
+  const [selectedMinutes, setSelectedMinutes] = useState(); // "0" ~ "59"
   const fontsLoaded = useCustomFonts();
-  useEffect(() => {}, []);
+
+  useEffect(() => {
+    const AM_PM = ["오전", "오후"];
+    const HOURS = Array.from({ length: 12 }, (_, i) => (i + 1).toString()); // 1~12시
+    const MINUTES = Array.from({ length: 60 }, (_, i) => i.toString()); // 1~60분
+    setSelectedPeriod(AM_PM[0]);
+    setSelectedHour(HOURS[0]);
+    setSelectedMinutes(MINUTES[0]);
+  }, []);
 
   const handleSubmit = () => {
     let hour = parseInt(selectedHour, 10);
