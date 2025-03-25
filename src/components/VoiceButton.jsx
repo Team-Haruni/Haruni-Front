@@ -3,95 +3,111 @@ import React, { useState, useRef, useEffect } from "react";
 import LoadingBar from "./Loadingbar";
 import VoiceIcon from "../../assets/voice-icon.svg";
 import Color from "../../styles/color";
-import Voice from "@react-native-voice/voice";
 import { Audio } from "expo-av";
+import * as FileSystem from "expo-file-system";
+import axios from "axios";
 
-//나중에 수정
+// 나중에 수정
 import { updateAlarmApi } from "../api/updateAlarm";
+
+const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY"; // 구글 API 키
 
 const VoiceButton = () => {
   const [isListening, setIsListening] = useState(false);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
+  const [recording, setRecording] = useState(null);
   const timeoutRef = useRef(null);
 
   useEffect(() => {
-    // 음성 인식 초기화
-    const initializeVoice = async () => {
-      try {
-        // 음성 인식 이벤트 리스너 설정
-        Voice.onSpeechStart = () => setIsListening(true);
-        Voice.onSpeechEnd = () => stopListening();
-        Voice.onSpeechError = (e) => setError(e.error);
-        Voice.onSpeechResults = (e) => handleSpeechResult(e.value[0]);
-        Voice.onSpeechVolumeChanged = (e) => console.log("Volume changed:", e);
-
-        // 초기화가 완료되었을 때 상태 업데이트
-        setError(""); // 초기화 시 오류 메시지 초기화
-      } catch (e) {
-        console.error("음성 인식 초기화 실패:", e);
-        setError("음성 인식 초기화 실패");
-      }
-    };
-
-    initializeVoice();
-
     return () => {
-      // 컴포넌트 언마운트 시 리스너 제거
-      Voice.destroy().then(Voice.removeAllListeners);
-    };
-  }, []);
-
-  // 음성 시작 함수
-  const startListening = async () => {
-    console.log(Voice);
-    if (Voice._loaded) {
-      try {
-        const { granted } = await Audio.requestPermissionsAsync();
-        if (!granted) {
-          alert("마이크 권한이 필요합니다!");
-          return;
-        }
-
-        setText("");
-        setError("");
-        setIsListening(true);
-        console.log("🎧 음성 인식 시작...");
-        await Voice.start("ko-KR");
-
-        startTimeout();
-      } catch (e) {
-        console.error("음성 인식 시작 실패:", e);
-        setError("음성 인식을 시작할 수 없습니다.");
-        setIsListening(false);
+      // 컴포넌트 언마운트 시 음성 녹음 정리
+      if (recording) {
+        recording.stopAndUnloadAsync();
       }
-    } else {
-      console.log("Voice 모듈이 아직 초기화되지 않았습니다.");
+    };
+  }, [recording]);
+
+  // 음성 녹음 시작 함수
+  const startRecording = async () => {
+    try {
+      const { granted } = await Audio.requestPermissionsAsync();
+      if (!granted) {
+        alert("마이크 권한이 필요합니다!");
+        return;
+      }
+
+      setText("");
+      setError("");
+      setIsListening(true);
+      console.log("🎧 음성 인식 시작...");
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      setRecording(recording);
+      await recording.startAsync();
+
+      startTimeout(); // 4.5초 타이머 시작
+    } catch (e) {
+      console.error("음성 녹음 시작 실패:", e);
+      setError("음성을 녹음할 수 없습니다.");
+      setIsListening(false);
     }
   };
 
-  // 음성 결과 처리 함수
-  const handleSpeechResult = (newText) => {
-    setText(newText);
-    console.log("🎙️ 인식된 텍스트:", newText);
-    // 새 음성 들어오면 타이머 리셋
-    startTimeout();
+  // 음성 결과 처리 함수 (구글 API 호출)
+  const handleGoogleSpeechAPI = async (uri) => {
+    try {
+      const audioData = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const response = await axios.post(
+        "https://speech.googleapis.com/v1p1beta1/speech:recognize?key=" +
+          GOOGLE_API_KEY,
+        {
+          audio: {
+            content: audioData,
+          },
+          config: {
+            encoding: "LINEAR16", // 오디오 포맷에 맞춰 설정 (wav 형식일 경우 LINEAR16 사용)
+            sampleRateHertz: 16000,
+            languageCode: "ko-KR", // 한국어로 설정
+          },
+        }
+      );
+
+      const transcribedText =
+        response.data.results[0].alternatives[0].transcript;
+      setText(transcribedText);
+      console.log("🎙️ 구글 인식된 텍스트:", transcribedText);
+    } catch (error) {
+      console.error("구글 API 호출 실패:", error);
+      setError("음성 인식 실패");
+    }
   };
 
-  // 3초 무음 타이머 함수
+  // 4.5초 무음 타이머 함수
   const startTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      stopListening();
-    }, 3000);
+      stopRecording(); // 4.5초 후 녹음 종료
+    }, 4500); // 4.5초
   };
 
-  // 음성 종료 함수
-  const stopListening = async () => {
+  // 녹음 종료 함수
+  const stopRecording = async () => {
     try {
-      await Voice.stop();
-      console.log("🛑 음성 인식 종료");
-      setIsListening(false);
+      if (recording) {
+        await recording.stopAndUnloadAsync();
+        console.log("🛑 녹음 종료");
+        setIsListening(false);
+        const uri = recording.getURI();
+        console.log("녹음된 파일 URI:", uri);
+
+        handleGoogleSpeechAPI(uri); // 구글 API로 텍스트 변환
+      }
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     } catch (e) {
       console.error("음성 인식 중지 실패:", e);
@@ -99,12 +115,10 @@ const VoiceButton = () => {
   };
 
   const handlePress = () => {
-    //나중에 수정
-    //updateAlarmApi();
     if (isListening) {
-      stopListening();
+      stopRecording();
     } else {
-      startListening();
+      startRecording();
     }
   };
 
@@ -143,5 +157,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: Color.yellow500,
     borderRadius: 50,
+  },
+  listeningText: {
+    marginTop: 10,
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  resultText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: "#333",
+  },
+  errorText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "red",
   },
 });
