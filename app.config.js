@@ -23,11 +23,30 @@ export default {
         backgroundColor: "#ffffff",
       },
       package: "com.kgs9843.Haruni",
+      permissions: [
+        "RECORD_AUDIO", // Android 오디오 권한 추가
+        "MEDIA_LIBRARY", // 미디어 라이브러리 권한 추가 (필요 시)
+      ],
     },
     web: {
       favicon: "./assets/favicon.png",
     },
-    plugins: ["expo-video", "expo-font", "expo-secure-store"],
+    plugins: [
+      "expo-video",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-speech-recognition",
+        {
+          microphonePermission: "Allow $(PRODUCT_NAME) to use the microphone.",
+          speechRecognitionPermission:
+            "Allow $(PRODUCT_NAME) to use speech recognition.",
+          androidSpeechServicePackages: [
+            "com.google.android.googlequicksearchbox",
+          ],
+        },
+      ],
+    ],
     jsEngine: "hermes", // 새 아키텍처용 엔진 설정
     experiments: {
       newArchEnabled: true, // 새 아키텍처 활성화

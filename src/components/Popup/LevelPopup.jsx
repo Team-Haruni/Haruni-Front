@@ -11,19 +11,25 @@ import Modal from "react-native-modal";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import CustomButton from "../CustomButton";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setCharacterVersion } from "../../../redux/slices/expSlice";
 import characterData from "../../data/characterData";
 import Toast, { BaseToast } from "react-native-toast-message";
 
 const LevelPopup = ({ visible, onClose }) => {
+  const dispatch = useDispatch();
+
   const characterVersion = useSelector((state) => state.exp.characterVersion);
-  const characterVersionArray = [false, false, false];
+  //이거 또한 selecter 로 만들어야할듯
+  const characterVersionArray = useSelector(
+    (state) => state.exp.characterVersionArray
+  );
   const fontsLoaded = useCustomFonts();
-  useEffect(() => {
-    for (let i = 0; i <= characterVersion; i++) {
-      characterVersionArray[i] = true;
-    }
-  }, [characterVersion]);
+
+  const versionChangeHandlePress = (version) => {
+    dispatch(setCharacterVersion(version));
+    onClose();
+  };
 
   const handlePress = (version) => {
     if (version == 1) {
@@ -59,30 +65,39 @@ const LevelPopup = ({ visible, onClose }) => {
         justifyContent: "center",
       }}
     >
-      {/* {lock && (
-                <View style={styles.lockOverlay}>
-                  <LockIcon />
-                </View>
-              )} */}
       <View style={styles.modalContent}>
         <View style={styles.contentContainer}>
-          <View style={styles.container}>
+          <View
+            style={[
+              styles.container,
+              characterVersion == 0 && styles.highlight,
+            ]}
+          >
             <View style={styles.character1}>
-              <ImageBackground
-                source={characterData[0].url}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            </View>
-          </View>
-          <View style={styles.container}>
-            <View style={styles.character2}>
-              {characterVersionArray[1] ? (
+              <TouchableOpacity onPress={() => versionChangeHandlePress(0)}>
                 <ImageBackground
-                  source={characterData[1].url}
+                  source={characterData[0].url}
                   style={styles.image}
                   resizeMode="cover"
                 />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View
+            style={[
+              styles.container,
+              characterVersion == 1 && styles.highlight,
+            ]}
+          >
+            <View style={styles.character2}>
+              {characterVersionArray[1] ? (
+                <TouchableOpacity onPress={() => versionChangeHandlePress(1)}>
+                  <ImageBackground
+                    source={characterData[1].url}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
               ) : (
                 <TouchableOpacity onPress={() => handlePress(1)}>
                   <ImageBackground
@@ -94,14 +109,21 @@ const LevelPopup = ({ visible, onClose }) => {
               )}
             </View>
           </View>
-          <View style={styles.container}>
+          <View
+            style={[
+              styles.container,
+              characterVersion == 2 && styles.highlight,
+            ]}
+          >
             <View style={styles.character3}>
               {characterVersionArray[2] ? (
-                <ImageBackground
-                  source={characterData[2].url}
-                  style={styles.image}
-                  resizeMode="cover"
-                />
+                <TouchableOpacity onPress={() => versionChangeHandlePress(2)}>
+                  <ImageBackground
+                    source={characterData[2].url}
+                    style={styles.image}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
               ) : (
                 <TouchableOpacity onPress={() => handlePress(2)}>
                   <ImageBackground
@@ -172,6 +194,11 @@ const styles = StyleSheet.create({
   character3: {
     width: "100%",
     height: "100%",
+  },
+  highlight: {
+    borderWidth: 3,
+    backgroundColor: "white",
+    borderColor: "black",
   },
 });
 

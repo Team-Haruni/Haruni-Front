@@ -9,6 +9,9 @@ const hobbySlice = createSlice({
   name: "character",
   initialState,
   reducers: {
+    setSelectedTraits: (state, action) => {
+      state.selectedTraits = action.payload;
+    },
     setTraits: (state, action) => {
       state.traits = action.payload;
     },
@@ -26,5 +29,6 @@ const hobbySlice = createSlice({
   },
 });
 
-export const { setTraits, toggleTrait, resetTraits } = hobbySlice.actions;
+export const { setTraits, toggleTrait, resetTraits, setSelectedTraits } =
+  hobbySlice.actions;
 export default hobbySlice.reducer;
