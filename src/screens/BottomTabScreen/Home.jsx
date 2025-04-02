@@ -26,9 +26,10 @@ import characterData from "../../data/characterData";
 import { useSelector } from "react-redux";
 
 const Home = ({ navigation }) => {
+  const userName = useSelector((state) => state.exp.userName);
   const webviewRef = useRef(null);
-  const [chat, setChat] = useState("안녕 오늘 하루도 힘내자!");
-  const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가
+  const [chat, setChat] = useState(`안녕 ${userName} 오늘 하루도 힘내자!`);
+  const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가 (나중 수정)
   const [settingModalVisible, setSettingModalVisible] = useState(false);
   const [itemModalVisible, setItemModalVisible] = useState(false);
   const [listModalVisible, setListModalVisible] = useState(false);
@@ -36,6 +37,7 @@ const Home = ({ navigation }) => {
 
   //케릭터관련
   const characterVersion = useSelector((state) => state.exp.characterVersion);
+  const nickName = useSelector((state) => state.exp.nickName);
   const exp = useSelector((state) => state.exp.exp);
   const level = useSelector((state) => state.exp.level);
 
@@ -125,7 +127,7 @@ const Home = ({ navigation }) => {
               <MainScreenChat chat={chat} />
             </View>
             <View style={styles.voiceButtonContainer}>
-              <VoiceButton />
+              <VoiceButton setChat={setChat} />
             </View>
             <TouchArea
               // 제일 작은 버전

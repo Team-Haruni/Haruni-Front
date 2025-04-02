@@ -6,10 +6,12 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./src/screens/BottomTabScreen/Home";
 import Message from "./src/screens/BottomTabScreen/Message";
-import Calendar from "./src/screens/BottomTabScreen/Calendar";
+import Calendar from "./src/screens/BottomTabScreen/CalendarPage";
+import User from "./src/screens/BottomTabScreen/User";
 import Colors from "./styles/color";
 import useCustomFonts from "./src/hooks/useCustomFonts";
 // SVG 아이콘 import
+import UserIcon from "./assets/user-icon.svg";
 import CalendarIcon from "./assets/calendar-icon.svg";
 import HomeIcon from "./assets//home-icon.svg";
 import MessageIcon from "./assets/message-icon.svg";
@@ -66,6 +68,9 @@ const App = () => {
               } else if (route.name === "Calendar") {
                 IconComponent = CalendarIcon;
                 label = "캘린더";
+              } else if (route.name === "User") {
+                IconComponent = UserIcon;
+                label = "내정보";
               }
               return (
                 <View
@@ -103,6 +108,7 @@ const App = () => {
           <Tab.Screen name="Message" component={Message} />
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar" component={Calendar} />
+          <Tab.Screen name="User" component={User} />
         </Tab.Navigator>
       </ImageBackground>
     );

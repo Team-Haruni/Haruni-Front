@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,20 +8,39 @@ import {
   Image,
   FlatList,
 } from "react-native";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Modal from "react-native-modal";
 import characterData from "../../data/characterData";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 
+import { setSelectedTraits } from "../../../redux/slices/hobbySlice";
+
 const { width } = Dimensions.get("window");
 
 const ListPopup = ({ visible, onClose, navigation }) => {
+  const dispatch = useDispatch();
   const fontsLoaded = useCustomFonts();
   const characterVersion = useSelector((state) => state.exp.characterVersion);
   const characterLevel = useSelector((state) => state.exp.level);
   const [nickname] = useState("하루니");
+  useEffect(() => {
+    dispatch(
+      setSelectedTraits([
+        "infp",
+        "infp",
+        "infp",
+        "infp",
+        "infp",
+        "infp",
+        "infp",
+        "sdfsdf",
+        "infp",
+      ])
+    );
+  }, []);
   const { selectedTraits } = useSelector((state) => state.hobby);
+
   return (
     <Modal
       isVisible={visible}
@@ -47,15 +66,37 @@ const ListPopup = ({ visible, onClose, navigation }) => {
         <Text style={styles.nickname}>LV{characterLevel}</Text>
         <View style={styles.contentContainer}>
           <Text style={styles.traitsTitle}>성격</Text>
-          <FlatList
-            style={styles.listContainer}
-            data={selectedTraits}
-            numColumns={3}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <Text style={styles.traitItem}>{item}</Text>
-            )}
-          />
+          <View
+            style={{
+              height: "auto",
+              backgroundColor: Colors.mainYellow,
+              borderRadius: 20,
+              padding: 10,
+              marginTop: 5,
+            }}
+          >
+            <FlatList
+              data={selectedTraits}
+              numColumns={3}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <Text style={styles.traitItem}>{item}</Text>
+              )}
+            />
+          </View>
+          <Text style={styles.traitsTitle}>아이템</Text>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: Colors.mainYellow,
+              borderRadius: 20,
+              padding: 10,
+              marginVertical: 5,
+              marginBottom: 20,
+            }}
+          >
+            <Text>아이템들 추후 백엔드 아이템 조회하는거 사용</Text>
+          </View>
           <View style={styles.footerContainer}>
             <Text style={styles.footerText}>Version 1.0.0</Text>
             <TouchableOpacity onPress={() => navigation.replace("Login")}>
@@ -118,7 +159,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: -5,
     height: "70%",
-    backgroundColor: Colors.mainYellow,
+    backgroundColor: Colors.yellow300,
     borderRadius: 20,
     width: "100%",
     padding: 10,
@@ -153,12 +194,7 @@ const styles = StyleSheet.create({
   footerContainer: {
     padding: 5,
     flexDirection: "row",
-
     justifyContent: "space-between",
-  },
-  listContainer: {
-    height: "80%",
-    width: "100%",
   },
   footerText: {
     fontFamily: "Cafe24Ssurrondair",
