@@ -11,8 +11,8 @@ const UnityWebView = forwardRef(({ onLoadEnd }, ref) => {
   return (
     <WebView
       ref={ref}
-      // source={{ uri: "https://kgs9843.github.io/HaruniWebView/" }}
-      source={{ uri: "http://192.168.25.17:8000/" }}
+      source={{ uri: "https://kgs9843.github.io/HaruniWebView/" }}
+      //source={{ uri: "http://192.168.25.17:8000/" }}
       onLoadEnd={handleLoadEnd} // 로딩 완료 시 호출될 함수
       originWhitelist={["*"]} // 모든 도메인 허용
       mixedContentMode="always" // HTTP, HTTPS 둘 다 허

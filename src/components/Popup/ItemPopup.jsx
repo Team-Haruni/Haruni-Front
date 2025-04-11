@@ -34,7 +34,7 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
     }
   }, []);
 
-  const [lockStartPlane, setLockStartPlane] = useState(2); //레벨에 따라 다르게 변경
+  const [lockStartPlane, setLockStartPlane] = useState(3); //레벨에 따라 다르게 변경
 
   /*장난감*/
   const structureImages = useSelector(

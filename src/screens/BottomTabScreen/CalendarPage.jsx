@@ -16,32 +16,10 @@ import { useSelector } from "react-redux";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 
-const diaryData = {
-  "2025-04-01": {
-    emoji: "🍻",
-    place: "더 현대 백화점",
-    images: [
-      require("../../../assets/calendar/1.png"),
-      require("../../../assets/calendar/2.png"),
-      require("../../../assets/calendar/3.png"),
-      require("../../../assets/calendar/4.png"),
-    ],
-    text: "시원한 맥주는 무더운 여름날 갈증을 해소해 주며, 깊고 풍부한 맛이 입안을 감싸는 기분 좋은 경험을 선사한다. 톡 쏘는 청량감과 함께 부드러운 목 넘김이 어우러져 많은 사람들이 즐겨 찾는 음료 중 하나이다. 이렇게 맛있는 맥주는 다양한 안주와도 훌륭하게 어울리며, 여유로운 시간이나 특별한 자리에서 더욱 빛을 발한다. 이상, 맥주에 대한 간략한 요약 끝!",
-  },
-  "2025-04-02": {
-    emoji: "🍜",
-    place: "신라면 건면",
-    images: [
-      require("../../../assets/calendar/1.png"),
-      require("../../../assets/calendar/2.png"),
-    ],
-    text: "시원한 맥주는 무더운 여름날 갈증을 해소해 주며, 깊고 풍부한 맛이 입안을 감싸는 기분 좋은 경험을 선사한다. 톡 쏘는 청량감과 함께 부드러운 목 넘김이 어우러져 많은 사람들이 즐겨 찾는 음료 중 하나이다. 이렇게 맛있는 맥주는 다양한 안주와도 훌륭하게 어울리며, 여유로운 시간이나 특별한 자리에서 더욱 빛을 발한다. 이상, 맥주에 대한 간략한 요약 끝!",
-  },
-};
-
 const CalendarPage = () => {
   const characterVersion = useSelector((state) => state.exp.characterVersion);
   const nickname = useSelector((state) => state.exp.nickname);
+  const diaryData = useSelector((state) => state.diary.diaries);
   const fontsLoaded = useCustomFonts();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDiary, setSelectedDiary] = useState(null);
@@ -53,8 +31,8 @@ const CalendarPage = () => {
   const day = String(now.getDate()).padStart(2, "0");
   const today = `${year}-${month}-${day}`;
 
-  const openModal = (date) => {
-    setSelectedDiary(diaryData[date] || null);
+  const openModal = (diaryEntry) => {
+    setSelectedDiary(diaryEntry || null);
     setModalVisible(true);
   };
 
@@ -62,11 +40,11 @@ const CalendarPage = () => {
   const renderDay = (day) => {
     if (!day) return null;
     const dateString = day.dateString;
-    const diaryEntry = diaryData[dateString];
+    const diaryEntry = diaryData.find((entry) => entry.date === dateString);
 
     return (
       <TouchableOpacity
-        onPress={() => openModal(dateString)}
+        onPress={() => openModal(diaryEntry)}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
         <View style={{ alignItems: "center" }}>
@@ -150,24 +128,17 @@ const styles = StyleSheet.create({
     flex: 1, // 화면을 가득 채우도록 설정
   },
   topSection: {
+    marginTop: 30,
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 30,
-    flex: 1,
+    height: 150,
   },
   profileImage: {
-    width: 60,
-    height: 60,
+    width: 70,
+    height: 70,
   },
   calendar: {
-    height: 400,
-    borderRadius: 15, // 모서리 둥글게
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5, // 안드로이드 그림자 효과
+    marginTop: 20,
   },
   calendarTheme: {
     textDayFontFamily: "Cafe24Ssurrondair",
@@ -185,12 +156,12 @@ const styles = StyleSheet.create({
     textDayHeaderFontSize: 12,
   },
   imgContainer: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "white",
+    backgroundColor: Colors.myColor,
   },
   profileRow: {
     flexDirection: "column",
@@ -222,7 +193,17 @@ const styles = StyleSheet.create({
     wordWrap: "break-word",
   },
   calendarSection: {
-    flex: 3,
+    height: 400,
+    backgroundColor: "white",
+    marginTop: 15,
+    borderRadius: 15, // 모서리 둥글게
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    justifyContent: "start",
+    elevation: 5, // 안드로이드 그림자 효과
   },
 });
 

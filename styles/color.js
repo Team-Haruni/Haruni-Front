@@ -17,6 +17,7 @@ const Colors = {
   gray200: "#AEAEAE",
   gray300: "#949494",
   gray700: "#2D2D2D",
+  myColor: "#FFEBBA",
 };
 
 export default Colors;

@@ -25,6 +25,7 @@ const ListPopup = ({ visible, onClose, navigation }) => {
   const characterLevel = useSelector((state) => state.exp.level);
   const [nickname] = useState("하루니");
   useEffect(() => {
+    //추후제거
     dispatch(
       setSelectedTraits([
         "infp",
@@ -63,7 +64,7 @@ const ListPopup = ({ visible, onClose, navigation }) => {
           </View>
         </View>
         <Text style={styles.nickname}>{nickname}</Text>
-        <Text style={styles.nickname}>LV{characterLevel}</Text>
+        <Text style={styles.levelText}>LV{characterLevel}</Text>
         <View style={styles.contentContainer}>
           <Text style={styles.traitsTitle}>성격</Text>
           <View
@@ -98,10 +99,10 @@ const ListPopup = ({ visible, onClose, navigation }) => {
             <Text>아이템들 추후 백엔드 아이템 조회하는거 사용</Text>
           </View>
           <View style={styles.footerContainer}>
-            <Text style={styles.footerText}>Version 1.0.0</Text>
             <TouchableOpacity onPress={() => navigation.replace("Login")}>
-              <Text style={styles.footerText}>로그아웃</Text>
+              <Text style={styles.footerTextLogout}>Log out</Text>
             </TouchableOpacity>
+            <Text style={styles.footerText}>V1.0.0</Text>
           </View>
         </View>
       </View>
@@ -128,22 +129,16 @@ const styles = StyleSheet.create({
   imgContainer: {
     width: 100,
     height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    borderColor: Colors.gray200,
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
     marginBottom: 0,
-    backgroundColor: "white",
   },
   imgContainerOut: {
     marginTop: 50,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 2,
-    borderColor: Colors.gray200,
+    width: 100,
+    height: 100,
+
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
@@ -151,21 +146,30 @@ const styles = StyleSheet.create({
   },
   nickname: {
     marginTop: 10,
+    fontSize: 20,
+    color: "black",
+    fontFamily: "Cafe24Ssurrond",
+  },
+  levelText: {
+    marginTop: 6,
     fontSize: 15,
-    color: Colors.gray300,
+    color: "black",
     fontFamily: "Cafe24Ssurrond",
   },
   contentContainer: {
     position: "absolute",
     bottom: -5,
-    height: "70%",
-    backgroundColor: Colors.yellow300,
+    height: "75%",
+    backgroundColor: Colors.yellow100,
     borderRadius: 20,
     width: "100%",
     padding: 10,
   },
   traitsTitle: {
-    marginTop: 10,
+    borderColor: Colors.mainYellow,
+    borderTopWidth: 1,
+    marginTop: 15,
+    paddingTop: 10,
     fontSize: 18,
     fontFamily: "Cafe24Ssurrondair",
     color: Colors.gray700,
@@ -188,16 +192,23 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.pointColor,
   },
   profileImage: {
-    width: 90,
-    height: 90,
+    width: 120,
+    height: 120,
   },
   footerContainer: {
     padding: 5,
+    height: 40,
     flexDirection: "row",
     justifyContent: "space-between",
   },
   footerText: {
+    height: "100%",
     fontFamily: "Cafe24Ssurrondair",
+  },
+  footerTextLogout: {
+    fontSize: 15,
+    height: "100%",
+    fontFamily: "Cafe24Ssurrond",
   },
 });
 
