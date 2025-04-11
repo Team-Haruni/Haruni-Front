@@ -15,8 +15,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { setCharacterVersion } from "../../../redux/slices/expSlice";
 import characterData from "../../data/characterData";
 import Toast, { BaseToast } from "react-native-toast-message";
+import { sendMessageToUnity } from "../../utils/unityBridge";
 
-const LevelPopup = ({ visible, onClose }) => {
+const LevelPopup = ({ webviewRef, visible, onClose }) => {
   const dispatch = useDispatch();
 
   const characterVersion = useSelector((state) => state.exp.characterVersion);
@@ -28,6 +29,9 @@ const LevelPopup = ({ visible, onClose }) => {
 
   const versionChangeHandlePress = (version) => {
     dispatch(setCharacterVersion(version));
+    sendMessageToUnity(webviewRef, "characterVersion", {
+      action: `${version}`,
+    });
     onClose();
   };
 

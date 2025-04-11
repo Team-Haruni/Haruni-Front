@@ -49,31 +49,22 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
           <View style={{ height: "100%" }}>
             {/* Image List */}
             <View style={{ height: "auto" }}>
-              <FlatList
-                data={diary.images}
-                numColumns={2} // 2개의 컬럼으로 배치
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item, index }) => {
+              <View style={styles.imageGrid}>
+                {diary.images.map((item, index) => {
                   let imageStyle = styles.image;
 
-                  // 첫 번째 행
-                  if (index === 0) {
-                    imageStyle = { ...imageStyle, ...styles.imageTopLeft }; // 왼쪽 상단
-                  } else if (index === 1) {
-                    imageStyle = { ...imageStyle, ...styles.imageTopRight }; // 오른쪽 상단
-                  }
-
-                  // 두 번째 행
-                  if (index === 2) {
-                    imageStyle = { ...imageStyle, ...styles.imageBottomLeft }; // 왼쪽 하단
-                  } else if (index === 3) {
-                    imageStyle = { ...imageStyle, ...styles.imageBottomRight }; // 오른쪽 하단
-                  }
+                  if (index === 0)
+                    imageStyle = { ...imageStyle, ...styles.imageTopLeft };
+                  else if (index === 1)
+                    imageStyle = { ...imageStyle, ...styles.imageTopRight };
+                  else if (index === 2)
+                    imageStyle = { ...imageStyle, ...styles.imageBottomLeft };
+                  else if (index === 3)
+                    imageStyle = { ...imageStyle, ...styles.imageBottomRight };
 
                   return <Image key={index} source={item} style={imageStyle} />;
-                }}
-                contentContainerStyle={styles.imageGrid} // style -> contentContainerStyle로 변경
-              />
+                })}
+              </View>
             </View>
             {/* Diary Text */}
             <View style={styles.textContainer}>

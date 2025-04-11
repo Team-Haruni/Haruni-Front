@@ -68,6 +68,12 @@ const Message = () => {
     }
   };
 
+  // 처음 맨 아래로 스크롤
+  useEffect(() => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 50);
+  }, []);
   // 메시지가 추가될 때마다 맨 아래로 스크롤
   useEffect(() => {
     flatListRef.current?.scrollToEnd({ animated: true });

@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import CalendarPopup from "../../components/Popup/CalendarPopup";
@@ -15,77 +16,26 @@ import characterData from "../../data/characterData";
 import { useSelector } from "react-redux";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
+import { LineChart } from "react-native-gifted-charts";
+import { Dimensions } from "react-native";
 
-const diaryData = {
-  "2025-04-01": {
-    emoji: "🍻",
-    place: "더 현대 백화점",
-    images: [
-      require("../../../assets/calendar/1.png"),
-      require("../../../assets/calendar/2.png"),
-      require("../../../assets/calendar/3.png"),
-      require("../../../assets/calendar/4.png"),
-    ],
-    text: "시원한 맥주는 무더운 여름날 갈증을 해소해 주며, 깊고 풍부한 맛이 입안을 감싸는 기분 좋은 경험을 선사한다. 톡 쏘는 청량감과 함께 부드러운 목 넘김이 어우러져 많은 사람들이 즐겨 찾는 음료 중 하나이다. 이렇게 맛있는 맥주는 다양한 안주와도 훌륭하게 어울리며, 여유로운 시간이나 특별한 자리에서 더욱 빛을 발한다. 이상, 맥주에 대한 간략한 요약 끝!",
-  },
-  "2025-04-02": {
-    emoji: "🍜",
-    place: "신라면 건면",
-    images: [
-      require("../../../assets/calendar/1.png"),
-      require("../../../assets/calendar/2.png"),
-    ],
-    text: "시원한 맥주는 무더운 여름날 갈증을 해소해 주며, 깊고 풍부한 맛이 입안을 감싸는 기분 좋은 경험을 선사한다. 톡 쏘는 청량감과 함께 부드러운 목 넘김이 어우러져 많은 사람들이 즐겨 찾는 음료 중 하나이다. 이렇게 맛있는 맥주는 다양한 안주와도 훌륭하게 어울리며, 여유로운 시간이나 특별한 자리에서 더욱 빛을 발한다. 이상, 맥주에 대한 간략한 요약 끝!",
-  },
-};
+const screenWidth = Dimensions.get("window").width;
 
 const User = () => {
   const characterVersion = useSelector((state) => state.exp.characterVersion);
   const nickname = useSelector((state) => state.exp.nickname);
+  const [weekData, setWeekData] = useState(true);
   const fontsLoaded = useCustomFonts();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedDiary, setSelectedDiary] = useState(null);
 
-  //날짜설정
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const today = `${year}-${month}-${day}`;
-
-  const openModal = (date) => {
-    setSelectedDiary(diaryData[date] || null);
-    setModalVisible(true);
-  };
-
-  //이모지 커스텀
-  const renderDay = (day) => {
-    if (!day) return null;
-    const dateString = day.dateString;
-    const diaryEntry = diaryData[dateString];
-
-    return (
-      <TouchableOpacity
-        onPress={() => openModal(dateString)}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-      >
-        <View style={{ alignItems: "center" }}>
-          <Text
-            style={{
-              fontSize: 16,
-              color: dateString === today ? Colors.pointColor : "black", // 오늘 날짜면 pointColor 적용
-              fontWeight: dateString === today ? "bold" : "normal", // 오늘 날짜면 강조
-            }}
-          >
-            {day.day}
-          </Text>
-          {diaryEntry && (
-            <Text style={{ fontSize: 14 }}>{diaryEntry.emoji}</Text>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  };
+  const lineData = [
+    { value: 0, dataPointText: "😞", label: "월" },
+    { value: null, dataPointText: "", label: "화" }, //기록안한정보
+    { value: 95, dataPointText: "😁", label: "수" },
+    { value: 0, dataPointText: "😞", label: "목" },
+    { value: 95, dataPointText: "😁", label: "금" },
+    { value: 95, dataPointText: "😁", label: "토" },
+    { value: 50, dataPointText: "😐", label: "일" },
+  ];
 
   return (
     <ImageBackground
@@ -104,31 +54,119 @@ const User = () => {
                 style={styles.profileImage}
               />
             </View>
-            <View style={styles.profileRow}>
-              <Text style={styles.nickname}>{nickname}</Text>
-              <TouchableOpacity style={styles.profileEditButton}>
-                <Text style={styles.profileEditText}>프로필 편집</Text>
-              </TouchableOpacity>
+
+            <Text style={styles.nickname}>{nickname}</Text>
+          </View>
+          <View
+            style={{
+              backgroundColor: Colors.myColor,
+              borderRadius: 20,
+              padding: 10,
+              paddingTop: 20,
+              height: "auto",
+              minHeight: 200,
+              marginBottom: 30,
+              alignItems: "center",
+              justifyContent: "start",
+              borderColor: Colors.pointColor,
+              borderWidth: 1,
+            }}
+          >
+            <View style={{ width: "100%", paddingLeft: 10, marginBottom: 30 }}>
+              <Text style={{ fontFamily: "Cafe24Ssurrond", fontSize: 15 }}>
+                이번 주 감정흐름
+              </Text>
+            </View>
+            <View
+              style={{
+                width: "100%",
+                height: 200,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {weekData ? (
+                <LineChart
+                  rulesType="dashed" // "dashed" or "solid"
+                  rulesThickness={1} // 줄 두께
+                  rulesColor={Colors.pointColor} // 원하는 색으로 지정
+                  data={lineData}
+                  initialSpacing={20}
+                  spacing={40}
+                  thickness={2}
+                  width={screenWidth - 120}
+                  isAnimated
+                  areaChart
+                  height={120}
+                  animationDuration={1200}
+                  color={Colors.pointColor}
+                  dataPointsColor={Colors.pointColor}
+                  dataPointRadius={10}
+                  startFillColor={Colors.pointColor}
+                  startOpacity={0.7}
+                  endOpacity={0}
+                  maxValue={100}
+                  noOfSections={2}
+                  hideYAxisText={true} // ✅ 아예 안보이게 하기!
+                  yAxisLabelWidth={15}
+                  textShiftY={0}
+                  textShiftX={-10}
+                  xAxisColor={Colors.pointColor}
+                  yAxisColor={Colors.pointColor}
+                  yAxisLabelTexts={["Bad", "Normal", "Good"]}
+                  yAxisTextStyle={{
+                    fontFamily: "Cafe24Ssurrond",
+                    fontSize: 12,
+                    color: Colors.pointColor,
+                  }}
+                  xAxisLabelTextStyle={{
+                    fontSize: 12,
+                    color: Colors.pointColor,
+                    fontFamily: "Cafe24Ssurrond",
+                  }}
+                />
+              ) : (
+                <Text style={styles.comment}>데이터가 충분하지 않습니다</Text>
+              )}
             </View>
           </View>
+          <View
+            style={{
+              height: "auto",
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "space-between",
+            }}
+          >
+            <View style={styles.imgContainer2}>
+              <Image
+                resizeMode="resize"
+                source={characterData[characterVersion].url}
+                style={styles.profileImage2}
+              />
+            </View>
 
-          {/* 하단: 캘린더 */}
-          <View style={styles.calendarSection}>
-            <Calendar
-              style={styles.calendar}
-              theme={styles.calendarTheme}
-              dayComponent={({ date, state }) => renderDay(date)}
-              monthFormat={"yyyy년 MM월"}
-              hideExtraDays
-            />
+            <View style={styles.commentContainer}>
+              <View style={styles.bubbleTailOuter} />
+              <View style={styles.bubbleTailInner} />
+              <ScrollView>
+                {weekData ? (
+                  <Text style={styles.comment}>
+                    음음 생각보다 별로네요..음음 생각보다 별로네요.. 음음
+                    생각보다 별로네요.. 음음 생각보다 별로네요.. 음음 생각보다
+                    별로네요.. 음음 생각보다 별로네요.. 음음 생각보다 별로네요..
+                    음음 생각보다 별로네요.. 음음 생각보다 별로네요.. 음음
+                    생각보다 별로네요.. 음음 생각보다 별로네요.. 음음 생각보다
+                    별로네요.. 음음 생각보다 별로네요..
+                  </Text>
+                ) : (
+                  <Text style={styles.comment}>
+                    나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!
+                  </Text>
+                )}
+              </ScrollView>
+            </View>
           </View>
-
-          {/* Diary Modal 컴포넌트 사용 */}
-          <CalendarPopup
-            visible={modalVisible}
-            onClose={() => setModalVisible(false)}
-            diary={selectedDiary}
-          />
         </View>
       </SafeAreaView>
     </ImageBackground>
@@ -143,86 +181,99 @@ const styles = StyleSheet.create({
   },
   container: {
     margin: 20,
-    borderRadius: 20,
+    flexDirection: "column",
     flex: 1,
   },
   background: {
     flex: 1, // 화면을 가득 채우도록 설정
   },
   topSection: {
-    flexDirection: "row",
+    height: 150,
+    flexDirection: "column",
     alignItems: "center",
-    marginTop: 30,
-    flex: 1,
+    marginTop: 10,
+    marginBottom: 50,
   },
   profileImage: {
-    width: 60,
-    height: 60,
+    width: 100,
+    height: 100,
   },
-  calendar: {
-    height: 400,
-    borderRadius: 15, // 모서리 둥글게
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5, // 안드로이드 그림자 효과
-  },
-  calendarTheme: {
-    textDayFontFamily: "Cafe24Ssurrondair",
-    textMonthFontFamily: "Cafe24Ssurrondair",
-    textDayHeaderFontFamily: "Cafe24Ssurrondair",
-    calendarBackground: "white",
-    textSectionTitleColor: Colors.gray100,
-    todayTextColor: Colors.pointColor,
-    dayTextColor: "black",
-    textDisabledColor: "lightgray",
-    arrowColor: Colors.yellow700,
-    monthTextColor: "black",
-    textDayFontSize: 16,
-    textMonthFontSize: 18,
-    textDayHeaderFontSize: 12,
-  },
+
   imgContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.myColor,
+  },
+  imgContainer2: {
     width: 70,
     height: 70,
     borderRadius: 35,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "white",
+    borderColor: Colors.pointColor,
+    borderWidth: 1,
+    backgroundColor: Colors.myColor,
   },
-  profileRow: {
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "flex-start",
-    marginLeft: 20,
-    gap: 12,
+  profileImage2: {
+    width: 70,
+    height: 70,
   },
+
   nickname: {
+    marginTop: 15,
     fontSize: 20,
     color: "black",
-    fontFamily: "Cafe24Ssurrondair",
+    fontFamily: "Cafe24Ssurrond",
 
     lineHeight: 22,
     wordWrap: "break-word",
   },
-  profileEditButton: {
-    backgroundColor: Colors.mainYellow,
-    paddingVertical: 1,
-    paddingHorizontal: 12,
-    borderRadius: 16,
+
+  commentContainer: {
+    height: 120,
+    width: "75%",
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: Colors.myColor,
+    borderColor: Colors.pointColor,
+    borderWidth: 2,
+
+    zIndex: 1,
   },
-  profileEditText: {
-    textAlign: "center",
-    color: Colors.yellow700,
-    fontSize: 12,
+  comment: {
     fontFamily: "Cafe24Ssurrondair",
-    lineHeight: 28,
-    wordWrap: "break-word",
   },
-  calendarSection: {
-    flex: 3,
+  bubbleTailOuter: {
+    position: "absolute",
+    top: 20,
+    left: -14, // 테두리를 위해 더 바깥
+    width: 0,
+    height: 0,
+    borderTopWidth: 12,
+    borderBottomWidth: 12,
+    borderRightWidth: 14,
+    borderTopColor: "transparent",
+    borderBottomColor: "transparent",
+    borderRightColor: Colors.pointColor, // ✅ 테두리 색
+    zIndex: -2,
+  },
+
+  bubbleTailInner: {
+    position: "absolute",
+    top: 22, // 안쪽 삼각형이 살짝 들어가게
+    left: -11,
+    width: 0,
+    height: 0,
+    borderTopWidth: 10,
+    borderBottomWidth: 10,
+    borderRightWidth: 12,
+    borderTopColor: "transparent",
+    borderBottomColor: "transparent",
+    borderRightColor: Colors.myColor, // ✅ 말풍선 본체 색
+    zIndex: -1,
   },
 });
 

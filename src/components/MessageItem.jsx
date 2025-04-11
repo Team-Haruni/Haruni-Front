@@ -28,7 +28,9 @@ const MessageItem = ({ message }) => {
 
       <View
         style={[
-          styles.messageContentContainer,
+          mine
+            ? styles.messageContentContainer
+            : styles.otherMessageContentContainer,
           loading ? styles.loadingContentContainer : "",
         ]}
       >
@@ -70,6 +72,17 @@ const styles = StyleSheet.create({
     minWidth: 50,
     maxWidth: 150,
     backgroundColor: "white",
+    minHeight: 40,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+  },
+  otherMessageContentContainer: {
+    minWidth: 50,
+    maxWidth: 150,
+    backgroundColor: Colors.myColor,
     minHeight: 40,
     display: "flex",
     flexDirection: "row",

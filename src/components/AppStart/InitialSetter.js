@@ -13,6 +13,9 @@ import {
   Text,
 } from "react-native";
 import LoadingBar from "../Loadingbar";
+import { setDiaries } from "../../../redux/slices/diarySlice";
+//추후제거
+import diaryData from "../../data/diaryData";
 
 const InitialSetter = ({ children }) => {
   const dispatch = useDispatch();
@@ -23,8 +26,9 @@ const InitialSetter = ({ children }) => {
   //레벨 초기 설정정
   useEffect(() => {
     // 백엔드에서 불러와서 초기 레벨을 설정 (예제: 1레벨로 설정)
-    dispatch(setInitialLevel(14));
-    dispatch(setInitialExp(30));
+    dispatch(setInitialLevel(28));
+    dispatch(setInitialExp(90));
+    dispatch(setDiaries(diaryData));
 
     // FCM 초기화
     initFCM();
@@ -46,13 +50,12 @@ const InitialSetter = ({ children }) => {
           <View style={styles.contentContainer}>
             <Image
               resizeMode="resize"
-              source={require("../../../assets/haruni/big.png")}
+              source={require("../../../assets/logo.png")}
               style={styles.profileImage}
             />
             <View style={styles.loadingBarContainer}>
               <LoadingBar />
             </View>
-            <Text>로딩중!!</Text>
           </View>
         </SafeAreaView>
       </ImageBackground>
@@ -78,14 +81,14 @@ const styles = StyleSheet.create({
   },
 
   profileImage: {
-    marginTop: 50,
-    width: 200,
-    height: 200,
-    marginBottom: 30,
+    marginTop: 20,
+    width: "100%",
+    height: 420,
+    marginBottom: 10,
   },
   loadingBarContainer: {
-    width: 150,
-    height: 150,
+    width: 110,
+    height: 110,
     zIndex: 3,
   },
 });

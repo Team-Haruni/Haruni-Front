@@ -15,6 +15,7 @@ import UserIcon from "./assets/user-icon.svg";
 import CalendarIcon from "./assets/calendar-icon.svg";
 import HomeIcon from "./assets//home-icon.svg";
 import MessageIcon from "./assets/message-icon.svg";
+import ChartIcon from "./assets/chart-icon.svg";
 import { View, Text, ImageBackground, StyleSheet } from "react-native";
 import { Provider } from "react-redux";
 import store from "./redux/store";
@@ -69,8 +70,8 @@ const App = () => {
                 IconComponent = CalendarIcon;
                 label = "캘린더";
               } else if (route.name === "User") {
-                IconComponent = UserIcon;
-                label = "내정보";
+                IconComponent = ChartIcon;
+                label = "그래프";
               }
               return (
                 <View
@@ -105,9 +106,9 @@ const App = () => {
             },
           })}
         >
-          <Tab.Screen name="Message" component={Message} />
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar" component={Calendar} />
+          <Tab.Screen name="Message" component={Message} />
           <Tab.Screen name="User" component={User} />
         </Tab.Navigator>
       </ImageBackground>

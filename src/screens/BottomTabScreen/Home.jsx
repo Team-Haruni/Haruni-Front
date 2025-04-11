@@ -24,6 +24,10 @@ import TouchArea from "../../components/TouchArea";
 import LevelPopup from "../../components/Popup/LevelPopup";
 import characterData from "../../data/characterData";
 import { useSelector } from "react-redux";
+import LeafIcon from "../../../assets/leaf-icon.svg";
+import Colors from "../../../styles/color";
+import { sendMessageToUnity } from "../../utils/unityBridge";
+import AuraIcon from "../../../assets/aura-icon.svg";
 
 const Home = ({ navigation }) => {
   const userName = useSelector((state) => state.exp.userName);
@@ -34,6 +38,8 @@ const Home = ({ navigation }) => {
   const [itemModalVisible, setItemModalVisible] = useState(false);
   const [listModalVisible, setListModalVisible] = useState(false);
   const [levelModalVisible, setLevelModalVisible] = useState(false);
+  const [leafEffect, setLeafEffect] = useState(false);
+  const [auraEffect, setAuraEffect] = useState(false);
 
   //케릭터관련
   const characterVersion = useSelector((state) => state.exp.characterVersion);
@@ -44,12 +50,41 @@ const Home = ({ navigation }) => {
   // // 버전 증가
   // setCharacterVersion((prev) => prev + 1);
 
+  //캐릭터 레벨에 따른 버전 증가
+  useEffect(() => {
+    if (level == 15) {
+      sendMessageToUnity(webviewRef, "characterVersion", {
+        action: `${characterVersion}`,
+      });
+    } else if (level == 30) {
+      sendMessageToUnity(webviewRef, "characterVersion", {
+        action: `${characterVersion}`,
+      });
+    }
+  }, [level]);
+
+  const changeLeafEffect = () => {
+    //설정 필요
+    sendMessageToUnity(webviewRef, "effect", { action: "leafEffect" });
+    setLeafEffect(!leafEffect);
+  };
+
+  const changeAuraEffect = () => {
+    //설정 필요
+    sendMessageToUnity(webviewRef, "effect", { action: "auraEffect" });
+    setAuraEffect(!auraEffect);
+  };
+
+  //맨처음 캐릭터 버전 설정
   const handleWebViewLoadEnd = () => {
     console.log("WebView loaded, waiting for 5 seconds...");
 
     setTimeout(() => {
       setIsLoading(false);
-    }, 5000);
+      sendMessageToUnity(webviewRef, "characterVersion", {
+        action: `${characterVersion}`,
+      });
+    }, 7000);
   };
 
   return (
@@ -64,11 +99,19 @@ const Home = ({ navigation }) => {
             <LoadingBar />
           </View>
         )}
-        <UnityWebView
-          ref={webviewRef}
-          style={styles.unityContainer}
-          onLoadEnd={handleWebViewLoadEnd}
-        />
+        <View
+          style={{
+            flex: 1,
+            opacity: isLoading ? 0 : 1,
+            pointerEvents: isLoading ? "none" : "auto",
+          }}
+        >
+          <UnityWebView
+            ref={webviewRef}
+            style={[styles.unityContainer]}
+            onLoadEnd={handleWebViewLoadEnd}
+          />
+        </View>
 
         {!isLoading && (
           <>
@@ -90,6 +133,29 @@ const Home = ({ navigation }) => {
               onPress={() => setListModalVisible(true)}
             >
               <ListIcon />
+            </TouchableOpacity>
+            {/* 나뭇잎 효과 */}
+            <TouchableOpacity
+              style={styles.leafIconContainer}
+              onPress={() => changeLeafEffect()}
+            >
+              <LeafIcon
+                style={{
+                  color: leafEffect ? Colors.yellow600 : Colors.yellow400,
+                }}
+              />
+            </TouchableOpacity>
+
+            {/* 아우라 효과 */}
+            <TouchableOpacity
+              style={styles.auraIconContainer}
+              onPress={() => changeAuraEffect()}
+            >
+              <AuraIcon
+                style={{
+                  color: auraEffect ? Colors.yellow600 : Colors.yellow400,
+                }}
+              />
             </TouchableOpacity>
 
             {/*리스트 팝업 컴포넌트 */}
@@ -113,6 +179,7 @@ const Home = ({ navigation }) => {
 
             {/*레벨벨 팝업 컴포넌트 */}
             <LevelPopup
+              webviewRef={webviewRef}
               visible={levelModalVisible}
               onClose={() => setLevelModalVisible(false)}
             />
@@ -183,6 +250,18 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 20,
     top: 30,
+    zIndex: 2,
+  },
+  auraIconContainer: {
+    position: "absolute",
+    left: 15,
+    top: 125,
+    zIndex: 2,
+  },
+  leafIconContainer: {
+    position: "absolute",
+    left: 20,
+    top: 80,
     zIndex: 2,
   },
   levelContainer: {

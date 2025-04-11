@@ -6,6 +6,7 @@ import expReducer from "./slices/expSlice";
 import planeReducer from "./slices/planeSlice";
 import appStartLoadingReducer from "./slices/appStartLoadingSlice";
 import hobbyReducer from "./slices/hobbySlice";
+import diaryReducer from "./slices/diarySlice";
 
 const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ const store = configureStore({
     exp: expReducer,
     loading: appStartLoadingReducer,
     hobby: hobbyReducer,
+    diary: diaryReducer,
   },
 });
 
