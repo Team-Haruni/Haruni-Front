@@ -6,39 +6,46 @@ import CustomButton from "../../components/CustomButton";
 import BackIcon from "../../../assets/back-icon.svg";
 import ErrorMessage from "../../components/ErrorMessage";
 import TimePicker from "../../components/TimePicker";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setPeriod,
+  setHour,
+  setMinutes,
+} from "../../../redux/slices/alarmSlice";
 
 const AM_PM = ["오전", "오후"];
 const HOURS = Array.from({ length: 12 }, (_, i) => (i + 1).toString()); // 1~12시
 const MINUTES = Array.from({ length: 60 }, (_, i) => i.toString()); // 1~60분
 
 const SignupPage7 = ({ setAlertDate, handleSignup, handleBack }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState(); // "오전" or "오후"
-  const [selectedHour, setSelectedHour] = useState(); // "1" ~ "12"
-  const [selectedMinutes, setSelectedMinutes] = useState(); // "0" ~ "59"
+  const dispatch = useDispatch();
+  const period = useSelector((state) => state.alarm.period);
+  const hour = useSelector((state) => state.alarm.hour);
+  const minutes = useSelector((state) => state.alarm.minutes);
   const fontsLoaded = useCustomFonts();
 
   useEffect(() => {
-    setSelectedPeriod(AM_PM[0]);
-    setSelectedHour(HOURS[0]);
-    setSelectedMinutes(MINUTES[0]);
+    dispatch(setPeriod(AM_PM[0]));
+    dispatch(setHour(HOURS[0]));
+    dispatch(setMinutes(MINUTES[0]));
   }, []);
 
   const handleSubmit = () => {
-    let hour = parseInt(selectedHour, 10);
+    let selectedHour = parseInt(hour, 10);
 
     // "오후"일 때 12 더하고, 12시는 그대로 유지
-    if (selectedPeriod === "오후" && hour !== 12) {
-      hour += 12;
+    if (period === "오후" && selectedHour !== 12) {
+      selectedHour += 12;
     }
 
     // "오전"일 때 12시는 0시로 변경
-    if (selectedPeriod === "오전" && hour === 12) {
-      hour = 0;
+    if (period === "오전" && selectedHour === 12) {
+      selectedHour = 0;
     }
 
-    const formattedTime = `${hour
+    const formattedTime = `${selectedHour
       .toString()
-      .padStart(2, "0")}:${selectedMinutes.padStart(2, "0")}`;
+      .padStart(2, "0")}:${minutes.padStart(2, "0")}`;
 
     setAlertDate(formattedTime);
     handleSignup();
@@ -52,14 +59,7 @@ const SignupPage7 = ({ setAlertDate, handleSignup, handleBack }) => {
       <View style={styles.contentContainer}>
         <Text style={styles.title}>알림 시간을 설정해 주세요</Text>
         <View style={styles.dateContainer}>
-          <TimePicker
-            AM_PM={AM_PM}
-            HOURS={HOURS}
-            MINUTES={MINUTES}
-            setSelectedPeriod={setSelectedPeriod}
-            setSelectedHour={setSelectedHour}
-            setSelectedMinutes={setSelectedMinutes}
-          />
+          <TimePicker AM_PM={AM_PM} HOURS={HOURS} MINUTES={MINUTES} />
         </View>
       </View>
       <View style={styles.buttonContainer}>

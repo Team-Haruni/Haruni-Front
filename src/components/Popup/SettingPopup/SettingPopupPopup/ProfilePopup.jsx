@@ -8,7 +8,7 @@ import {
   StyleSheet,
   ImageBackground,
 } from "react-native";
-import PopupNavBar from "../../PoupNavBar";
+import PopupNavBar from "../../PopupNavBar";
 import useCustomFonts from "../../../../hooks/useCustomFonts";
 import Colors from "../../../../../styles/color";
 
@@ -47,30 +47,43 @@ const ProfilePopup = ({ visible, onClose }) => {
   if (!fontsLoaded) return null;
 
   return (
-    <Modal animationType="fade" presentationStyle="fullScreen" visible={visible} onRequestClose={onClose}>
-      <ImageBackground source={require("../../../../../assets/background.png")} style={{ flex: 1 }} resizeMode="cover">
+    <Modal
+      animationType="fade"
+      presentationStyle="fullScreen"
+      visible={visible}
+      onRequestClose={onClose}
+    >
+      <ImageBackground
+        source={require("../../../../../assets/background.png")}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
         <View style={styles.modalOverlay}>
-        <PopupNavBar onClose={onClose} text="계정 정보" />
+          <PopupNavBar onClose={onClose} text="계정 정보" />
 
           <View style={styles.modalContent}>
             <View style={{ alignItems: "center", marginVertical: 20 }}>
               <View style={styles.profile} />
               <View style={styles.nicknameRow}>
                 <TextInput
-                    style={styles.nickname}
-                    value={nickname}
-                    onChangeText={setNickname}
-                    editable={isEditingNickname}
-                    textAlign="center"
-                  />
-                  <TouchableOpacity onPress={() => setIsEditingNickname(true)}>
-                    <Text style={styles.editText}>수정</Text>
-                  </TouchableOpacity>
-                </View>
+                  style={styles.nickname}
+                  value={nickname}
+                  onChangeText={setNickname}
+                  editable={isEditingNickname}
+                  textAlign="center"
+                />
+                <TouchableOpacity onPress={() => setIsEditingNickname(true)}>
+                  <Text style={styles.editText}>수정</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <Text style={styles.sectionLabel}>아이디 변경</Text>
-            <TextInput style={styles.input} value={email} onChangeText={setEmail} />
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+            />
 
             <Text style={styles.sectionLabel}>비밀번호 변경</Text>
             <Text style={styles.sectionLabel_small}>현재 비밀번호</Text>
@@ -81,7 +94,7 @@ const ProfilePopup = ({ visible, onClose }) => {
               secureTextEntry
               value={currentPw}
               onChangeText={setCurrentPw}
-            />            
+            />
             <Text style={styles.sectionLabel_small}>새 비밀번호</Text>
             <TextInput
               style={styles.input}
@@ -101,7 +114,7 @@ const ProfilePopup = ({ visible, onClose }) => {
             />
           </View>
 
-          <View style={{marginBottom: 20, paddingHorizontal: 20}}>
+          <View style={{ marginBottom: 20, paddingHorizontal: 20 }}>
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveText}>저장</Text>
             </TouchableOpacity>
@@ -111,20 +124,29 @@ const ProfilePopup = ({ visible, onClose }) => {
             </TouchableOpacity>
           </View>
 
-
           {/* 회원탈퇴 확인 팝업 */}
           {showConfirmPopup && (
             <View style={styles.popupOverlay}>
               <View style={styles.popup}>
                 <Text style={styles.popupTitle}>탈퇴하시겠어요?</Text>
-                <Text style={styles.popupcontext}>탈퇴할 경우 이전 아이템 및 호감도 복원이</Text>
-                <Text style={styles.popupcontext}>불가능 합니다. 진행하시겠습니까?</Text>
+                <Text style={styles.popupcontext}>
+                  탈퇴할 경우 이전 아이템 및 호감도 복원이
+                </Text>
+                <Text style={styles.popupcontext}>
+                  불가능 합니다. 진행하시겠습니까?
+                </Text>
                 <View style={styles.popupButtons}>
-                  <TouchableOpacity style={styles.popupButtonDetail} onPress={cancelWithdraw}>
+                  <TouchableOpacity
+                    style={styles.popupButtonDetail}
+                    onPress={cancelWithdraw}
+                  >
                     <Text style={styles.cancelText}>취소</Text>
                   </TouchableOpacity>
                   <View style={styles.buttonDivider} />
-                  <TouchableOpacity style={styles.popupButtonDetail} onPress={confirmWithdraw}>
+                  <TouchableOpacity
+                    style={styles.popupButtonDetail}
+                    onPress={confirmWithdraw}
+                  >
                     <Text style={styles.cancelText}>확인</Text>
                   </TouchableOpacity>
                 </View>
@@ -218,7 +240,7 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 14,
     fontFamily: "Cafe24Ssurrondair",
-    textDecorationLine: "underline", 
+    textDecorationLine: "underline",
   },
   popupOverlay: {
     position: "absolute",
@@ -241,7 +263,7 @@ const styles = StyleSheet.create({
   popupTitle: {
     fontSize: 14,
     fontFamily: "Cafe24Ssurrondair",
-    color: Colors.yellow700, 
+    color: Colors.yellow700,
     marginTop: 15,
     marginBottom: 18,
   },
@@ -274,7 +296,7 @@ const styles = StyleSheet.create({
     fontFamily: "Cafe24Ssurrondair",
     fontSize: 16,
     color: Colors.yellow400,
-  },  
+  },
 });
 
 export default ProfilePopup;

@@ -9,7 +9,7 @@ import {
   ImageBackground,
 } from "react-native";
 import Colors from "../../../../../styles/color";
-import PopupNavBar from "../../PoupNavBar";
+import PopupNavBar from "../../PopupNavBar";
 import useCustomFonts from "../../../../hooks/useCustomFonts";
 
 const PromptPopup = ({ visible, onClose }) => {
@@ -29,7 +29,12 @@ const PromptPopup = ({ visible, onClose }) => {
   };
 
   return (
-    <Modal animationType="fade" presentationStyle="fullScreen" visible={visible} onRequestClose={onClose}>
+    <Modal
+      animationType="fade"
+      presentationStyle="fullScreen"
+      visible={visible}
+      onRequestClose={onClose}
+    >
       <ImageBackground
         source={require("../../../../../assets/background.png")}
         style={{ flex: 1 }}
@@ -51,7 +56,10 @@ const PromptPopup = ({ visible, onClose }) => {
           </View>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.tempButton} onPress={handleTempSave}>
+            <TouchableOpacity
+              style={styles.tempButton}
+              onPress={handleTempSave}
+            >
               <Text style={styles.tempButtonText}>임시저장</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>

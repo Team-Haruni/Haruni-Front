@@ -1,19 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Modal,
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
 } from "react-native";
+import Modal from "react-native-modal";
 import Colors from "../../../../../styles/color";
-import WheelPicker from "react-native-wheely"; 
-import { useDispatch } from "react-redux";
-import { setAlarmTime } from "../../../../../redux/slices/alaramSlice";
-import { useEffect } from "react";
-
-
+import { useDispatch, useSelector } from "react-redux";
+import { setAlarmTime } from "../../../../../redux/slices/alarmSlice";
+import TimePicker from "../../../../components/TimePicker";
+import {
+  setPeriod,
+  setHour,
+  setMinutes,
+} from "../../../../../redux/slices/alarmSlice";
 
 const { width } = Dimensions.get("window");
 
@@ -22,83 +24,52 @@ const NoticePopup = ({ visible, onClose }) => {
 
   const meridiemOptions = ["오전", "오후"];
   const hourOptions = Array.from({ length: 12 }, (_, i) => `${i + 1}`);
-  const minuteOptions = Array.from({ length: 60 }, (_, i) => i < 10 ? `0${i}` : `${i}`);
+  const minuteOptions = Array.from({ length: 60 }, (_, i) =>
+    i < 10 ? `0${i}` : `${i}`
+  );
 
-  const [meridiemIndex, setMeridiemIndex] = useState(0);
-  const [hourIndex, setHourIndex] = useState(9);
-  const [minuteIndex, setMinuteIndex] = useState(0);
+  const selectedPeriod = useSelector((state) => state.alarm.period);
+  const selectedHour = useSelector((state) => state.alarm.hour);
+  const selectedMinutes = useSelector((state) => state.alarm.minutes);
 
   const handleConfirm = () => {
-    const meridiem = meridiemOptions[meridiemIndex];
-    const hour = parseInt(hourOptions[hourIndex]);
-    const minute = parseInt(minuteOptions[minuteIndex]);
-    dispatch(setAlarmTime({ meridiem, hour, minute }));
+    dispatch(setPeriod(selectedPeriod));
+    dispatch(setHour(selectedHour));
+    dispatch(setMinutes(selectedMinutes));
+    //나중에 api 추가
     onClose();
   };
 
-  useEffect(() => {
-    if (visible) {
-      const now = new Date();
-      const hour24 = now.getHours();
-      const minute = now.getMinutes();
-  
-      setMeridiemIndex(hour24 < 12 ? 0 : 1);
-      setHourIndex(hour24 % 12 === 0 ? 11 : (hour24 % 12) - 1);
-      setMinuteIndex(minute);
-    }
-  }, [visible]);
-  
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
+    <Modal
+      isVisible={visible}
+      animationIn="fadeIn"
+      animationOut="fadeOut"
+      backdropOpacity={0.3}
+      animationInTiming={400} // 나타나는 속도 (ms)
+      animationOutTiming={400} // 사라지는 속도 (ms)
+      onBackdropPress={onClose}
+    >
+      <View style={styles.wrapper}>
         <View style={styles.modal}>
           <Text style={styles.title}>알람 시간을 설정해주세요.</Text>
-          <View style={styles.line} />
-
-          <View style={styles.pickerRow}>
-
-            <WheelPicker
-              selectedIndex={meridiemIndex}
-              options={meridiemOptions}
-              onChange={setMeridiemIndex}
-              containerStyle={styles.picker}
-              itemHeight={44}
-              visibleRest={1}
-              renderItem={(option) => (
-                <Text style={styles.itemText}>{option}</Text>
-              )}              selectedIndicatorStyle={styles.selectedIndicator}
+          <View style={styles.timeContainer}>
+            <TimePicker
+              AM_PM={meridiemOptions}
+              HOURS={hourOptions}
+              MINUTES={minuteOptions}
             />
-
-            <WheelPicker
-              selectedIndex={hourIndex}
-              options={hourOptions}
-              onChange={setHourIndex}
-              containerStyle={styles.picker}
-              itemHeight={44}
-              visibleRest={1}
-              renderItem={(option) => (
-                <Text style={styles.itemText}>{option}</Text>
-              )}              selectedIndicatorStyle={styles.selectedIndicator}
-            />
-
-            <WheelPicker
-              selectedIndex={minuteIndex}
-              options={minuteOptions}
-              onChange={setMinuteIndex}
-              containerStyle={styles.picker}
-              itemHeight={44}
-              visibleRest={1}
-              renderItem={(option) => (
-                <Text style={styles.itemText}>{option}</Text>
-              )}              
-              selectedIndicatorStyle={styles.selectedIndicator}
-            />
-
           </View>
-          <View style={styles.lineBottom} />
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={onClose} style={{ flex: 1 }}>
+            <TouchableOpacity
+              onPress={onClose}
+              style={{
+                flex: 1,
+                borderRightWidth: 1,
+                borderColor: Colors.yellow400,
+              }}
+            >
               <Text style={styles.button}>취소</Text>
             </TouchableOpacity>
             <View style={styles.buttonDivider} />
@@ -106,7 +77,6 @@ const NoticePopup = ({ visible, onClose }) => {
               <Text style={styles.button}>확인</Text>
             </TouchableOpacity>
           </View>
-
         </View>
       </View>
     </Modal>
@@ -116,19 +86,20 @@ const NoticePopup = ({ visible, onClose }) => {
 export default NoticePopup;
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+  wrapper: {
     justifyContent: "center",
     alignItems: "center",
+    flex: 1,
   },
   modal: {
     width: width * 0.85,
-    backgroundColor: "#fff",
+    backgroundColor: "white",
     borderRadius: 20,
     paddingTop: 20,
     paddingBottom: 0,
     alignItems: "center",
+    justifyContent: "space-between",
+    height: 350,
     overflow: "hidden",
   },
   title: {
@@ -138,32 +109,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
-  pickerRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "90%",
-    paddingVertical: 10,
-    position: "relative",
+  timeContainer: {
+    height: 150,
   },
-  picker: {
-    width: 60,
-    height: 130, 
-  },
-  itemText: {
-    fontSize: 30,         
-    color: "#82754F",
-    textAlign: "center",
-    height: 28,           
-    lineHeight: 28,       
-    paddingVertical: 10,
-
-  },
-  selectedIndicator: {
-    backgroundColor: "transparent",
-  },  
   buttonContainer: {
+    marginTop: 20,
+    marginBottom: 20,
     flexDirection: "row",
-    borderColor: "#eee",
     width: "100%",
     height: 50,
   },
@@ -174,33 +126,5 @@ const styles = StyleSheet.create({
     color: Colors.yellow400,
     textAlign: "center",
     lineHeight: 50,
-  },
-  buttonDivider: {
-    width: 1,
-    marginVertical: 13,
-    backgroundColor: Colors.yellow400,
-  },
-  line: {
-    paddingHorizontal: 20,
-    position: "absolute",
-    top: "50%",
-    left: 45,
-    right: 45,
-    height: 3,
-    borderRadius: 20,
-    backgroundColor: Colors.pointColor,
-    zIndex: 10,
-    transform: [{ translateY: -5 }],
-  },
-  lineBottom: {
-    position: "absolute",
-    top: "50%",
-    left: 45,
-    right: 45,
-    height: 3,
-    borderRadius: 20,
-    backgroundColor: Colors.pointColor,
-    zIndex: 10,
-    transform: [{ translateY: 40 }],
   },
 });

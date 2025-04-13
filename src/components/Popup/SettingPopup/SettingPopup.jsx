@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ImageBackground,
 } from "react-native";
-import PopupNavBar from "../PoupNavBar";
+import PopupNavBar from "../PopupNavBar";
 import useCustomFonts from "../../../hooks/useCustomFonts";
 import Colors from "../../../../styles/color";
 import RightArrowIcon from "../../../../assets/rightArrow-icon.svg";
@@ -99,7 +99,7 @@ const SettingPopup = ({ visible, onClose }) => {
         <PromptPopup
           visible={promptModalVisible}
           onClose={() => setPromptModalVisible(false)}
-          />
+        />
         {/*알림 팝업 컴포넌트 */}
         <NoticePopup
           visible={noticeModalVisible}

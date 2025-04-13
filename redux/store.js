@@ -7,7 +7,7 @@ import planeReducer from "./slices/planeSlice";
 import appStartLoadingReducer from "./slices/appStartLoadingSlice";
 import hobbyReducer from "./slices/hobbySlice";
 import diaryReducer from "./slices/diarySlice";
-import alarmReducer from './slices/alaramSlice';
+import alarmReducer from "./slices/alarmSlice";
 
 const store = configureStore({
   reducer: {

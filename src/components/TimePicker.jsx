@@ -3,15 +3,11 @@ import { View, Text, StyleSheet } from "react-native";
 import Colors from "../../styles/color";
 import WheelPickerExpo from "react-native-wheel-picker-expo";
 import useCustomFonts from "../hooks/useCustomFonts";
+import { setPeriod, setHour, setMinutes } from "../../redux/slices/alarmSlice";
+import { useDispatch } from "react-redux";
 
-const TimePicker = ({
-  AM_PM,
-  HOURS,
-  MINUTES,
-  setSelectedPeriod,
-  setSelectedHour,
-  setSelectedMinutes,
-}) => {
+const TimePicker = ({ AM_PM, HOURS, MINUTES }) => {
+  const dispatch = useDispatch();
   const fontsLoaded = useCustomFonts();
   return (
     <View style={styles.container}>
@@ -21,7 +17,7 @@ const TimePicker = ({
           height={200}
           width={100}
           items={AM_PM.map((period) => ({ label: period, value: period }))}
-          onChange={({ item }) => setSelectedPeriod(item.value)}
+          onChange={({ item }) => dispatch(setPeriod(item.value))}
           initialSelectedIndex={0}
           renderItem={(item) => (
             <Text
@@ -43,7 +39,7 @@ const TimePicker = ({
           height={200}
           width={100}
           items={HOURS.map((hour) => ({ label: hour, value: hour }))}
-          onChange={({ item }) => setSelectedHour(item.value)}
+          onChange={({ item }) => dispatch(setHour(item.value))}
           initialSelectedIndex={0}
           renderItem={(item) => (
             <Text
@@ -64,7 +60,7 @@ const TimePicker = ({
           height={200}
           width={100}
           items={MINUTES.map((hour) => ({ label: hour, value: hour }))}
-          onChange={({ item }) => setSelectedMinutes(item.value)}
+          onChange={({ item }) => dispatch(setMinutes(item.value))}
           initialSelectedIndex={0}
           renderItem={(item) => (
             <Text
