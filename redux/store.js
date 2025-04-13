@@ -7,6 +7,7 @@ import planeReducer from "./slices/planeSlice";
 import appStartLoadingReducer from "./slices/appStartLoadingSlice";
 import hobbyReducer from "./slices/hobbySlice";
 import diaryReducer from "./slices/diarySlice";
+import alarmReducer from './slices/alaramSlice';
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     loading: appStartLoadingReducer,
     hobby: hobbyReducer,
     diary: diaryReducer,
+    alarm: alarmReducer,
   },
 });
 

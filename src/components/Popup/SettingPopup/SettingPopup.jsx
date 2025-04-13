@@ -98,8 +98,8 @@ const SettingPopup = ({ visible, onClose }) => {
         {/*프롬프트 팝업 컴포넌트 */}
         <PromptPopup
           visible={promptModalVisible}
-          onClose={() => setProfileModalVisible(false)}
-        />
+          onClose={() => setPromptModalVisible(false)}
+          />
         {/*알림 팝업 컴포넌트 */}
         <NoticePopup
           visible={noticeModalVisible}
