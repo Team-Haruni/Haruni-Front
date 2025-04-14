@@ -1,68 +1,117 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   Modal,
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
+  FlatList,
   ImageBackground,
 } from "react-native";
 import Colors from "../../../../../styles/color";
 import PopupNavBar from "../../PopupNavBar";
 import useCustomFonts from "../../../../hooks/useCustomFonts";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  toggleTrait,
+  resetTraits, // 프롬프트 초기화 -> api 연동 시 수정
+  setTraits, // 프롬프트 초기화 -> api 연동 시 수정
+} from "../../../../../redux/slices/hobbySlice";
+import characterHobby from "../../../../data/characterHobby";
 
 const PromptPopup = ({ visible, onClose }) => {
   const fontsLoaded = useCustomFonts();
-  const [promptText, setPromptText] = useState("");
+  const dispatch = useDispatch();
+  const { traits, selectedTraits } = useSelector((state) => state.hobby);
 
   if (!fontsLoaded) return null;
 
-  const handleTempSave = () => {
-    console.log("임시 저장됨:", promptText);
-    onClose();
+  const handleSave = () => {
+    onClose(selectedTraits);
   };
 
-  const handleSave = () => {
-    console.log("저장됨:", promptText);
-    onClose();
-  };
+  // 프롬프트 초기화 코드 - api 연동할때 수정
+  useEffect(() => {
+    if (visible) {
+      const getRandomTraits = (traits, count) => {
+        const mbtiTraits = traits.slice(0, 16);
+        const otherTraits = traits.slice(16);
+        const shuffledOthers = otherTraits
+          .sort(() => 0.5 - Math.random())
+          .slice(0, count - mbtiTraits.length);
+        return [...mbtiTraits, ...shuffledOthers].sort(
+          () => 0.5 - Math.random()
+        );
+      };
+
+      dispatch(resetTraits());
+      dispatch(setTraits(getRandomTraits(characterHobby, 60)));
+    }
+  }, [visible]);
 
   return (
     <Modal
       animationType="fade"
       presentationStyle="fullScreen"
       visible={visible}
-      onRequestClose={onClose}
     >
       <ImageBackground
         source={require("../../../../../assets/background.png")}
         style={{ flex: 1 }}
         resizeMode="cover"
       >
-        <View style={styles.modalOverlay}>
-          <PopupNavBar onClose={onClose} text="프롬프트" />
+        <View style={{ paddingHorizontal: 20 }}>
+          <PopupNavBar
+            text="프롬프트"
+            onClose={() => onClose(selectedTraits)}
+          />
+        </View>
 
-          <View style={styles.modalContent}>
-            <TextInput
-              style={styles.textArea}
-              multiline
-              placeholder="내용을 작성해주세요."
-              placeholderTextColor={Colors.yellow400}
-              value={promptText}
-              onChangeText={setPromptText}
-              textAlignVertical="top"
-            />
+        <View style={styles.container}>
+          <View style={styles.contentContainer}>
+            <Text style={styles.title}>
+              캐릭터의 성격을 설정해 주세요{" "}
+              <Text style={styles.counter}>({selectedTraits.length}/9)</Text>
+            </Text>
+            <View style={styles.promptContainer}>
+              <FlatList
+                style={styles.listContainer}
+                data={traits}
+                numColumns={4}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.traitButton,
+                      selectedTraits.includes(item.text) &&
+                        styles.traitButtonSelected,
+                    ]}
+                    onPress={() => dispatch(toggleTrait(item.text))}
+                  >
+                    <Text
+                      style={[
+                        styles.traitText,
+                        selectedTraits.includes(item.text) &&
+                          styles.traitTextSelected,
+                      ]}
+                    >
+                      {item.text}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
           </View>
 
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={styles.tempButton}
-              onPress={handleTempSave}
+              style={[
+                styles.saveButton,
+                selectedTraits.length < 9 && { opacity: 0.4 },
+              ]}
+              onPress={handleSave}
+              disabled={selectedTraits.length < 9}
             >
-              <Text style={styles.tempButtonText}>임시저장</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>저장하기</Text>
             </TouchableOpacity>
           </View>
@@ -71,53 +120,54 @@ const PromptPopup = ({ visible, onClose }) => {
     </Modal>
   );
 };
-
 const styles = StyleSheet.create({
-  modalOverlay: {
+  container: {
     flex: 1,
-    justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingBottom: 30,
-  },
-  modalContent: {
-    flex: 1,
-    marginTop: 20,
-  },
-  textArea: {
     width: "100%",
-    height: 271,
-    backgroundColor: "#FFFBF0",
-    borderRadius: 20,
-    padding: 20,
-    fontSize: 16,
+    height: "100%",
+    justifyContent: "start",
+    alignItems: "center",
+    paddingVertical: 30,
+  },
+  promptContainer: {
+    width: "100%",
+    height: "85%",
+    justifyContent: "start",
+    alignItems: "center",
+    paddingVertical: 20,
+    paddingHorizontal: 8,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+  },
+  listContainer: {
+    height: "80%",
+    width: "100%",
+  },
+  contentContainer: {
+    width: "100%",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+  },
+  title: {
     fontFamily: "Cafe24Ssurrondair",
-    color: "#030303",
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  counter: {
+    fontFamily: "Cafe24Ssurrondair",
+    fontSize: 17,
   },
   buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-    bottom: 26,
-  },
-  tempButton: {
-    flex: 1,
-    height: 56,
-    backgroundColor: "#FFFBF0",
-    paddingVertical: 15,
-    borderRadius: 12,
+    width: "100%",
     alignItems: "center",
-    justifyContent: "center",
-  },
-  tempButtonText: {
-    fontSize: 16,
-    color: Colors.yellow400,
-    fontFamily: "Cafe24Ssurrondair",
+    marginTop: 20,
+    paddingBottom: 20,
   },
   saveButton: {
-    flex: 1,
-    height: 56,
     backgroundColor: Colors.pointColor,
-    paddingVertical: 15,
+    width: "100%",
+    height: 56,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -127,7 +177,25 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontFamily: "Cafe24Ssurrondair",
   },
+  traitButton: {
+    flex: 1,
+    margin: 5,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: Colors.pointColor,
+    borderRadius: 8,
+  },
+  traitButtonSelected: {
+    backgroundColor: Colors.pointColor,
+  },
+  traitText: {
+    fontSize: 14,
+    color: Colors.pointColor,
+  },
+  traitTextSelected: {
+    color: "white",
+  },
 });
 
 export default PromptPopup;
-//test
