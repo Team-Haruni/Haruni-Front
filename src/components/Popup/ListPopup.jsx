@@ -13,7 +13,7 @@ import Modal from "react-native-modal";
 import characterData from "../../data/characterData";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
-
+import ConfirmPopup from "./ConfirmPopup";
 import { setSelectedTraits } from "../../../redux/slices/hobbySlice";
 
 const { width } = Dimensions.get("window");
@@ -23,6 +23,7 @@ const ListPopup = ({ visible, onClose, navigation }) => {
   const fontsLoaded = useCustomFonts();
   const characterVersion = useSelector((state) => state.exp.characterVersion);
   const characterLevel = useSelector((state) => state.exp.level);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [nickname] = useState("하루니");
   useEffect(() => {
     //추후제거
@@ -99,13 +100,26 @@ const ListPopup = ({ visible, onClose, navigation }) => {
             <Text>아이템들 추후 백엔드 아이템 조회하는거 사용</Text>
           </View>
           <View style={styles.footerContainer}>
-            <TouchableOpacity onPress={() => navigation.replace("Login")}>
+            <TouchableOpacity onPress={() => setLogoutModalVisible(true)}>
               <Text style={styles.footerTextLogout}>Log out</Text>
             </TouchableOpacity>
             <Text style={styles.footerText}>V1.0.0</Text>
           </View>
         </View>
       </View>
+      {/*로그아웃 팝업 컴포넌트 */}
+      <ConfirmPopup
+        isVisible={logoutModalVisible}
+        title="로그아웃 하시겠어요?"
+        contextLines={[
+          "로그아웃할 경우 처음 화면으로 돌아갑니다! 진행하시겠습니까?",
+        ]}
+        onCancel={() => setLogoutModalVisible(false)}
+        onConfirm={() => {
+          setLogoutModalVisible(false);
+          navigation.replace("Login");
+        }}
+      />
     </Modal>
   );
 };

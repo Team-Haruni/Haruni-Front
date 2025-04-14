@@ -16,7 +16,7 @@ const Signup = ({ navigation }) => {
   const dispatch = useDispatch();
   const progressArray = [14, 28, 42, 57, 71, 85, 100];
   const [progress, setProgress] = useState(progressArray[0]);
-  const [currentPage, setCurrentPage] = useState(1); //1로 설정
+  const [currentPage, setCurrentPage] = useState(3); //1로 설정
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");

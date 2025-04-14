@@ -7,17 +7,17 @@ import {
   StyleSheet,
   ImageBackground,
 } from "react-native";
-import PopupNavBar from "../PoupNavBar";
+import PopupNavBar from "../PopupNavBar";
 import useCustomFonts from "../../../hooks/useCustomFonts";
 import Colors from "../../../../styles/color";
 import RightArrowIcon from "../../../../assets/rightArrow-icon.svg";
-import LogoutPopup from "./SettingPopupPopup/LogoutPopup";
 import ProfilePopup from "./SettingPopupPopup/ProfilePopup";
 import PromptPopup from "./SettingPopupPopup/PromptPopup";
 import NoticePopup from "./SettingPopupPopup/NoticePopup";
 import RequestPopup from "./SettingPopupPopup/RequestPoup";
+import ConfirmPopup from "../ConfirmPopup";
 
-const SettingPopup = ({ visible, onClose }) => {
+const SettingPopup = ({ visible, onClose, navigation }) => {
   const fontsLoaded = useCustomFonts();
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
@@ -67,7 +67,7 @@ const SettingPopup = ({ visible, onClose }) => {
               style={styles.listItem}
               onPress={() => setPromptModalVisible(true)}
             >
-              <Text style={styles.listText}>프롬프트</Text>
+              <Text style={styles.listText}>성격 재설정</Text>
               <RightArrowIcon />
             </TouchableOpacity>
             <TouchableOpacity
@@ -91,14 +91,22 @@ const SettingPopup = ({ visible, onClose }) => {
           onClose={() => setProfileModalVisible(false)}
         />
         {/*로그아웃 팝업 컴포넌트 */}
-        <LogoutPopup
-          visible={logoutModalVisible}
-          onClose={() => setLogoutModalVisible(false)}
+        <ConfirmPopup
+          isVisible={logoutModalVisible}
+          title="로그아웃 하시겠어요?"
+          contextLines={[
+            "로그아웃할 경우 처음 화면으로 돌아갑니다! 진행하시겠습니까?",
+          ]}
+          onCancel={() => setLogoutModalVisible(false)}
+          onConfirm={() => {
+            setLogoutModalVisible(false);
+            navigation.replace("Login");
+          }}
         />
         {/*프롬프트 팝업 컴포넌트 */}
         <PromptPopup
           visible={promptModalVisible}
-          onClose={() => setProfileModalVisible(false)}
+          onClose={() => setPromptModalVisible(false)}
         />
         {/*알림 팝업 컴포넌트 */}
         <NoticePopup

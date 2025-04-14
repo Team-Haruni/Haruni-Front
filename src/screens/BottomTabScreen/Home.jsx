@@ -84,7 +84,7 @@ const Home = ({ navigation }) => {
       sendMessageToUnity(webviewRef, "characterVersion", {
         action: `${characterVersion}`,
       });
-    }, 7000);
+    }, 10000);
   };
 
   return (
@@ -126,6 +126,7 @@ const Home = ({ navigation }) => {
             <SettingPopup
               visible={settingModalVisible}
               onClose={() => setSettingModalVisible(false)}
+              navigation={navigation}
             />
 
             <TouchableOpacity
