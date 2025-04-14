@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Modal,
   View,
@@ -7,15 +7,23 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
+  Image,
 } from "react-native";
 import PopupNavBar from "../../PopupNavBar";
 import useCustomFonts from "../../../../hooks/useCustomFonts";
 import Colors from "../../../../../styles/color";
+import characterData from "../../../../data/characterData";
+import { useSelector, useDispatch } from "react-redux";
+import { setNickname } from "../../../../../redux/slices/expSlice";
+import ConfirmPopup from "../../ConfirmPopup";
 
 const ProfilePopup = ({ visible, onClose }) => {
+  const dispatch = useDispatch();
+  const nicknameInputRef = useRef(null);
+  const nicknameFromRedux = useSelector((state) => state.exp.nickname);
   const fontsLoaded = useCustomFonts();
-
-  const [nickname, setNickname] = useState("닉네임");
+  const characterVersion = useSelector((state) => state.exp.characterVersion);
+  const [name, setName] = useState(nicknameFromRedux);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [email, setEmail] = useState("mallang@inu.co.kr");
   const [currentPw, setCurrentPw] = useState("");
@@ -23,9 +31,14 @@ const ProfilePopup = ({ visible, onClose }) => {
   const [confirmPw, setConfirmPw] = useState("");
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
 
+  useEffect(() => {
+    setName(nicknameFromRedux);
+  }, [visible]);
+
   const handleSave = () => {
+    setNickname(name);
     // 여기에 저장 API 호출 또는 로직 작성
-    console.log("저장됨", { nickname, email, currentPw, newPw, confirmPw });
+    console.log("저장됨", { name, email, currentPw, newPw, confirmPw });
     onClose();
   };
 
@@ -63,16 +76,30 @@ const ProfilePopup = ({ visible, onClose }) => {
 
           <View style={styles.modalContent}>
             <View style={{ alignItems: "center", marginVertical: 20 }}>
-              <View style={styles.profile} />
+              <View style={styles.profile}>
+                <Image
+                  resizeMode="resize"
+                  source={characterData[characterVersion].url}
+                  style={styles.profileImage}
+                />
+              </View>
               <View style={styles.nicknameRow}>
                 <TextInput
+                  ref={nicknameInputRef}
                   style={styles.nickname}
-                  value={nickname}
-                  onChangeText={setNickname}
+                  value={name}
+                  onChangeText={(text) => setName(text)}
                   editable={isEditingNickname}
                   textAlign="center"
                 />
-                <TouchableOpacity onPress={() => setIsEditingNickname(true)}>
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsEditingNickname(true); // 3️⃣ 수정 모드 켜기
+                    setTimeout(() => {
+                      nicknameInputRef.current?.focus(); // 4️⃣ TextInput에 포커스
+                    }, 100); // 약간의 delay 주는 게 안전함
+                  }}
+                >
                   <Text style={styles.editText}>수정</Text>
                 </TouchableOpacity>
               </View>
@@ -125,34 +152,17 @@ const ProfilePopup = ({ visible, onClose }) => {
           </View>
 
           {/* 회원탈퇴 확인 팝업 */}
-          {showConfirmPopup && (
-            <View style={styles.popupOverlay}>
-              <View style={styles.popup}>
-                <Text style={styles.popupTitle}>탈퇴하시겠어요?</Text>
-                <Text style={styles.popupcontext}>
-                  탈퇴할 경우 이전 아이템 및 호감도 복원이
-                </Text>
-                <Text style={styles.popupcontext}>
-                  불가능 합니다. 진행하시겠습니까?
-                </Text>
-                <View style={styles.popupButtons}>
-                  <TouchableOpacity
-                    style={styles.popupButtonDetail}
-                    onPress={cancelWithdraw}
-                  >
-                    <Text style={styles.cancelText}>취소</Text>
-                  </TouchableOpacity>
-                  <View style={styles.buttonDivider} />
-                  <TouchableOpacity
-                    style={styles.popupButtonDetail}
-                    onPress={confirmWithdraw}
-                  >
-                    <Text style={styles.cancelText}>확인</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          )}
+
+          <ConfirmPopup
+            isVisible={showConfirmPopup}
+            title="탈퇴하시겠어요?"
+            contextLines={[
+              "탈퇴할 경우 이전 아이템 및 호감도 복원이",
+              "불가능 합니다. 진행하시겠습니까?",
+            ]}
+            onCancel={cancelWithdraw}
+            onConfirm={confirmWithdraw}
+          />
         </View>
       </ImageBackground>
     </Modal>
@@ -167,13 +177,19 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     flex: 1,
-    paddingTop: 80,
   },
   profile: {
-    width: 64,
-    height: 64,
-    backgroundColor: "#eee",
-    borderRadius: 32,
+    width: 80,
+    height: 80,
+    backgroundColor: Colors.myColor,
+    borderRadius: 40,
+    marginBottom: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileImage: {
+    width: 70,
+    height: 70,
   },
   nicknameRow: {
     backgroundColor: "#FFFBF0",
@@ -241,61 +257,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Cafe24Ssurrondair",
     textDecorationLine: "underline",
-  },
-  popupOverlay: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  popup: {
-    backgroundColor: "#FFFBF0",
-    borderRadius: 20,
-    padding: 20,
-    width: "90%",
-    alignItems: "center",
-  },
-  popupTitle: {
-    fontSize: 14,
-    fontFamily: "Cafe24Ssurrondair",
-    color: Colors.yellow700,
-    marginTop: 15,
-    marginBottom: 18,
-  },
-  popupcontext: {
-    paddingHorizontal: 18,
-    fontSize: 14,
-    fontFamily: "Cafe24Ssurrondair",
-    color: Colors.yellow400,
-  },
-  popupButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginTop: 15,
-    marginBottom: -8,
-  },
-  popupButtonDetail: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginRight: 10,
-    alignItems: "center",
-  },
-  buttonDivider: {
-    width: 1,
-    marginVertical: 13,
-    backgroundColor: Colors.yellow400,
-  },
-  cancelText: {
-    fontFamily: "Cafe24Ssurrondair",
-    fontSize: 16,
-    color: Colors.yellow400,
   },
 });
 
