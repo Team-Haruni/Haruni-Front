@@ -115,8 +115,12 @@ const SettingPopup = ({ visible, onClose, navigation }) => {
         />
         {/*문의 팝업 컴포넌트 */}
         <RequestPopup
-          visible={requestModalVisible}
-          onClose={() => setRequestModalVisible(false)}
+          isVisible={requestModalVisible}
+          title="문의할 내용을 적어주세요!!"
+          onCancel={() => setRequestModalVisible(false)}
+          onConfirm={() => {
+            setRequestModalVisible(false);
+          }}
         />
       </ImageBackground>
     </Modal>

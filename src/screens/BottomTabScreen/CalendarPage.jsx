@@ -15,6 +15,7 @@ import characterData from "../../data/characterData";
 import { useSelector } from "react-redux";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
+import ProfilePopup from "../../components/Popup/SettingPopup/SettingPopupPopup/ProfilePopup";
 
 const CalendarPage = () => {
   const characterVersion = useSelector((state) => state.exp.characterVersion);
@@ -23,6 +24,7 @@ const CalendarPage = () => {
   const fontsLoaded = useCustomFonts();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDiary, setSelectedDiary] = useState(null);
+  const [profileModalVisible, setProfileModalVisible] = useState(false);
 
   //날짜설정
   const now = new Date();
@@ -84,7 +86,10 @@ const CalendarPage = () => {
             </View>
             <View style={styles.profileRow}>
               <Text style={styles.nickname}>{nickname}</Text>
-              <TouchableOpacity style={styles.profileEditButton}>
+              <TouchableOpacity
+                style={styles.profileEditButton}
+                onPress={() => setProfileModalVisible(true)}
+              >
                 <Text style={styles.profileEditText}>프로필 편집</Text>
               </TouchableOpacity>
             </View>
@@ -108,6 +113,11 @@ const CalendarPage = () => {
             diary={selectedDiary}
           />
         </View>
+        {/*프로필 팝업 컴포넌트 */}
+        <ProfilePopup
+          visible={profileModalVisible}
+          onClose={() => setProfileModalVisible(false)}
+        />
       </SafeAreaView>
     </ImageBackground>
   );
