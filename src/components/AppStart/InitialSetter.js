@@ -26,8 +26,8 @@ const InitialSetter = ({ children }) => {
   //레벨 초기 설정정
   useEffect(() => {
     // 백엔드에서 불러와서 초기 레벨을 설정 (예제: 1레벨로 설정)
-    dispatch(setInitialLevel(28));
-    dispatch(setInitialExp(90));
+    dispatch(setInitialLevel(1));
+    dispatch(setInitialExp(0));
     dispatch(setDiaries(diaryData));
 
     // FCM 초기화
