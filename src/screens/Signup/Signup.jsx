@@ -11,6 +11,7 @@ import SignupPage7 from "./SignupPage7";
 import { signupApi } from "../../api/signup"; // 방금 만든 회원가입 API 함수
 import { setUserName, setNickname } from "../../../redux/slices/expSlice";
 import { useDispatch } from "react-redux";
+import * as Sentry from "@sentry/react-native";
 
 const Signup = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -63,6 +64,12 @@ const Signup = ({ navigation }) => {
         navigation.replace("Login"); // 회원가입 성공 후 페이지 이동
       }
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setLevel("error");
+        scope.setTag("type", "api");
+        scope.setTag("api", "signup");
+        Sentry.captureException(error);
+      });
       Alert.alert("회원가입 실패", error.message);
     }
   };

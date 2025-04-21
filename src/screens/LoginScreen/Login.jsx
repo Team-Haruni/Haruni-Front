@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import Colors from "../../../styles/color";
 import { loginApi } from "../../api/login";
+import * as Sentry from "@sentry/react-native";
 
 const Login = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -28,9 +29,15 @@ const Login = ({ navigation }) => {
         navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
       }
     } catch (error) {
+      Sentry.withScope((scope) => {
+        scope.setLevel("error");
+        scope.setTag("type", "api");
+        scope.setTag("api", "login");
+        Sentry.captureException(error);
+      });
       Alert.alert("로그인 실패", error.message);
+      navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
     }
-    navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
   };
 
   return (

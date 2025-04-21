@@ -23,6 +23,18 @@ import Toast from "react-native-toast-message";
 import InitialSetter from "./src/components/AppStart/InitialSetter";
 import toastConfig from "./src/components/ToastConfig";
 import Signup from "./src/screens/Signup/Signup";
+import * as Sentry from "@sentry/react-native";
+import Constants from "expo-constants";
+
+const DSN = Constants.expoConfig.extra.DSN;
+
+Sentry.init({
+  dsn: DSN,
+  debug: true, // 디버깅 활성화
+  tracesSampleRate: 1.0,
+  profileSessionSampleRate: 1.0,
+  profileLifecycle: "trace",
+});
 
 const App = () => {
   const fontsLoaded = useCustomFonts();
@@ -134,4 +146,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Sentry.wrap(App);

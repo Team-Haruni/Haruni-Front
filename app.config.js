@@ -46,6 +46,14 @@ export default {
           ],
         },
       ],
+      [
+        "@sentry/react-native/expo",
+        {
+          url: "https://sentry.io/",
+          project: "haruni",
+          organization: "633614ae48c0",
+        },
+      ],
     ],
     jsEngine: "hermes", // 새 아키텍처용 엔진 설정
     experiments: {
@@ -56,6 +64,7 @@ export default {
       REST_API_SECRET: process.env.REST_API_SECRET,
       REDIRECT_URI: process.env.REDIRECT_URI,
       REACT_NATIVE_API_URL: process.env.REACT_NATIVE_API_URL,
+      DSN: process.env.DSN,
     },
   },
 };
