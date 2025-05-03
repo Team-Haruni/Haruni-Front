@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   },
   messageContentContainer: {
     minWidth: 50,
-    maxWidth: 150,
+    maxWidth: 275,
     backgroundColor: "white",
     minHeight: 40,
     display: "flex",
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   otherMessageContentContainer: {
     minWidth: 50,
-    maxWidth: 150,
+    maxWidth: 275,
     backgroundColor: Colors.myColor,
     minHeight: 40,
     display: "flex",
