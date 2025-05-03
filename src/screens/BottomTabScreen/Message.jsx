@@ -2,7 +2,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   ImageBackground,
   SafeAreaView,
@@ -20,31 +19,29 @@ import { fetchChatHistory } from "../../api/message";
 
 const Message = () => {
   const dispatch = useDispatch();
-  const [messages, setMessages] = useState([]);  // 🔥 실제 API 응답으로 초기화
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const flatListRef = useRef(null);
 
-  // 🔥 오늘 날짜를 "YYYY-MM-DD" 형식으로 계산
   const getTodayString = () => {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = (`0${today.getMonth() + 1}`).slice(-2);
-    const dd = (`0${today.getDate()}`).slice(-2);
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = (`0${d.getMonth() + 1}`).slice(-2);
+    const dd = (`0${d.getDate()}`).slice(-2);
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  // 🔥 컴포넌트 마운트 시 채팅 내역 불러오기
   useEffect(() => {
     const loadChatHistory = async () => {
       setIsLoading(true);
       try {
         const dateStr = getTodayString();
         const chatArray = await fetchChatHistory(dateStr);
-        // 🔥 서버 데이터 → FlatList용 포맷으로 변환
         const formatted = chatArray.map((item) => ({
           mine: item.chatType === "USER",
           content: item.content,
+          sendingTime: item.sendingTime, // ★ 원본 HH:MM:SS
           createdAt: new Date(`${dateStr}T${item.sendingTime}`).toISOString(),
         }));
         setMessages(formatted);
@@ -54,49 +51,46 @@ const Message = () => {
         setIsLoading(false);
       }
     };
-
     loadChatHistory();
   }, []);
 
-  // 🔥 새 메시지 전송(더미 로직 유지)
   const handleSendMessage = () => {
     if (!newMessage.trim()) return;
+    const now = new Date();
+    const hh = (`0${now.getHours()}`).slice(-2);
+    const mi = (`0${now.getMinutes()}`).slice(-2);
+    const sendingTime = `${hh}:${mi}:00`;
 
     const userMessage = {
       mine: true,
       content: newMessage,
-      createdAt: new Date().toISOString(),
+      sendingTime,
+      createdAt: now.toISOString(),
     };
     const emptyAI = {
       mine: false,
       content: "",
-      createdAt: new Date().toISOString(),
+      sendingTime,
+      createdAt: now.toISOString(),
       loading: true,
     };
 
     setNewMessage("");
     setMessages((prev) => [...prev, userMessage, emptyAI]);
     setIsLoading(true);
-
     setTimeout(() => {
-      setMessages((prev) => {
-        const copy = [...prev];
-        const last = copy.length - 1;
-        if (copy[last]?.loading) {
-          copy[last] = {
-            ...copy[last],
-            content: "끝",
-            loading: false,
-          };
-        }
-        return copy;
-      });
+      setMessages((prev) =>
+        prev.map((m, i) =>
+          i === prev.length - 1
+            ? { ...m, content: "끝", loading: false }
+            : m
+        )
+      );
       setIsLoading(false);
       dispatch(chatGrowExp());
     }, 2000);
   };
 
-  // 🔥 스크롤 관리
   useEffect(() => {
     flatListRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
@@ -121,7 +115,7 @@ const Message = () => {
       resizeMode="cover"
     >
       <SafeAreaView style={styles.safeContainer}>
-        <KeyboardAvoidingView style={styles.container} behavior={"padding"}>
+        <KeyboardAvoidingView style={styles.container} behavior="padding">
           <View style={styles.chatContainer}>
             {isLoading && messages.length === 0 ? (
               <ActivityIndicator size="large" style={{ marginTop: 20 }} />
@@ -134,7 +128,6 @@ const Message = () => {
               />
             )}
           </View>
-
           <View style={styles.inputContainer}>
             <ChatBar
               newMessage={newMessage}
