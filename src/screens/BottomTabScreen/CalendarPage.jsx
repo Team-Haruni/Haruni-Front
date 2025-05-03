@@ -17,6 +17,7 @@ import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import ProfilePopup from "../../components/Popup/SettingPopup/SettingPopupPopup/ProfilePopup";
 import { calenderApi } from "../../api/Calender"; // Import the calendar API
+import { calendarPopupApi, transformDiaryData } from "../../api/calenderPopup"; // Import the new popup API
 
 const CalendarPage = () => {
   const characterVersion = useSelector((state) => state.exp.characterVersion);
@@ -27,29 +28,67 @@ const CalendarPage = () => {
   const [selectedDiary, setSelectedDiary] = useState(null);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [moodSummaries, setMoodSummaries] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Define mood emojis mapping
   const moodToEmoji = {
     HAPPY: "😊", 
     SAD: "😢",
     NORMAL: "😶",
   };
 
-  // Get current date info
+  
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   const today = `${year}-${month}-${day}`;
   
-  // State to track selected month (initially current month)
   const [selectedMonth, setSelectedMonth] = useState(`${year}-${month}`);
-  // State to track current viewing date for the calendar
   const [currentDate, setCurrentDate] = useState(now.toISOString().split('T')[0]);
 
-  const openModal = (diaryEntry) => {
-    setSelectedDiary(diaryEntry || null);
-    setModalVisible(true);
+  // 새로운 함수: 날짜를 선택하면 API에서 해당 날짜의 다이어리 데이터를 가져옴
+  const fetchDayData = async (date) => {
+    try {
+      setIsLoading(true);
+      console.log("Fetching data for day:", date);
+      
+      // API 호출하여 해당 날짜의 다이어리 상세 데이터 가져오기
+      const response = await calendarPopupApi({ day: date });
+      
+      // API 응답을 CalendarPopup 컴포넌트 형식에 맞게 변환
+      const transformedData = transformDiaryData(response);
+      
+      if (transformedData) {
+        // 변환된 데이터를 상태에 저장하고 모달 표시
+        setSelectedDiary(transformedData);
+        setModalVisible(true);
+      } else {
+        console.log("해당 날짜에 다이어리가 없습니다.");
+        // 기존 다이어리 데이터가 있으면 기존 방식대로 표시
+        const diaryEntry = diaryData.find((entry) => entry.date === date);
+        if (diaryEntry) {
+          setSelectedDiary(diaryEntry);
+          setModalVisible(true);
+        }
+      }
+    } catch (error) {
+      console.error("일일 다이어리 조회 실패:", error);
+      
+      // API 실패 시 기존 데이터를 사용 (폴백)
+      const diaryEntry = diaryData.find((entry) => entry.date === date);
+      if (diaryEntry) {
+        setSelectedDiary(diaryEntry);
+        setModalVisible(true);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 수정된 openModal 함수: API 호출 추가
+  const openModal = (date, diaryEntry) => {
+    // API를 통해 데이터 가져오기 시도
+    fetchDayData(date);
   };
 
   // Fetch monthly mood data when selected month changes
@@ -58,7 +97,7 @@ const CalendarPage = () => {
       try {
         console.log("Fetching data for month:", selectedMonth);
         const responseData = await calenderApi({ month: selectedMonth });
-        // Now we're getting the actual data from our updated API function
+
         if (responseData && responseData.data && responseData.data.summaries) {
           setMoodSummaries(responseData.data.summaries);
         }
@@ -70,18 +109,12 @@ const CalendarPage = () => {
     fetchMonthlyDiaries();
   }, [selectedMonth]);
 
-  // Custom day component rendering
   const renderDay = (day) => {
     if (!day) return null;
     const dateString = day.dateString;
     
-    // Find if there's mood data for this date
     const moodData = moodSummaries.find(item => item.date === dateString);
-    
-    // Find diary entry (from your existing code)
     const diaryEntry = diaryData.find((entry) => entry.date === dateString);
-
-    // Get emoji based on mood
     const moodEmoji = moodData ? moodToEmoji[moodData.mood] || "❓" : null;
     
     // Debug logs
@@ -91,7 +124,7 @@ const CalendarPage = () => {
 
     return (
       <TouchableOpacity
-        onPress={() => openModal(diaryEntry)}
+        onPress={() => openModal(dateString, diaryEntry)}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
         <View style={{ alignItems: "center" }}>
@@ -187,7 +220,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   background: {
-    flex: 1, // 화면을 가득 채우도록 설정
+    flex: 1,
   },
   topSection: {
     marginTop: 30,
