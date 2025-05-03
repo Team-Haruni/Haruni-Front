@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 14,
   },
   otherMessageContentContainer: {
     position: "relative",
@@ -110,18 +110,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 14,
   },
 
   messageText: {
-    marginHorizontal: 12,
-    marginVertical: 15,
+    marginHorizontal: 10,
+    marginVertical: 10,
     fontFamily: "Cafe24Ssurrondair",
     fontSize: 14,
   },
   otherMessageText: {
-    marginHorizontal: 12,
-    marginVertical: 15,
+    marginHorizontal: 10,
+    marginVertical: 10,
     fontFamily: "Cafe24Ssurrondair",
     fontSize: 14,
   },
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   time: {
     position: "absolute",
     fontSize: 12,
-    color: "#666",
+    color: "#818181",
   },
   // 내 메시지일 때 우측 아래
   timeMine: {
