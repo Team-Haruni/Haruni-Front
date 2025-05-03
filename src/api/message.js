@@ -6,6 +6,7 @@ import { get } from "./index";
  * @param {string} date - "YYYY-MM-DD" 형식의 조회 날짜
  * @returns {Promise<Array<{chatType: string, content: string, sendingTime: string}>>}
  */
+
 export const fetchChatHistory = async (date) => {
   try {
     console.log("채팅 조회 요청 날짜:", date);
