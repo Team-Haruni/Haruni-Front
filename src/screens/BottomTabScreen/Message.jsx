@@ -77,7 +77,7 @@ const Message = () => {
   // 맨 위로 스크롤 시 이전 날짜 불러오기
   const handleScroll = ({ nativeEvent }) => {
     if (
-      nativeEvent.contentOffset.y <= 12 &&
+      nativeEvent.contentOffset.y <= 15 &&
       !isLoadingOlder &&
       !isLoading
     ) {

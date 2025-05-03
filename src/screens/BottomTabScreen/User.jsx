@@ -1,3 +1,4 @@
+// src/screens/User.js
 import React, { useState } from "react";
 import {
   View,
@@ -6,30 +7,27 @@ import {
   SafeAreaView,
   Platform,
   Text,
-  TouchableOpacity,
   Image,
   ScrollView,
+  Dimensions,
 } from "react-native";
-import { Calendar } from "react-native-calendars";
-import CalendarPopup from "../../components/Popup/CalendarPopup";
 import characterData from "../../data/characterData";
 import { useSelector } from "react-redux";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import { LineChart } from "react-native-gifted-charts";
-import { Dimensions } from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
 
 const User = () => {
   const characterVersion = useSelector((state) => state.exp.characterVersion);
   const nickname = useSelector((state) => state.exp.nickname);
-  const [weekData, setWeekData] = useState(true);
+  const [weekData] = useState(true);
   const fontsLoaded = useCustomFonts();
 
   const lineData = [
     { value: 0, dataPointText: "😞", label: "월" },
-    { value: null, dataPointText: "", label: "화" }, //기록안한정보
+    { value: null, dataPointText: "", label: "화" },
     { value: 95, dataPointText: "😁", label: "수" },
     { value: 0, dataPointText: "😞", label: "목" },
     { value: 95, dataPointText: "😁", label: "금" },
@@ -39,13 +37,13 @@ const User = () => {
 
   return (
     <ImageBackground
-      source={require("../../../assets/background.png")} // 배경 이미지 경로
-      style={styles.background} // 스타일을 적용할 배경
-      resizeMode="cover" // 이미지 크기 조정 방법
+      source={require("../../../assets/background.png")}
+      style={styles.background}
+      resizeMode="cover"
     >
       <SafeAreaView style={styles.safeContainer}>
         <View style={styles.container}>
-          {/* 상단: 닉네임 및 프로필 편집 */}
+          {/* 상단 프로필 */}
           <View style={styles.topSection}>
             <View style={styles.imgContainer}>
               <Image
@@ -54,42 +52,20 @@ const User = () => {
                 style={styles.profileImage}
               />
             </View>
-
             <Text style={styles.nickname}>{nickname}</Text>
           </View>
-          <View
-            style={{
-              backgroundColor: Colors.myColor,
-              borderRadius: 20,
-              padding: 10,
-              paddingTop: 20,
-              height: "auto",
-              minHeight: 200,
-              marginBottom: 30,
-              alignItems: "center",
-              justifyContent: "start",
-              borderColor: Colors.pointColor,
-              borderWidth: 1,
-            }}
-          >
-            <View style={{ width: "100%", paddingLeft: 10, marginBottom: 30 }}>
-              <Text style={{ fontFamily: "Cafe24Ssurrond", fontSize: 15 }}>
-                이번 주 감정흐름
-              </Text>
-            </View>
-            <View
-              style={{
-                width: "100%",
-                height: 200,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+
+          {/* 피드백 섹션: 세로 스크롤 */}
+          <ScrollView style={styles.commentsWrapper}>
+          {/* 주간 감정 흐름 차트 */}
+          <View style={styles.chartContainer}>
+            <Text style={styles.chartTitle}>이번 주 감정흐름</Text>
+            <View style={styles.chartInner}>
               {weekData ? (
                 <LineChart
-                  rulesType="dashed" // "dashed" or "solid"
-                  rulesThickness={1} // 줄 두께
-                  rulesColor={Colors.pointColor} // 원하는 색으로 지정
+                  rulesType="dashed"
+                  rulesThickness={1}
+                  rulesColor={Colors.pointColor}
                   data={lineData}
                   initialSpacing={20}
                   spacing={40}
@@ -107,66 +83,70 @@ const User = () => {
                   endOpacity={0}
                   maxValue={100}
                   noOfSections={2}
-                  hideYAxisText={true} // ✅ 아예 안보이게 하기!
+                  hideYAxisText
                   yAxisLabelWidth={15}
                   textShiftY={0}
                   textShiftX={-10}
                   xAxisColor={Colors.pointColor}
                   yAxisColor={Colors.pointColor}
                   yAxisLabelTexts={["Bad", "Normal", "Good"]}
-                  yAxisTextStyle={{
-                    fontFamily: "Cafe24Ssurrond",
-                    fontSize: 12,
-                    color: Colors.pointColor,
-                  }}
-                  xAxisLabelTextStyle={{
-                    fontSize: 12,
-                    color: Colors.pointColor,
-                    fontFamily: "Cafe24Ssurrond",
-                  }}
+                  yAxisTextStyle={styles.axisText}
+                  xAxisLabelTextStyle={styles.axisText}
                 />
               ) : (
                 <Text style={styles.comment}>데이터가 충분하지 않습니다</Text>
               )}
             </View>
           </View>
-          <View
-            style={{
-              height: "auto",
-              flexDirection: "row",
-              width: "100%",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={styles.imgContainer2}>
-              <Image
-                resizeMode="resize"
-                source={characterData[characterVersion].url}
-                style={styles.profileImage2}
-              />
-            </View>
 
+            {/* 주간 피드백 */}
             <View style={styles.commentContainer}>
-              <View style={styles.bubbleTailOuter} />
-              <View style={styles.bubbleTailInner} />
+              <Text style={styles.commentTitle}>주간 피드백</Text>
               <ScrollView>
-                {weekData ? (
-                  <Text style={styles.comment}>
-                    음음 생각보다 별로네요..음음 생각보다 별로네요.. 음음
-                    생각보다 별로네요.. 음음 생각보다 별로네요.. 음음 생각보다
-                    별로네요.. 음음 생각보다 별로네요.. 음음 생각보다 별로네요..
-                    음음 생각보다 별로네요.. 음음 생각보다 별로네요.. 음음
-                    생각보다 별로네요.. 음음 생각보다 별로네요.. 음음 생각보다
-                    별로네요.. 음음 생각보다 별로네요..
-                  </Text>
-                ) : (
-                  <Text style={styles.comment}>
-                    나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!
-                  </Text>
-                )}
+                <Text style={styles.comment}>
+                  {weekData
+                    ? "음음 생각보다 별로네요.. (여기에 피드백 내용을 채워주세요)"
+                    : "나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!"}
+                </Text>
               </ScrollView>
             </View>
-          </View>
+
+            {/* 이번 주 돌아보기 */}
+            <View style={styles.commentContainer}>
+              <Text style={styles.commentTitle}>이번 주 돌아보기</Text>
+              <ScrollView>
+                <Text style={styles.comment}>
+                  {weekData
+                    ? "음음 생각보다 별로네요.. (여기에 돌아보기 내용을 채워주세요)"
+                    : "나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!"}
+                </Text>
+              </ScrollView>
+            </View>
+
+            {/* 다음 주를 위한 작은 제안 */}
+            <View style={styles.commentContainer}>
+              <Text style={styles.commentTitle}>다음 주를 위한 작은 제안</Text>
+              <ScrollView>
+                <Text style={styles.comment}>
+                  {weekData
+                    ? "음음 생각보다 별로네요.. (여기에 제안 내용을 채워주세요)"
+                    : "나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!"}
+                </Text>
+              </ScrollView>
+            </View>
+
+            {/* 다음 주 추천 */}
+            <View style={styles.commentContainer}>
+              <Text style={styles.commentTitle}>다음 주 추천</Text>
+              <ScrollView>
+                <Text style={styles.comment}>
+                  {weekData
+                    ? "음음 생각보다 별로네요.. (여기에 추천 내용을 채워주세요)"
+                    : "나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!"}
+                </Text>
+              </ScrollView>
+            </View>
+          </ScrollView>
         </View>
       </SafeAreaView>
     </ImageBackground>
@@ -176,104 +156,89 @@ const User = () => {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    position: "relative",
     paddingTop: Platform.OS === "android" ? 10 : 0,
+  },
+  background: {
+    flex: 1,
   },
   container: {
     margin: 20,
-    flexDirection: "column",
     flex: 1,
   },
-  background: {
-    flex: 1, // 화면을 가득 채우도록 설정
-  },
   topSection: {
-    height: 150,
-    flexDirection: "column",
     alignItems: "center",
-    marginTop: 10,
-    marginBottom: 50,
+    marginBottom: 30,
+  },
+  imgContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: Colors.myColor,
+    alignItems: "center",
+    justifyContent: "center",
   },
   profileImage: {
     width: 100,
     height: 100,
   },
-
-  imgContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.myColor,
-  },
-  imgContainer2: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    alignItems: "center",
-    justifyContent: "center",
-    borderColor: Colors.pointColor,
-    borderWidth: 1,
-    backgroundColor: Colors.myColor,
-  },
-  profileImage2: {
-    width: 70,
-    height: 70,
-  },
-
   nickname: {
     marginTop: 15,
     fontSize: 20,
-    color: "black",
     fontFamily: "Cafe24Ssurrond",
-
-    lineHeight: 22,
-    wordWrap: "break-word",
+  },
+  chartContainer: {
+    backgroundColor: Colors.myColor,
+    borderRadius: 20,
+    padding: 10,
+    paddingTop: 20,
+    minHeight: 200,
+    marginBottom: 20,
+    borderColor: Colors.pointColor,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+  chartTitle: {
+    width: "100%",
+    paddingLeft: 10,
+    marginBottom: 30,
+    fontFamily: "Cafe24Ssurrond",
+    fontSize: 15,
+  },
+  chartInner: {
+    width: "100%",
+    height: 200,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
+  commentsWrapper: {
+    flex: 1,
+  },
   commentContainer: {
-    height: 120,
-    width: "75%",
-    padding: 20,
+    width: "100%",      // 전체 폭
+    minHeight: 100,
+    maxHeight: 200,
+    marginBottom: 16,
+    padding: 12,
     borderRadius: 20,
     backgroundColor: Colors.myColor,
     borderColor: Colors.pointColor,
-    borderWidth: 2,
-
-    zIndex: 1,
+    borderWidth: 1,
+  },
+  commentTitle: {
+    fontFamily: "Cafe24Ssurrond",
+    fontSize: 15,
+    marginBottom: 8,
   },
   comment: {
     fontFamily: "Cafe24Ssurrondair",
-  },
-  bubbleTailOuter: {
-    position: "absolute",
-    top: 20,
-    left: -14, // 테두리를 위해 더 바깥
-    width: 0,
-    height: 0,
-    borderTopWidth: 12,
-    borderBottomWidth: 12,
-    borderRightWidth: 14,
-    borderTopColor: "transparent",
-    borderBottomColor: "transparent",
-    borderRightColor: Colors.pointColor, // ✅ 테두리 색
-    zIndex: -2,
+    fontSize: 14,
   },
 
-  bubbleTailInner: {
-    position: "absolute",
-    top: 22, // 안쪽 삼각형이 살짝 들어가게
-    left: -11,
-    width: 0,
-    height: 0,
-    borderTopWidth: 10,
-    borderBottomWidth: 10,
-    borderRightWidth: 12,
-    borderTopColor: "transparent",
-    borderBottomColor: "transparent",
-    borderRightColor: Colors.myColor, // ✅ 말풍선 본체 색
-    zIndex: -1,
+  axisText: {
+    fontFamily: "Cafe24Ssurrond",
+    fontSize: 12,
+    color: Colors.pointColor,
   },
 });
 

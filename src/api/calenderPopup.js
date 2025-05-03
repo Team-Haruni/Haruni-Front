@@ -44,11 +44,11 @@ export const calendarPopupApi = async (data) => {
 export const getMoodEmoji = (mood) => {
   switch(mood) {
     case 'HAPPY':
-      return '😊';
+      return 'https://i.pinimg.com/736x/c1/c3/f0/c1c3f0084bdd7919579adf56cba8a4cd.jpg';
     case 'SAD':
-      return '😢';
+      return 'https://i.pinimg.com/736x/cc/0e/a0/cc0ea0f10d01f23d5570104577f6766b.jpg';
     default:
-      return '😐';
+      return 'https://i.pinimg.com/736x/fc/72/4b/fc724ba3dda6977eb410fc3e456252ba.jpg';
   }
 };
 

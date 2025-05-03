@@ -52,8 +52,11 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
       <View style={styles.modalContent}>
         {/* Emoji & Date */}
         <View style={styles.header}>
-          <Text style={styles.emoji}>{diary.emoji}</Text>
-          <Text style={styles.place}>{diary.place}</Text>
+        <Image
+          source={{ uri: diary.emoji }}
+          style={{ width: 30, height: 30, marginHorizontal: 10 }}
+        />
+        <Text style={styles.place}>{diary.place}</Text>
         </View>
         <View
           style={{

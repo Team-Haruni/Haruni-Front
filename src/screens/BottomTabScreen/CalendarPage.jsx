@@ -31,9 +31,10 @@ const CalendarPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const moodToEmoji = {
-    HAPPY: "😊", 
-    SAD: "😢",
-    NORMAL: "😶",
+    HAPPY:'https://i.pinimg.com/736x/c1/c3/f0/c1c3f0084bdd7919579adf56cba8a4cd.jpg',
+    SAD: 'https://i.pinimg.com/736x/cc/0e/a0/cc0ea0f10d01f23d5570104577f6766b.jpg',
+    NORMAL: 'https://i.pinimg.com/736x/fc/72/4b/fc724ba3dda6977eb410fc3e456252ba.jpg'
+ 
   };
 
   const now = new Date();
@@ -131,9 +132,16 @@ const CalendarPage = () => {
           >
             {day.day}
           </Text>
-          {moodEmoji && (
-            <Text style={{ fontSize: 18 }}>{moodEmoji}</Text>
+          {moodEmoji ? (
+            <Image
+              source={{ uri: moodEmoji }}
+              style={{ width: 24, height: 24, marginTop: 4 }}
+              resizeMode="contain"
+            />
+          ) : (
+            <View style={{ width: 24, height: 24, marginTop: 4 }} />
           )}
+
         </View>
       </TouchableOpacity>
     );
@@ -281,7 +289,7 @@ const styles = StyleSheet.create({
     wordWrap: "break-word",
   },
   calendarSection: {
-    height: 400,
+    height: 436,
     backgroundColor: "white",
     marginTop: 15,
     borderRadius: 15, // 모서리 둥글게
