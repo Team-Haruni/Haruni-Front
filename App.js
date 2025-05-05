@@ -32,10 +32,10 @@ const DSN = Constants.expoConfig.extra.DSN;
 
 Sentry.init({
   dsn: DSN,
-  debug: true, // 디버깅 활성화
   integrations: [Sentry.reactNativeTracingIntegration()],
+  sendDefaultPii: true,
   tracesSampleRate: 0.2,
-  profileSessionSampleRate: 0.2,
+  profilesSampleRate: 0.2,
 });
 
 const App = () => {
