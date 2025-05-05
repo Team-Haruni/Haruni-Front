@@ -39,6 +39,7 @@
     "react-native": "^0.76.7",
     "react-native-calendars": "^1.1310.0",
     "react-native-dropdown-picker": "^5.4.6",
+    "react-native-error-boundary": "^2.0.0",
     "react-native-gifted-charts": "^1.4.59",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-modal": "^13.0.1",

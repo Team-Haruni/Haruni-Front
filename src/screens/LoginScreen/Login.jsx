@@ -23,19 +23,29 @@ const Login = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-      // 로그인 API 호출
-      const status = await loginApi({ email: username, password });
-      if (status == 200) {
-        navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
-      }
+      // 로그인 api
+      // 스팬을 시작하여 비동기 작업 추적
+      const result = await Sentry.startSpan(
+        { name: "Login API Call" },
+        async () => {
+          const status = await loginApi({ email: username, password });
+          if (status === 200) {
+            navigation.replace("Bottom");
+          }
+          return res;
+        }
+      );
+      console.log("Login result:", result);
     } catch (error) {
       Sentry.withScope((scope) => {
+        scope.setUser({
+          email: username,
+        });
         scope.setLevel("error");
         scope.setTag("type", "api");
         scope.setTag("api", "login");
         Sentry.captureException(error);
       });
-      Alert.alert("로그인 실패", error.message);
       navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
     }
   };
