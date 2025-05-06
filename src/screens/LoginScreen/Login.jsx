@@ -46,7 +46,7 @@ const Login = ({ navigation }) => {
         scope.setTag("api", "login");
         Sentry.captureException(error);
       });
-      navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
+      //navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
     }
   };
 

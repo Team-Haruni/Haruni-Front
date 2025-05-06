@@ -29,6 +29,7 @@ import Colors from "../../../styles/color";
 import { sendMessageToUnity } from "../../utils/unityBridge";
 import AuraIcon from "../../../assets/aura-icon.svg";
 import { mainApi } from "../../api/main";
+import * as Sentry from "@sentry/react-native";
 import ErrorBoundary from "react-native-error-boundary";
 import CustomWebviewErrorFallback from "../../components/ErrorFallback/CustomWebviewErrorFallback";
 
@@ -62,6 +63,12 @@ const Home = ({ navigation }) => {
           setChat(greeting); // 첫 화면 로딩 시 인삿말 표시
         }
       } catch (err) {
+        Sentry.withScope((scope) => {
+          scope.setLevel("error");
+          scope.setTag("type", "api");
+          scope.setTag("api", "main");
+          Sentry.captureException(err);
+        });
         console.error("Greeting 로딩 실패", err);
       }
     };
