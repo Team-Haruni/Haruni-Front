@@ -25,15 +25,17 @@ import toastConfig from "./src/components/ToastConfig";
 import Signup from "./src/screens/Signup/Signup";
 import * as Sentry from "@sentry/react-native";
 import Constants from "expo-constants";
+import ErrorBoundary from "react-native-error-boundary";
+import CustomGlobalErrorFallback from "./src/components/ErrorFallback/CustomGlobalErrorFallback";
 
 const DSN = Constants.expoConfig.extra.DSN;
 
 Sentry.init({
   dsn: DSN,
-  debug: true, // 디버깅 활성화
+  integrations: [Sentry.reactNativeTracingIntegration()],
+  sendDefaultPii: true,
   tracesSampleRate: 0.2,
-  profileSessionSampleRate: 0.2,
-  profileLifecycle: "trace",
+  profilesSampleRate: 0.2,
 });
 
 const App = () => {
@@ -129,19 +131,21 @@ const App = () => {
 
   return (
     <>
-      <Provider store={store}>
-        <InitialSetter>
-          <NavigationContainer>
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="Login" component={Login} />
-              <Stack.Screen name="KaKaoLogin" component={KakaoLogin} />
-              <Stack.Screen name="Signup" component={Signup} />
-              <Stack.Screen name="Bottom" component={BottomTabScreen} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </InitialSetter>
-      </Provider>
-      <Toast config={toastConfig} />
+      <ErrorBoundary FallbackComponent={CustomGlobalErrorFallback}>
+        <Provider store={store}>
+          <InitialSetter>
+            <NavigationContainer>
+              <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="KaKaoLogin" component={KakaoLogin} />
+                <Stack.Screen name="Signup" component={Signup} />
+                <Stack.Screen name="Bottom" component={BottomTabScreen} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </InitialSetter>
+        </Provider>
+        <Toast config={toastConfig} />
+      </ErrorBoundary>
     </>
   );
 };
