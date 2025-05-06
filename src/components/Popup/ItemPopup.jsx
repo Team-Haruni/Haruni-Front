@@ -18,6 +18,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setCurrentPlaneIndex } from "../../../redux/slices/planeSlice";
 import { resetImages } from "../../../redux/slices/landscapeSlice";
 import { sendMessageToUnity } from "../../utils/unityBridge";
+import { calenderApi } from "../../api/itemPopup"; // API 함수 가져오기
 
 const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const dispatch = useDispatch();
@@ -62,19 +63,59 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const [landScapeCount, setLandScapeCount] = useState(initialLandScapeCount);
   const [lockStartLandScape, setLockStartLandScape] = useState(12); //레벨에 따라 다르게 변경
 
+  // 로딩 상태 추가
+  const [isLoading, setIsLoading] = useState(false);
+  // 에러 상태 추가
+  const [error, setError] = useState(null);
+
   /////////////////////////////////////
 
   const [menu, setMenu] = useState(0);
   const fontsLoaded = useCustomFonts();
+
+  // API에서 선택된 아이템을 가져오는 함수
+  const fetchSelectedItems = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await calenderApi({});
+      
+      if (response && response.data) {
+        // 받은 데이터 처리하기
+        response.data.forEach(item => {
+          if (item.type === "hat") {
+            // 선택된 모자 상태 적용하기
+            // 데이터 처리 방식에 따라 달라질 수 있음
+            // 예시: Redux에 디스패치하거나 로컬 상태 설정
+          } else if (item.type === "landscape") {
+            // 선택된 구조물 상태 적용하기
+          } else if (item.type === "plane") {
+            dispatch(setCurrentPlaneIndex(item.index));
+          }
+        });
+      }
+    } catch (err) {
+      console.error("선택된 아이템 가져오기 오류:", err);
+      setError(err.message || "선택된 아이템을 불러오는데 실패했습니다");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     setLandScapeCount(initialLandScapeCount);
     setHatCount(initialHatCount);
     setStructureCount(initialStructureCount);
 
+    // 팝업이 표시될 때 선택된 아이템 가져오기
+    if (visible) {
+      fetchSelectedItems();
+    }
+    
     //나중에 서버 연결하면 할꺼
     //dispatch(resetImages());
-  }, [onClose]);
+  }, [visible]);
 
   const chunkArray = (array, size) => {
     return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
@@ -82,41 +123,59 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
     );
   };
 
-  const onSubmit = () => {
-    //api 전송
-    //unity화면 에다가 추가!
+  const onSubmit = async () => {
+    try {
+      setIsLoading(true);
+      
+      //선택된 구조물
+      const selectedLandscapeImageIds = landscapeImages
+        .filter((image) => image.selected)
+        .map((image) => image.id);
+      console.log(selectedLandscapeImageIds);
+      const finalSend1 = JSON.stringify(selectedLandscapeImageIds);
+      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 }); //유니티에 메시지 보내기
 
-    //선택된 구조물
-    const selectedLandscapeImageIds = landscapeImages
-      .filter((image) => image.selected)
-      .map((image) => image.id);
-    console.log(selectedLandscapeImageIds);
-    const finalSend1 = JSON.stringify(selectedLandscapeImageIds);
-    sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 }); //유니티에 메시지 보내기
+      //선택된 장난감
+      const selectedStructureImageIds = structureImages
+        .filter((image) => image.selected)
+        .map((image) => image.id);
+      console.log(selectedStructureImageIds);
+      const finalSend2 = JSON.stringify(selectedStructureImageIds);
+      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 }); //유니티에 메시지 보내기
 
-    //선택된 장난감
-    const selectedStructureImageIds = structureImages
-      .filter((image) => image.selected)
-      .map((image) => image.id);
-    console.log(selectedStructureImageIds);
-    const finalSend2 = JSON.stringify(selectedStructureImageIds);
-    sendMessageToUnity(webviewRef, "structure", { action: finalSend2 }); //유니티에 메시지 보내기
+      //선택된 모자
+      const selectedHatImageIds = hatImages
+        .filter((image) => image.selected)
+        .map((image) => image.id);
+      console.log(selectedHatImageIds);
+      const finalSend3 = JSON.stringify(selectedHatImageIds);
+      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 }); //유니티에 메시지 보내기
 
-    //선택된 모자
-    const selectedHatImageIds = hatImages
-      .filter((image) => image.selected)
-      .map((image) => image.id);
-    console.log(selectedHatImageIds);
-    const finalSend3 = JSON.stringify(selectedHatImageIds);
-    sendMessageToUnity(webviewRef, "hat", { action: finalSend3 }); //유니티에 메시지 보내기
+      //배경
+      if (currentPlaneIndex < lockStartPlane) {
+        const finalSend4 = JSON.stringify([currentPlaneIndex]);
+        sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
+      }
 
-    //배경
-    if (currentPlaneIndex < lockStartPlane) {
-      const finalSend4 = JSON.stringify([currentPlaneIndex]);
-      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
+      // 필요한 경우 여기에서 서버에 데이터를 저장할 수 있습니다
+      // 예시:
+      // const saveData = {
+      //   selectedItems: [
+      //     { type: "hat", indices: selectedHatImageIds },
+      //     { type: "landscape", indices: selectedLandscapeImageIds },
+      //     { type: "structure", indices: selectedStructureImageIds },
+      //     { type: "plane", index: currentPlaneIndex }
+      //   ]
+      // };
+      // await saveItemsApi(saveData);
+      
+      onClose();
+    } catch (err) {
+      console.error("아이템 저장 오류:", err);
+      setError(err.message || "아이템 저장에 실패했습니다");
+    } finally {
+      setIsLoading(false);
     }
-
-    onClose();
   };
 
   const categories = ["구조물", "장난감", "모자", "배경"];
@@ -142,112 +201,127 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
         하루니의 레벨을 올려{"\n"}잠금을 해제하세요
       </Text>
       <View style={styles.modalContent}>
-        <View style={styles.titleContainer}>
-          {categories.map((title, index) => (
-            <TouchableOpacity
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              key={index}
-              onPress={() => setMenu(index)}
-              style={[
-                styles.title,
-                index === 3
-                  ? {
-                      borderRightWidth: 1, // 오른쪽 테두리 두께
-                      borderRightColor: Colors.gray100,
-                    }
-                  : null,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.titleText,
-                  index === menu ? { color: "black" } : null,
-                ]}
-              >
-                {title}
-              </Text>
-            </TouchableOpacity>
-          ))}
-          {/* <Text style={styles.number}>{count}/5</Text> */}
-        </View>
-        {menu === 0 && (
-          <ScrollView style={styles.itemContainer}>
-            {chunkArray(landscapeImages, 4).map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.itemRowContainer}>
-                {row.map((image, index) => {
-                  const globalIndex = rowIndex * 4 + index;
-                  const isLocked = globalIndex >= lockStartLandScape;
-
-                  return (
-                    <ItemSquareLandscape
-                      image={image}
-                      lock={isLocked}
-                      index={globalIndex}
-                      setCount={setLandScapeCount}
-                      count={landScapeCount}
-                      key={index}
-                    />
-                  );
-                })}
-              </View>
-            ))}
-          </ScrollView>
-        )}
-
-        {menu === 1 && (
-          <ScrollView style={styles.itemContainer}>
-            {chunkArray(structureImages, 4).map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.itemRowContainer}>
-                {row.map((image, index) => {
-                  const globalIndex = rowIndex * 4 + index;
-                  const isLocked = globalIndex >= lockStartStructure;
-
-                  return (
-                    <ItemSquareStructure
-                      image={image}
-                      lock={isLocked}
-                      index={globalIndex}
-                      setCount={setStructureCount}
-                      count={structureCount}
-                      key={index}
-                    />
-                  );
-                })}
-              </View>
-            ))}
-          </ScrollView>
-        )}
-        {menu === 2 && (
-          <ScrollView style={styles.itemContainer}>
-            {chunkArray(hatImages, 4).map((row, rowIndex) => (
-              <View key={rowIndex} style={styles.itemRowContainer}>
-                {row.map((image, index) => {
-                  const globalIndex = rowIndex * 4 + index;
-                  const isLocked = globalIndex >= lockStartHat;
-
-                  return (
-                    <ItemSquareHat
-                      image={image}
-                      lock={isLocked}
-                      index={globalIndex}
-                      setCount={setHatCount}
-                      count={hatCount}
-                      key={index}
-                    />
-                  );
-                })}
-              </View>
-            ))}
-          </ScrollView>
-        )}
-
-        {menu === 3 && (
-          <View style={styles.planeContainer}>
-            <CarouselComponent
-              planeImages={planeImages}
-              lockStartPlane={lockStartPlane}
-            />
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <Text>로딩 중...</Text>
           </View>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity onPress={fetchSelectedItems}>
+              <Text style={styles.retryText}>다시 시도</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            <View style={styles.titleContainer}>
+              {categories.map((title, index) => (
+                <TouchableOpacity
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  key={index}
+                  onPress={() => setMenu(index)}
+                  style={[
+                    styles.title,
+                    index === 3
+                      ? {
+                          borderRightWidth: 1, // 오른쪽 테두리 두께
+                          borderRightColor: Colors.gray100,
+                        }
+                      : null,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.titleText,
+                      index === menu ? { color: "black" } : null,
+                    ]}
+                  >
+                    {title}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              {/* <Text style={styles.number}>{count}/5</Text> */}
+            </View>
+            {menu === 0 && (
+              <ScrollView style={styles.itemContainer}>
+                {chunkArray(landscapeImages, 4).map((row, rowIndex) => (
+                  <View key={rowIndex} style={styles.itemRowContainer}>
+                    {row.map((image, index) => {
+                      const globalIndex = rowIndex * 4 + index;
+                      const isLocked = globalIndex >= lockStartLandScape;
+
+                      return (
+                        <ItemSquareLandscape
+                          image={image}
+                          lock={isLocked}
+                          index={globalIndex}
+                          setCount={setLandScapeCount}
+                          count={landScapeCount}
+                          key={index}
+                        />
+                      );
+                    })}
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+
+            {menu === 1 && (
+              <ScrollView style={styles.itemContainer}>
+                {chunkArray(structureImages, 4).map((row, rowIndex) => (
+                  <View key={rowIndex} style={styles.itemRowContainer}>
+                    {row.map((image, index) => {
+                      const globalIndex = rowIndex * 4 + index;
+                      const isLocked = globalIndex >= lockStartStructure;
+
+                      return (
+                        <ItemSquareStructure
+                          image={image}
+                          lock={isLocked}
+                          index={globalIndex}
+                          setCount={setStructureCount}
+                          count={structureCount}
+                          key={index}
+                        />
+                      );
+                    })}
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+            {menu === 2 && (
+              <ScrollView style={styles.itemContainer}>
+                {chunkArray(hatImages, 4).map((row, rowIndex) => (
+                  <View key={rowIndex} style={styles.itemRowContainer}>
+                    {row.map((image, index) => {
+                      const globalIndex = rowIndex * 4 + index;
+                      const isLocked = globalIndex >= lockStartHat;
+
+                      return (
+                        <ItemSquareHat
+                          image={image}
+                          lock={isLocked}
+                          index={globalIndex}
+                          setCount={setHatCount}
+                          count={hatCount}
+                          key={index}
+                        />
+                      );
+                    })}
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+
+            {menu === 3 && (
+              <View style={styles.planeContainer}>
+                <CarouselComponent
+                  planeImages={planeImages}
+                  lockStartPlane={lockStartPlane}
+                />
+              </View>
+            )}
+          </>
         )}
       </View>
       <View style={styles.buttonContainer}>
@@ -268,6 +342,7 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
           textColor="white"
           backgroundColor={Colors.pointColor}
           borderRadius={20}
+          disabled={isLoading}
         />
       </View>
     </Modal>
@@ -350,6 +425,24 @@ const styles = StyleSheet.create({
     justifyContent: "start",
     flexDirection: "row",
     gap: 12,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 10,
+  },
+  retryText: {
+    color: Colors.pointColor,
+    fontWeight: "bold",
   },
 });
 

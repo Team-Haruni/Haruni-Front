@@ -117,7 +117,7 @@ const Home = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require("../../../assets/background.png")} // 배경 이미지 경로
+      source={require("../../../assets/HaruniBackground.jpg")} // 배경 이미지 경로
       style={styles.background} // 스타일을 적용할 배경
       resizeMode="cover" // 이미지 크기 조정 방법
     >
