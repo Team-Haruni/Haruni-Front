@@ -2,18 +2,38 @@ import { React, useEffect, useState } from "react";
 import { View, StyleSheet, Text, Animated } from "react-native";
 import Colors from "../../styles/color";
 import useCustomFonts from "../hooks/useCustomFonts";
+import { mainApi } from "../api/main";
 
-const LevelBar = ({ progress = 50, level = 1 }) => {
+const LevelBar = () => {
   const fontsLoaded = useCustomFonts();
+  const [level, setLevel] = useState(1); 
+  const [progress, setProgress] = useState(0);
   const [animatedValue] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    Animated.timing(animatedValue, {
-      toValue: progress, // 목표 progress 값 (0에서 100)
-      duration: 1000, // 애니메이션 지속 시간 (ms)
-      useNativeDriver: false, // 레이아웃 애니메이션을 위해 false
-    }).start();
-  }, [progress]);
+    const fetchMainLevel = async() => {
+      try {
+        const responseData = await mainApi();
+
+        if (responseData && responseData.data) {
+          const { haruniLevelInteger, haruniLevelDecimal } = responseData.data;
+
+          setLevel(haruniLevelInteger);
+          setProgress(haruniLevelDecimal*100);
+
+          Animated.timing(animatedValue, {
+            toValue: haruniLevelDecimal,
+            duration: 1000,
+            useNativeDriver: false,
+          }).start();
+        }
+      } catch (err) {
+        console.error("level data failed", err);
+      }
+    };
+
+    fetchMainLevel();
+  }, []);
 
   const barWidth = animatedValue.interpolate({
     inputRange: [0, 100],

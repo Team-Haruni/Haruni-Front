@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+// src/screens/Message.js
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   View,
-  Text,
   StyleSheet,
   ImageBackground,
   SafeAreaView,
@@ -9,100 +9,134 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Keyboard,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import ChatBar from "../../components/ChatBar";
-import chatDummyData from "../../data/chatDummyData";
 import MessageItem from "../../components/MessageItem";
 import { useDispatch } from "react-redux";
 import { chatGrowExp } from "../../../redux/slices/expSlice";
+import { fetchChatHistory } from "../../api/message";
 
 const Message = () => {
   const dispatch = useDispatch();
-  const [messages, setMessages] = useState(chatDummyData);
-  const [newMessage, setNewMessage] = useState("");
-  const flatListRef = useRef(null); // FlatList에 대한 참조
+  const flatListRef = useRef(null);
+
+  // 상태
+  const [currentDate, setCurrentDate] = useState(getTodayString());
+  const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // 메시지 제출 함수
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      const userMessage = {
-        mine: true,
-        content: newMessage,
-        createdAt: new Date().toISOString(),
-      };
+  // 날짜 포맷 함수
+  function formatDate(d) {
+    const yyyy = d.getFullYear();
+    const mm = (`0${d.getMonth() + 1}`).slice(-2);
+    const dd = (`0${d.getDate()}`).slice(-2);
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  function getTodayString() {
+    return formatDate(new Date());
+  }
+  function getPrevDateString(dateStr) {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() - 1);
+    return formatDate(d);
+  }
 
-      // 새로운 빈 AI 메시지 추가
-      const emptyAIMessage = {
-        mine: false, // 상대방 메시지처럼 보이게 설정
-        content: "", // 일단 빈 상태
-        createdAt: new Date().toISOString(),
-        loading: true, // 로딩 중 표시
-      };
+  // 공용 로드 함수
+  const loadChatForDate = useCallback(
+    async (dateStr, prepend = false) => {
+      try {
+        prepend ? setIsRefreshing(true) : setIsLoading(true);
+        const chatArray = await fetchChatHistory(dateStr);
+        const formatted = chatArray.map((item) => ({
+          mine: item.chatType === "USER",
+          content: item.content,
+          sendingTime: item.sendingTime,
+          createdAt: new Date(`${dateStr}T${item.sendingTime}`).toISOString(),
+        }));
+        setMessages((prev) =>
+          prepend ? [...formatted, ...prev] : formatted
+        );
+      } catch (e) {
+        console.warn("채팅 불러오기 실패:", e);
+      } finally {
+        prepend ? setIsRefreshing(false) : setIsLoading(false);
+      }
+    },
+    []
+  );
 
-      setNewMessage(""); // 메시지 입력 후 초기화
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        userMessage,
-        emptyAIMessage,
-      ]);
-
-      setIsLoading(true); // 로딩 시작
-      // 2초 후 마지막 메시지를 AI 응답으로 업데이트
-      setTimeout(() => {
-        setMessages((prevMessages) => {
-          const updatedMessages = [...prevMessages];
-          const lastIndex = updatedMessages.length - 1;
-          if (updatedMessages[lastIndex].loading) {
-            updatedMessages[lastIndex] = {
-              ...updatedMessages[lastIndex],
-              content: "끝",
-              loading: false,
-            };
-          }
-          return updatedMessages;
-        });
-        setIsLoading(false); // 로딩 종료
-      }, 2000);
-      dispatch(chatGrowExp());
-    }
-  };
-
-  // 처음 맨 아래로 스크롤
+  // 초기 로드 (오늘)
   useEffect(() => {
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 50);
+    loadChatForDate(currentDate, false);
   }, []);
-  // 메시지가 추가될 때마다 맨 아래로 스크롤
+
+  // 메시지 자동 스크롤
   useEffect(() => {
     flatListRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
-  // 키보드가 올라오거나 내려갈 때 스크롤을 맨 아래로 이동
+  // 키보드 이벤트 처리
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      "keyboardDidShow",
-      () => {
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, 200); // 키보드가 올라온 후 약간 지연을 두고 스크롤
-      }
+    const show = Keyboard.addListener("keyboardDidShow", () =>
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 200)
     );
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, 400); // 키보드가 내려간 후 스크롤
-      }
+    const hide = Keyboard.addListener("keyboardDidHide", () =>
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 400)
     );
-
     return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
+      show.remove();
+      hide.remove();
     };
   }, []);
+
+  // 더미 메시지 전송 로직 (변경 없음)
+  const [newMessage, setNewMessage] = useState("");
+  const handleSendMessage = () => {
+    if (!newMessage.trim()) return;
+    const now = new Date();
+    const hh = (`0${now.getHours()}`).slice(-2);
+    const mi = (`0${now.getMinutes()}`).slice(-2);
+    const sendingTime = `${hh}:${mi}:00`;
+
+    const userMessage = {
+      mine: true,
+      content: newMessage,
+      sendingTime,
+      createdAt: now.toISOString(),
+    };
+    const emptyAI = {
+      mine: false,
+      content: "",
+      sendingTime,
+      createdAt: now.toISOString(),
+      loading: true,
+    };
+
+    setNewMessage("");
+    setMessages((prev) => [...prev, userMessage, emptyAI]);
+    setIsLoading(true);
+    setTimeout(() => {
+      setMessages((prev) =>
+        prev.map((m, i) =>
+          i === prev.length - 1
+            ? { ...m, content: "끝", loading: false }
+            : m
+        )
+      );
+      setIsLoading(false);
+      dispatch(chatGrowExp());
+    }, 2000);
+  };
+
+  // Pull-to-Refresh 핸들러
+  const handleRefresh = () => {
+    const prevDate = getPrevDateString(currentDate);
+    setCurrentDate(prevDate);
+    loadChatForDate(prevDate, true);
+  };
 
   return (
     <ImageBackground
@@ -111,14 +145,26 @@ const Message = () => {
       resizeMode="cover"
     >
       <SafeAreaView style={styles.safeContainer}>
-        <KeyboardAvoidingView style={styles.container} behavior={"padding"}>
+        <KeyboardAvoidingView style={styles.container} behavior="padding">
           <View style={styles.chatContainer}>
-            <FlatList
-              ref={flatListRef} // FlatList에 ref 추가
-              data={messages}
-              keyExtractor={(_, index) => index.toString()}
-              renderItem={({ item }) => <MessageItem message={item} />}
-            />
+            {isLoading && messages.length === 0 ? (
+              <ActivityIndicator size="large" style={{ marginTop: 20 }} />
+            ) : (
+              <FlatList
+                ref={flatListRef}
+                data={messages}
+                keyExtractor={(_, idx) => idx.toString()}
+                renderItem={({ item }) => <MessageItem message={item} />}
+
+                // 방법 1: Pull-to-Refresh 추가
+                refreshControl={
+                  <RefreshControl
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                  />
+                }
+              />
+            )}
           </View>
 
           <View style={styles.inputContainer}>
@@ -126,7 +172,7 @@ const Message = () => {
               newMessage={newMessage}
               onChangeText={setNewMessage}
               handleSendMessage={handleSendMessage}
-              isLoading={isLoading} // 로딩 중이면 입력 비활성화
+              isLoading={isLoading}
             />
           </View>
         </KeyboardAvoidingView>
@@ -149,10 +195,8 @@ const styles = StyleSheet.create({
   chatContainer: {
     flex: 1,
   },
-
   inputContainer: {
     width: "100%",
-
     height: 50,
   },
 });

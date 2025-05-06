@@ -1,3 +1,4 @@
+// src/components/MessageItem.js
 import { StyleSheet, Text, View, Image } from "react-native";
 import React from "react";
 import Colors from "../../styles/color";
@@ -10,6 +11,10 @@ const MessageItem = ({ message }) => {
   const characterVersion = useSelector((state) => state.exp.characterVersion);
   const fontsLoaded = useCustomFonts();
   const { mine, content, createdAt, loading } = message;
+
+  // HH:MM:SS → HH:MM
+  const timeLabel = createdAt.substring(11, 16);
+
   return (
     <View
       style={[
@@ -17,8 +22,8 @@ const MessageItem = ({ message }) => {
         mine ? styles.mineMessageContainer : styles.otherMessageContainer,
       ]}
     >
-      {/* 내 메시지일 때 프로필 이미지 숨김 */}
-      {mine ? null : (
+      {/* 상대 메시지일 때만 프로필 */}
+      {!mine && (
         <Image
           resizeMode="resize"
           source={characterData[characterVersion].url}
@@ -31,7 +36,7 @@ const MessageItem = ({ message }) => {
           mine
             ? styles.messageContentContainer
             : styles.otherMessageContentContainer,
-          loading ? styles.loadingContentContainer : "",
+          loading ? styles.loadingContentContainer : null,
         ]}
       >
         {loading ? (
@@ -39,8 +44,24 @@ const MessageItem = ({ message }) => {
             <LoadingBar />
           </View>
         ) : (
-          <Text style={styles.messageText}>{content}</Text>
+          <Text
+            style={
+              mine ? styles.messageText : styles.otherMessageText
+            }
+          >
+            {content}
+          </Text>
         )}
+
+        {/* 타임스탬프 */}
+        <Text
+          style={[
+            styles.time,
+            mine ? styles.timeMine : styles.timeOther,
+          ]}
+        >
+          {timeLabel}
+        </Text>
       </View>
     </View>
   );
@@ -50,7 +71,6 @@ export default MessageItem;
 
 const styles = StyleSheet.create({
   messageContainer: {
-    display: "flex",
     flexDirection: "row",
     marginVertical: 8,
     alignItems: "center",
@@ -68,39 +88,65 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
   },
+
+  // 말풍선 컨테이너에 position: 'relative' 추가
   messageContentContainer: {
+    position: "relative",
     minWidth: 50,
-    maxWidth: 150,
+    maxWidth: 275,
     backgroundColor: "white",
     minHeight: 40,
-    display: "flex",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 15,
+    borderRadius: 14,
   },
   otherMessageContentContainer: {
+    position: "relative",
     minWidth: 50,
-    maxWidth: 150,
-    backgroundColor: Colors.myColor,
+    maxWidth: 275,
+    backgroundColor: "#ffd166",
     minHeight: 40,
-    display: "flex",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 15,
+    borderRadius: 14,
   },
 
   messageText: {
-    marginHorizontal: 12,
-    marginVertical: 15,
+    marginHorizontal: 10,
+    marginVertical: 10,
     fontFamily: "Cafe24Ssurrondair",
     fontSize: 14,
   },
+  otherMessageText: {
+    marginHorizontal: 10,
+    marginVertical: 10,
+    fontFamily: "Cafe24Ssurrondair",
+    fontSize: 14,
+  },
+
   loadingContentContainer: {
     minWidth: 50,
   },
   loadingbarContainer: {
     flex: 1,
+  },
+
+  // 타임스탬프 기본 스타일
+  time: {
+    position: "absolute",
+    fontSize: 12,
+    color: "#818181",
+  },
+  // 내 메시지일 때 우측 아래
+  timeMine: {
+    bottom: 3,
+    left: -35,
+  },
+  // 상대 메시지일 때 좌측 아래
+  timeOther: {
+    bottom: 3,
+    right: -35.5,
   },
 });

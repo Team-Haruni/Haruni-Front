@@ -2,10 +2,10 @@ import React from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   Image,
   FlatList,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import Modal from "react-native-modal";
 import Colors from "../../../styles/color";
@@ -15,8 +15,23 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
   const fontsLoaded = useCustomFonts();
 
   if (!diary) {
-    return null; // If no diary data is passed, return null to prevent modal rendering
+    return null;
   }
+
+  const renderImage = () => {
+    if (diary.images && diary.images.length > 0) {
+      return (
+        <View style={styles.imageContainer}>
+          <Image 
+            source={diary.images[0]} 
+            style={styles.mainImage}
+            resizeMode="cover"
+          />
+        </View>
+      );
+    }
+    return null;
+  };
 
   return (
     <Modal
@@ -35,10 +50,13 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
       }}
     >
       <View style={styles.modalContent}>
-        {/* Emoji & Place */}
+        {/* Emoji & Date */}
         <View style={styles.header}>
-          <Text style={styles.emoji}>{diary.emoji}</Text>
-          <Text style={styles.place}>{diary.place}</Text>
+        <Image
+          source={{ uri: diary.emoji }}
+          style={{ width: 30, height: 30, marginHorizontal: 10 }}
+        />
+        <Text style={styles.place}>{diary.place}</Text>
         </View>
         <View
           style={{
@@ -47,25 +65,9 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
           }}
         >
           <View style={{ height: "100%" }}>
-            {/* Image List */}
-            <View style={{ height: "auto" }}>
-              <View style={styles.imageGrid}>
-                {diary.images.map((item, index) => {
-                  let imageStyle = styles.image;
-
-                  if (index === 0)
-                    imageStyle = { ...imageStyle, ...styles.imageTopLeft };
-                  else if (index === 1)
-                    imageStyle = { ...imageStyle, ...styles.imageTopRight };
-                  else if (index === 2)
-                    imageStyle = { ...imageStyle, ...styles.imageBottomLeft };
-                  else if (index === 3)
-                    imageStyle = { ...imageStyle, ...styles.imageBottomRight };
-
-                  return <Image key={index} source={item} style={imageStyle} />;
-                })}
-              </View>
-            </View>
+            {/* Main Image */}
+            {renderImage()}
+            
             {/* Diary Text */}
             <View style={styles.textContainer}>
               <FlatList
@@ -112,41 +114,27 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: Colors.yellow400,
   },
-
   place: {
     fontFamily: "Cafe24Ssurrondair",
     fontSize: 16,
     marginLeft: 5,
     color: Colors.black,
   },
-  imageGrid: {
+  imageContainer: {
     marginVertical: 10,
-    flexDirection: "row",
-    flexWrap: "wrap", // 이미지들이 행을 넘어가며 배치되도록 설정
-    justifyContent: "center", // 가운데 정렬
-    padding: 5, // 이미지 간격 조정
+    paddingHorizontal: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  mainImage: {
+    width: 300,
+    height: 180,
+    borderRadius: 10,
   },
   textContainer: {
     flex: 1,
     marginHorizontal: 20,
     marginBottom: 30,
-  },
-  image: {
-    width: 150,
-    height: 91,
-    margin: 1,
-  },
-  imageTopLeft: {
-    borderTopLeftRadius: 10,
-  },
-  imageTopRight: {
-    borderTopRightRadius: 10,
-  },
-  imageBottomLeft: {
-    borderBottomLeftRadius: 10,
-  },
-  imageBottomRight: {
-    borderBottomRightRadius: 10,
   },
   textBox: {
     width: 31,

@@ -28,6 +28,7 @@ import LeafIcon from "../../../assets/leaf-icon.svg";
 import Colors from "../../../styles/color";
 import { sendMessageToUnity } from "../../utils/unityBridge";
 import AuraIcon from "../../../assets/aura-icon.svg";
+import { mainApi } from "../../api/main";
 import ErrorBoundary from "react-native-error-boundary";
 import CustomWebviewErrorFallback from "../../components/ErrorFallback/CustomWebviewErrorFallback";
 
@@ -51,6 +52,21 @@ const Home = ({ navigation }) => {
 
   // // 버전 증가
   // setCharacterVersion((prev) => prev + 1);
+
+  useEffect(() => {
+    const fetchGreeting = async () => {
+      try {
+        const res = await mainApi(); // mainApi 호출
+        const greeting = res.data.greetingMessage;
+        if (greeting) {
+          setChat(greeting); // 첫 화면 로딩 시 인삿말 표시
+        }
+      } catch (err) {
+        console.error("Greeting 로딩 실패", err);
+      }
+    };
+    fetchGreeting();
+  }, []);
 
   //캐릭터 레벨에 따른 버전 증가
   useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -16,6 +16,8 @@ import { useSelector } from "react-redux";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import ProfilePopup from "../../components/Popup/SettingPopup/SettingPopupPopup/ProfilePopup";
+import { calenderApi } from "../../api/Calender"; 
+import { calendarPopupApi, transformDiaryData } from "../../api/calenderPopup"; 
 
 const CalendarPage = () => {
   const characterVersion = useSelector((state) => state.exp.characterVersion);
@@ -25,43 +27,121 @@ const CalendarPage = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDiary, setSelectedDiary] = useState(null);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
+  const [moodSummaries, setMoodSummaries] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  //날짜설정
+  const moodToEmoji = {
+    HAPPY:'https://i.pinimg.com/736x/c1/c3/f0/c1c3f0084bdd7919579adf56cba8a4cd.jpg',
+    SAD: 'https://i.pinimg.com/736x/cc/0e/a0/cc0ea0f10d01f23d5570104577f6766b.jpg',
+    NORMAL: 'https://i.pinimg.com/736x/fc/72/4b/fc724ba3dda6977eb410fc3e456252ba.jpg'
+ 
+  };
+
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   const today = `${year}-${month}-${day}`;
+  
+  const [selectedMonth, setSelectedMonth] = useState(`${year}-${month}`);
+  const [currentDate, setCurrentDate] = useState(now.toISOString().split('T')[0]);
 
-  const openModal = (diaryEntry) => {
-    setSelectedDiary(diaryEntry || null);
-    setModalVisible(true);
+  // 새로운 함수: 날짜를 선택하면 API에서 해당 날짜의 다이어리 데이터를 가져옴
+  const fetchDayData = async (date) => {
+    try {
+      setIsLoading(true);
+      console.log("Fetching data for day:", date);
+      
+      // API 호출하여 해당 날짜의 다이어리 상세 데이터 가져오기
+      const response = await calendarPopupApi({ day: date });
+      const transformedData = transformDiaryData(response);
+      
+      if (transformedData) {
+        setSelectedDiary(transformedData);
+        setModalVisible(true);
+      } else {
+        console.log("해당 날짜에 다이어리가 없습니다.");
+        const diaryEntry = diaryData.find((entry) => entry.date === date);
+        if (diaryEntry) {
+          setSelectedDiary(diaryEntry);
+          setModalVisible(true);
+        }
+      }
+    } catch (error) {
+      console.error("일일 다이어리 조회 실패:", error);
+      
+      // API 실패 시 기존 데이터를 사용 (폴백)
+      const diaryEntry = diaryData.find((entry) => entry.date === date);
+      if (diaryEntry) {
+        setSelectedDiary(diaryEntry);
+        setModalVisible(true);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  //이모지 커스텀
+  // 수정된 openModal 함수: API 호출 추가
+  const openModal = (date, diaryEntry) => {
+    fetchDayData(date);
+  };
+
+  // Fetch monthly mood data when selected month changes
+  useEffect(() => {
+    const fetchMonthlyDiaries = async () => {
+      try {
+        console.log("Fetching data for month:", selectedMonth);
+        const responseData = await calenderApi({ month: selectedMonth });
+
+        if (responseData && responseData.data && responseData.data.summaries) {
+          setMoodSummaries(responseData.data.summaries);
+        }
+      } catch (error) {
+        console.error("월간 다이어리 조회 실패:", error);
+      }
+    };
+  
+    fetchMonthlyDiaries();
+  }, [selectedMonth]);
+
   const renderDay = (day) => {
     if (!day) return null;
     const dateString = day.dateString;
+    
+    const moodData = moodSummaries.find(item => item.date === dateString);
     const diaryEntry = diaryData.find((entry) => entry.date === dateString);
+    const moodEmoji = moodData ? moodToEmoji[moodData.mood] || "❓" : null;
+    
+    // Debug logs
+    if (moodData) {
+      console.log(`Date: ${dateString}, Mood: ${moodData.mood}, Emoji: ${moodEmoji}`);
+    }
 
     return (
       <TouchableOpacity
-        onPress={() => openModal(diaryEntry)}
+        onPress={() => openModal(dateString, diaryEntry)}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
         <View style={{ alignItems: "center" }}>
           <Text
             style={{
               fontSize: 16,
-              color: dateString === today ? Colors.pointColor : "black", // 오늘 날짜면 pointColor 적용
-              fontWeight: dateString === today ? "bold" : "normal", // 오늘 날짜면 강조
+              color: dateString === today ? Colors.pointColor : "black",
+              fontWeight: dateString === today ? "bold" : "normal",
             }}
           >
             {day.day}
           </Text>
-          {diaryEntry && (
-            <Text style={{ fontSize: 14 }}>{diaryEntry.emoji}</Text>
+          {moodEmoji ? (
+            <Image
+              source={{ uri: moodEmoji }}
+              style={{ width: 24, height: 24, marginTop: 4 }}
+              resizeMode="contain"
+            />
+          ) : (
+            <View style={{ width: 24, height: 24, marginTop: 4 }} />
           )}
+
         </View>
       </TouchableOpacity>
     );
@@ -69,9 +149,9 @@ const CalendarPage = () => {
 
   return (
     <ImageBackground
-      source={require("../../../assets/background.png")} // 배경 이미지 경로
-      style={styles.background} // 스타일을 적용할 배경
-      resizeMode="cover" // 이미지 크기 조정 방법
+      source={require("../../../assets/background.png")}
+      style={styles.background}
+      resizeMode="cover"
     >
       <SafeAreaView style={styles.safeContainer}>
         <View style={styles.container}>
@@ -103,6 +183,13 @@ const CalendarPage = () => {
               dayComponent={({ date, state }) => renderDay(date)}
               monthFormat={"yyyy년 MM월"}
               hideExtraDays
+              current={currentDate}
+              onMonthChange={(month) => {
+                const yearMonth = month.dateString.substring(0, 7); // Get "YYYY-MM"
+                console.log("Month changed to:", yearMonth);
+                setSelectedMonth(yearMonth);
+                setCurrentDate(month.dateString);
+              }}
             />
           </View>
 
@@ -135,7 +222,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   background: {
-    flex: 1, // 화면을 가득 채우도록 설정
+    flex: 1,
   },
   topSection: {
     marginTop: 30,
@@ -184,7 +271,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "black",
     fontFamily: "Cafe24Ssurrondair",
-
     lineHeight: 22,
     wordWrap: "break-word",
   },
@@ -203,7 +289,7 @@ const styles = StyleSheet.create({
     wordWrap: "break-word",
   },
   calendarSection: {
-    height: 400,
+    height: 436,
     backgroundColor: "white",
     marginTop: 15,
     borderRadius: 15, // 모서리 둥글게
