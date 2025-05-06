@@ -18,6 +18,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setCurrentPlaneIndex } from "../../../redux/slices/planeSlice";
 import { resetImages } from "../../../redux/slices/landscapeSlice";
 import { sendMessageToUnity } from "../../utils/unityBridge";
+import { itemUpdateApi } from "../../api/itemUpdate";
 
 const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const dispatch = useDispatch();
@@ -62,6 +63,14 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const [landScapeCount, setLandScapeCount] = useState(initialLandScapeCount);
   const [lockStartLandScape, setLockStartLandScape] = useState(12); //레벨에 따라 다르게 변경
 
+  // 배경
+  let selectedPlaneIndex = null;
+  if (currentPlaneIndex < lockStartPlane) {
+    selectedPlaneIndex = currentPlaneIndex;
+    const finalSend4 = JSON.stringify([currentPlaneIndex]);
+    sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+  }
+
   /////////////////////////////////////
 
   const [menu, setMenu] = useState(0);
@@ -82,7 +91,7 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
     );
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     //api 전송
     //unity화면 에다가 추가!
 
@@ -116,8 +125,58 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
     }
 
-    onClose();
-  };
+    // itemUpdateApi 호출 - 선택된 아이템들을 서버에 저장
+  try {
+    const items = [];
+    
+    // 선택된 모자 아이템 추가
+    const selectedHat = hatImages.find(item => item.selected);
+    if (selectedHat) {
+      items.push({
+        itemType: "hat",
+        itemIndex: selectedHat.id
+      });
+    }
+    
+    // 선택된 구조물 아이템 추가
+    structureImages.forEach(image => {
+      if (image.selected) {
+        items.push({
+          itemType: "structure",
+          itemIndex: image.id
+        });
+      }
+    });
+    
+    // 선택된 풍경 아이템 추가
+    landscapeImages.forEach(image => {
+      if (image.selected) {
+        items.push({
+          itemType: "landscape",
+          itemIndex: image.id
+        });
+      }
+    });
+    
+    // 선택된 배경 추가
+    if (currentPlaneIndex < lockStartPlane) {
+      items.push({
+        itemType: "plane",
+        itemIndex: currentPlaneIndex
+      });
+    }
+    
+    console.log("아이템 업데이트 요청 시작:", items);
+    console.log("전송 데이터 형식:", JSON.stringify({ items }));
+    
+    const response = await itemUpdateApi({ items });
+    console.log("아이템 업데이트 성공:", response);
+  } catch (error) {
+    console.error("아이템 업데이트 실패:", error);
+  }
+
+  onClose();
+};
 
   const categories = ["구조물", "장난감", "모자", "배경"];
   return (
