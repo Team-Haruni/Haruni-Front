@@ -29,6 +29,8 @@ import Colors from "../../../styles/color";
 import { sendMessageToUnity } from "../../utils/unityBridge";
 import AuraIcon from "../../../assets/aura-icon.svg";
 import { mainApi } from "../../api/main";
+import ErrorBoundary from "react-native-error-boundary";
+import CustomWebviewErrorFallback from "../../components/ErrorFallback/CustomWebviewErrorFallback";
 
 const Home = ({ navigation }) => {
   const userName = useSelector((state) => state.exp.userName);
@@ -101,6 +103,16 @@ const Home = ({ navigation }) => {
         action: `${characterVersion}`,
       });
     }, 10000);
+    setTimeout(() => {
+      sendMessageToUnity(webviewRef, "characterVersion", {
+        action: `${characterVersion}`,
+      });
+    }, 15000);
+    setTimeout(() => {
+      sendMessageToUnity(webviewRef, "characterVersion", {
+        action: `${characterVersion}`,
+      });
+    }, 20000);
   };
 
   return (
@@ -122,11 +134,14 @@ const Home = ({ navigation }) => {
             pointerEvents: isLoading ? "none" : "auto",
           }}
         >
-          <UnityWebView
-            ref={webviewRef}
-            style={[styles.unityContainer]}
-            onLoadEnd={handleWebViewLoadEnd}
-          />
+          <ErrorBoundary FallbackComponent={CustomWebviewErrorFallback}>
+            <UnityWebView
+              ref={webviewRef}
+              style={[styles.unityContainer]}
+              onLoadEnd={handleWebViewLoadEnd}
+              setIsLoading={setIsLoading}
+            />
+          </ErrorBoundary>
         </View>
 
         {!isLoading && (

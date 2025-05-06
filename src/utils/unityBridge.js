@@ -18,5 +18,6 @@ export const sendMessageToUnity = (webviewRef, eventName, data) => {
     console.error(
       "WebView ref가 null입니다. WebView가 렌더링되었는지 확인하세요."
     );
+    throw new Error("캐릭터 불러오기 실패!!");
   }
 };
