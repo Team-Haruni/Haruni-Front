@@ -2,7 +2,7 @@
 import { get } from "./index"; 
 import * as SecureStore from "expo-secure-store";
 
-export const calenderApi = async (data) => {
+export const itemPopupApi = async (data) => {
   try {
     const requestData = {
       ...data, 

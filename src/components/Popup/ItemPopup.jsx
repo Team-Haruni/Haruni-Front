@@ -18,7 +18,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { setCurrentPlaneIndex } from "../../../redux/slices/planeSlice";
 import { resetImages } from "../../../redux/slices/landscapeSlice";
 import { sendMessageToUnity } from "../../utils/unityBridge";
-import { calenderApi } from "../../api/itemPopup"; // API 함수 가져오기
+import { itemPopupApi } from "../../api/itemPopup"; // API 함수 가져오기
 
 const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const dispatch = useDispatch();
@@ -79,24 +79,58 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       setIsLoading(true);
       setError(null);
       
-      const response = await calenderApi({});
+      const response = await itemPopupApi({});
       
       if (response && response.data) {
-        // 받은 데이터 처리하기
+        console.log("API 응답 데이터:", response.data);
+        
+        // 모든 아이템의 선택 상태를 초기화 (모두 선택 해제)
+        // 각 타입별 선택 상태를 초기화하는 액션 필요 (필요시 구현)
+        
+        // API 응답을 기반으로 선택된 아이템 상태 업데이트
         response.data.forEach(item => {
           if (item.type === "hat") {
-            // 선택된 모자 상태 적용하기
-            // 데이터 처리 방식에 따라 달라질 수 있음
-            // 예시: Redux에 디스패치하거나 로컬 상태 설정
+            // hatSlice의 toggleSelect 액션 사용
+            // index 값이 hat 이미지 배열의 인덱스인지 확인 필요
+            const hatIndex = hatImages.findIndex(hat => hat.id === item.index);
+            if (hatIndex !== -1) {
+              // 모자의 선택 상태를 활성화하는 액션 디스패치
+              dispatch({ type: 'hat/toggleSelect', payload: hatIndex });
+              
+              // 선택된 모자 개수 업데이트
+              setHatCount(prev => prev + 1);
+            }
           } else if (item.type === "landscape") {
-            // 선택된 구조물 상태 적용하기
+            // landscapeSlice의 toggleSelect 액션 사용
+            const landscapeIndex = landscapeImages.findIndex(landscape => landscape.id === item.index);
+            if (landscapeIndex !== -1) {
+              // 구조물의 선택 상태를 활성화하는 액션 디스패치
+              dispatch({ type: 'landscape/toggleSelect', payload: landscapeIndex });
+              
+              // 선택된 구조물 개수 업데이트
+              setLandScapeCount(prev => prev + 1);
+            }
+          } else if (item.type === "structure") {
+            // structureSlice의 toggleSelect 액션 사용
+            const structureIndex = structureImages.findIndex(structure => structure.id === item.index);
+            if (structureIndex !== -1) {
+              // 장난감의 선택 상태를 활성화하는 액션 디스패치
+              dispatch({ type: 'structure/toggleSelect', payload: structureIndex });
+              
+              // 선택된 장난감 개수 업데이트
+              setStructureCount(prev => prev + 1);
+            }
           } else if (item.type === "plane") {
+            // 배경 선택 상태를 업데이트
             dispatch(setCurrentPlaneIndex(item.index));
           }
         });
+        
+        console.log("아이템 선택 상태 업데이트 완료");
       }
     } catch (err) {
       console.error("선택된 아이템 가져오기 오류:", err);
+      console.error("오류 상세:", err.response ? err.response.data : err.message);
       setError(err.message || "선택된 아이템을 불러오는데 실패했습니다");
     } finally {
       setIsLoading(false);
@@ -444,6 +478,7 @@ const styles = StyleSheet.create({
     color: Colors.pointColor,
     fontWeight: "bold",
   },
+  // 스타일 끝
 });
 
 export default ItemPopup;
