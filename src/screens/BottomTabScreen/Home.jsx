@@ -23,7 +23,11 @@ import VoiceButton from "../../components/VoiceButton";
 import TouchArea from "../../components/TouchArea";
 import LevelPopup from "../../components/Popup/LevelPopup";
 import characterData from "../../data/characterData";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux"; // useDispatch 추가
+import { setSelected as setSelectedHat } from "../../../redux/slices/hatSlice";
+import { setSelected as setSelectedLandscape } from "../../../redux/slices/landscapeSlice";
+import { setSelected as setSelectedStructure } from "../../../redux/slices/structureSlice";
+import { setCurrentPlaneIndex } from "../../../redux/slices/planeSlice";
 import LeafIcon from "../../../assets/leaf-icon.svg";
 import Colors from "../../../styles/color";
 import { sendMessageToUnity } from "../../utils/unityBridge";
@@ -33,6 +37,7 @@ import ErrorBoundary from "react-native-error-boundary";
 import CustomWebviewErrorFallback from "../../components/ErrorFallback/CustomWebviewErrorFallback";
 
 const Home = ({ navigation }) => {
+  const dispatch = useDispatch(); // Redux dispatch 추가
   const userName = useSelector((state) => state.exp.userName);
   const webviewRef = useRef(null);
   const [chat, setChat] = useState(`안녕 ${userName} 오늘 하루도 힘내자!`);
@@ -49,24 +54,117 @@ const Home = ({ navigation }) => {
   const nickName = useSelector((state) => state.exp.nickName);
   const exp = useSelector((state) => state.exp.exp);
   const level = useSelector((state) => state.exp.level);
+  
+  // 각 슬라이스의 상태 가져오기
+  const hatImages = useSelector((state) => state.hat.hatImages);
+  const landscapeImages = useSelector((state) => state.landscape.landscapeImages);
+  const structureImages = useSelector((state) => state.structure.structureImages);
+  const currentPlaneIndex = useSelector((state) => state.plane.currentIndex);
 
-  // // 버전 증가
-  // setCharacterVersion((prev) => prev + 1);
-
+  // API 데이터 불러오기 및 Redux 상태 업데이트
   useEffect(() => {
-    const fetchGreeting = async () => {
+    const fetchInitialData = async () => {
       try {
+        console.log("API 호출 시작");
         const res = await mainApi(); // mainApi 호출
+        console.log("API 응답 받음:", res.data);
+        
+        // 인사말 설정
         const greeting = res.data.greetingMessage;
         if (greeting) {
-          setChat(greeting); // 첫 화면 로딩 시 인삿말 표시
+          setChat(greeting);
+          console.log("인사말 설정됨:", greeting);
         }
+        
+        // 아이템 데이터 처리
+        const itemIndexes = res.data.itemIndexes || [];
+        console.log("받아온 아이템 데이터:", itemIndexes);
+        
+        // 타입별로 가장 마지막 인덱스만 적용
+        const typeToIndex = {};
+        itemIndexes.forEach(item => {
+          const { type, index } = item;
+          typeToIndex[type] = index;
+        });
+        
+        // 정리된 데이터로 redux 업데이트 - 새 액션 사용
+        Object.entries(typeToIndex).forEach(([type, index]) => {
+          console.log(`최종 선택 아이템 - 타입: ${type}, 인덱스: ${index}`);
+          
+          // 타입에 따라 다른 Redux 액션 dispatch
+          switch(type) {
+            case 'hat':
+              console.log(`hat setSelected 액션 디스패치 - 인덱스: ${index}`);
+              dispatch(setSelectedHat(parseInt(index)));
+              break;
+            case 'landscape':
+              console.log(`landscape setSelected 액션 디스패치 - 인덱스: ${index}`);
+              dispatch(setSelectedLandscape(parseInt(index)));
+              break;
+            case 'structure':
+              console.log(`structure setSelected 액션 디스패치 - 인덱스: ${index}`);
+              dispatch(setSelectedStructure(parseInt(index)));
+              break;
+            case 'plane':
+              console.log(`plane setCurrentPlaneIndex 액션 디스패치 - 인덱스: ${index}`);
+              dispatch(setCurrentPlaneIndex(parseInt(index)));
+              break;
+            default:
+              console.log(`Unknown item type: ${type}`);
+          }
+        });
+        
       } catch (err) {
-        console.error("Greeting 로딩 실패", err);
+        console.error("API 데이터 로딩 실패", err);
       }
     };
-    fetchGreeting();
-  }, []);
+    
+    fetchInitialData();
+  }, [dispatch]);
+  
+  // 모자 상태 변화 감지 및 로깅
+  useEffect(() => {
+    console.log("Hat 상태 변경 감지:", hatImages);
+    const selectedHat = hatImages.findIndex(item => item.selected);
+    console.log("선택된 Hat 인덱스:", selectedHat);
+    
+    if (!isLoading && webviewRef.current && selectedHat !== -1) {
+      console.log(`Unity에 메시지 전송 - 타입: hat, 인덱스: ${selectedHat}`);
+      sendMessageToUnity(webviewRef, "hat", { action: `${selectedHat}` });
+    }
+  }, [hatImages, isLoading]);
+
+  useEffect(() => {
+    if (isLoading || !webviewRef.current) return;
+    
+    // 풍경 아이템 확인
+    const selectedLandscape = landscapeImages.findIndex(item => item.selected);
+    if (selectedLandscape !== -1) {
+      sendMessageToUnity(webviewRef, "landscape", { action: `${selectedLandscape}` });
+      console.log(`[아이템 적용] 타입: landscape, 인덱스: ${selectedLandscape}`);
+    }
+  }, [landscapeImages, isLoading]);
+
+  useEffect(() => {
+    if (isLoading || !webviewRef.current) return;
+    
+    // 구조물 아이템 확인
+    const selectedStructure = structureImages.findIndex(item => item.selected);
+    if (selectedStructure !== -1) {
+      sendMessageToUnity(webviewRef, "structure", { action: `${selectedStructure}` });
+      console.log(`[아이템 적용] 타입: structure, 인덱스: ${selectedStructure}`);
+    }
+  }, [structureImages, isLoading]);
+
+  useEffect(() => {
+    if (isLoading || !webviewRef.current) return;
+    
+    // 배경 인덱스 전송
+    if (currentPlaneIndex !== null && currentPlaneIndex !== undefined) {
+      sendMessageToUnity(webviewRef, "plane", { action: `${currentPlaneIndex}` });
+      console.log(`[아이템 적용] 타입: plane, 인덱스: ${currentPlaneIndex}`);
+    }
+  }, [currentPlaneIndex, isLoading]);
 
   //캐릭터 레벨에 따른 버전 증가
   useEffect(() => {
@@ -117,9 +215,9 @@ const Home = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require("../../../assets/HaruniBackground.jpg")} // 배경 이미지 경로
-      style={styles.background} // 스타일을 적용할 배경
-      resizeMode="cover" // 이미지 크기 조정 방법
+      source={require("../../../assets/HaruniBackground.jpg")} 
+      style={styles.background} 
+      resizeMode="cover"
     >
       <SafeAreaView style={styles.safeContainer}>
         {isLoading && (
@@ -250,7 +348,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? 10 : 0,
   },
   background: {
-    flex: 1, // 화면을 가득 채우도록 설정
+    flex: 1, 
   },
   loadingBarContainer: {
     position: "absolute",
@@ -263,8 +361,8 @@ const styles = StyleSheet.create({
   },
   unityContainer: {
     position: "relative",
-    ...StyleSheet.absoluteFillObject, // View를 화면 전체에 배치
-    zIndex: 0, // 다른 컴포넌트 뒤에 배치
+    ...StyleSheet.absoluteFillObject, 
+    zIndex: 0, 
   },
   settingIconContainer: {
     position: "absolute",

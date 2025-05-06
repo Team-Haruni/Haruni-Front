@@ -9,6 +9,7 @@ import hobbyReducer from "./slices/hobbySlice";
 import diaryReducer from "./slices/diarySlice";
 import alarmReducer from "./slices/alarmSlice";
 
+
 const store = configureStore({
   reducer: {
     hat: hatReducer,
