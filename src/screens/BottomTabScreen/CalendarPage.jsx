@@ -16,7 +16,7 @@ import { useSelector } from "react-redux";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import ProfilePopup from "../../components/Popup/SettingPopup/SettingPopupPopup/ProfilePopup";
-import { calenderApi } from "../../api/Calender"; 
+import { calenderApi } from "../../api/calender"; 
 import { calendarPopupApi, transformDiaryData } from "../../api/calenderPopup"; 
 
 const CalendarPage = () => {
