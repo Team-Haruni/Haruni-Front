@@ -31,8 +31,8 @@ const DSN = Constants.expoConfig.extra.DSN;
 Sentry.init({
   dsn: DSN,
   debug: true, // 디버깅 활성화
-  tracesSampleRate: 1.0,
-  profileSessionSampleRate: 1.0,
+  tracesSampleRate: 0.2,
+  profileSessionSampleRate: 0.2,
   profileLifecycle: "trace",
 });
 

@@ -36,7 +36,7 @@ const Login = ({ navigation }) => {
         Sentry.captureException(error);
       });
       Alert.alert("로그인 실패", error.message);
-      navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
+      //navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
     }
   };
 

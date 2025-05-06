@@ -1,15 +1,15 @@
 // src/api/main.js
-import { get } from "./index"; 
+import { get } from "./index";
 import * as SecureStore from "expo-secure-store";
 
 export const mainApi = async (data) => {
   try {
     const requestData = {
-      ...data, 
+      ...data,
     };
     console.log("요청 데이터:", requestData);
     console.log("요청 URL:", `/v1/haruni`);
-    
+
     const response = await get(`/v1/haruni`);
     console.log("main 응답:", response.data);
 
@@ -18,7 +18,7 @@ export const mainApi = async (data) => {
         accessToken: response.data.data.accessToken,
         refreshToken: response.data.data.refreshToken,
       });
-      
+
       console.log("토큰 데이터:", tokenData);
       await SecureStore.setItemAsync("userTokens", tokenData);
     }

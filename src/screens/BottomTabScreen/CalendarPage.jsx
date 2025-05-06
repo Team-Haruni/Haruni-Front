@@ -16,8 +16,8 @@ import { useSelector } from "react-redux";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import ProfilePopup from "../../components/Popup/SettingPopup/SettingPopupPopup/ProfilePopup";
-import { calenderApi } from "../../api/Calender"; 
-import { calendarPopupApi, transformDiaryData } from "../../api/calenderPopup"; 
+import { calenderApi } from "../../api/calender";
+import { calendarPopupApi, transformDiaryData } from "../../api/calenderPopup";
 
 const CalendarPage = () => {
   const characterVersion = useSelector((state) => state.exp.characterVersion);
@@ -31,10 +31,11 @@ const CalendarPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const moodToEmoji = {
-    HAPPY:'https://i.pinimg.com/736x/c1/c3/f0/c1c3f0084bdd7919579adf56cba8a4cd.jpg',
-    SAD: 'https://i.pinimg.com/736x/cc/0e/a0/cc0ea0f10d01f23d5570104577f6766b.jpg',
-    NORMAL: 'https://i.pinimg.com/736x/fc/72/4b/fc724ba3dda6977eb410fc3e456252ba.jpg'
- 
+    HAPPY:
+      "https://i.pinimg.com/736x/c1/c3/f0/c1c3f0084bdd7919579adf56cba8a4cd.jpg",
+    SAD: "https://i.pinimg.com/736x/cc/0e/a0/cc0ea0f10d01f23d5570104577f6766b.jpg",
+    NORMAL:
+      "https://i.pinimg.com/736x/fc/72/4b/fc724ba3dda6977eb410fc3e456252ba.jpg",
   };
 
   const now = new Date();
@@ -42,20 +43,22 @@ const CalendarPage = () => {
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   const today = `${year}-${month}-${day}`;
-  
+
   const [selectedMonth, setSelectedMonth] = useState(`${year}-${month}`);
-  const [currentDate, setCurrentDate] = useState(now.toISOString().split('T')[0]);
+  const [currentDate, setCurrentDate] = useState(
+    now.toISOString().split("T")[0]
+  );
 
   // 새로운 함수: 날짜를 선택하면 API에서 해당 날짜의 다이어리 데이터를 가져옴
   const fetchDayData = async (date) => {
     try {
       setIsLoading(true);
       console.log("Fetching data for day:", date);
-      
+
       // API 호출하여 해당 날짜의 다이어리 상세 데이터 가져오기
       const response = await calendarPopupApi({ day: date });
       const transformedData = transformDiaryData(response);
-      
+
       if (transformedData) {
         setSelectedDiary(transformedData);
         setModalVisible(true);
@@ -69,7 +72,7 @@ const CalendarPage = () => {
       }
     } catch (error) {
       console.error("일일 다이어리 조회 실패:", error);
-      
+
       // API 실패 시 기존 데이터를 사용 (폴백)
       const diaryEntry = diaryData.find((entry) => entry.date === date);
       if (diaryEntry) {
@@ -100,21 +103,23 @@ const CalendarPage = () => {
         console.error("월간 다이어리 조회 실패:", error);
       }
     };
-  
+
     fetchMonthlyDiaries();
   }, [selectedMonth]);
 
   const renderDay = (day) => {
     if (!day) return null;
     const dateString = day.dateString;
-    
-    const moodData = moodSummaries.find(item => item.date === dateString);
+
+    const moodData = moodSummaries.find((item) => item.date === dateString);
     const diaryEntry = diaryData.find((entry) => entry.date === dateString);
     const moodEmoji = moodData ? moodToEmoji[moodData.mood] || "❓" : null;
-    
+
     // Debug logs
     if (moodData) {
-      console.log(`Date: ${dateString}, Mood: ${moodData.mood}, Emoji: ${moodEmoji}`);
+      console.log(
+        `Date: ${dateString}, Mood: ${moodData.mood}, Emoji: ${moodEmoji}`
+      );
     }
 
     return (
@@ -141,7 +146,6 @@ const CalendarPage = () => {
           ) : (
             <View style={{ width: 24, height: 24, marginTop: 4 }} />
           )}
-
         </View>
       </TouchableOpacity>
     );

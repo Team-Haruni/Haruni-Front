@@ -13,7 +13,7 @@ const MessageItem = ({ message }) => {
   const { mine, content, createdAt, loading } = message;
 
   // HH:MM:SS → HH:MM
-  const timeLabel = createdAt.substring(11, 16);
+  const timeLabel = createdAt.substring(0, 5);
 
   return (
     <View
@@ -44,22 +44,13 @@ const MessageItem = ({ message }) => {
             <LoadingBar />
           </View>
         ) : (
-          <Text
-            style={
-              mine ? styles.messageText : styles.otherMessageText
-            }
-          >
+          <Text style={mine ? styles.messageText : styles.otherMessageText}>
             {content}
           </Text>
         )}
 
         {/* 타임스탬프 */}
-        <Text
-          style={[
-            styles.time,
-            mine ? styles.timeMine : styles.timeOther,
-          ]}
-        >
+        <Text style={[styles.time, mine ? styles.timeMine : styles.timeOther]}>
           {timeLabel}
         </Text>
       </View>

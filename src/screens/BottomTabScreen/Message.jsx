@@ -11,12 +11,14 @@ import {
   Keyboard,
   ActivityIndicator,
   RefreshControl,
+  InteractionManager,
 } from "react-native";
 import ChatBar from "../../components/ChatBar";
 import MessageItem from "../../components/MessageItem";
 import { useDispatch } from "react-redux";
 import { chatGrowExp } from "../../../redux/slices/expSlice";
-import { fetchChatHistory } from "../../api/message";
+import { fetchChatHistory, sendChat } from "../../api/message";
+import * as Sentry from "@sentry/react-native";
 
 const Message = () => {
   const dispatch = useDispatch();
@@ -31,8 +33,8 @@ const Message = () => {
   // 날짜 포맷 함수
   function formatDate(d) {
     const yyyy = d.getFullYear();
-    const mm = (`0${d.getMonth() + 1}`).slice(-2);
-    const dd = (`0${d.getDate()}`).slice(-2);
+    const mm = `0${d.getMonth() + 1}`.slice(-2);
+    const dd = `0${d.getDate()}`.slice(-2);
     return `${yyyy}-${mm}-${dd}`;
   }
   function getTodayString() {
@@ -45,47 +47,59 @@ const Message = () => {
   }
 
   // 공용 로드 함수
-  const loadChatForDate = useCallback(
-    async (dateStr, prepend = false) => {
-      try {
-        prepend ? setIsRefreshing(true) : setIsLoading(true);
-        const chatArray = await fetchChatHistory(dateStr);
-        const formatted = chatArray.map((item) => ({
-          mine: item.chatType === "USER",
-          content: item.content,
-          sendingTime: item.sendingTime,
-          createdAt: new Date(`${dateStr}T${item.sendingTime}`).toISOString(),
-        }));
-        setMessages((prev) =>
-          prepend ? [...formatted, ...prev] : formatted
-        );
-      } catch (e) {
-        console.warn("채팅 불러오기 실패:", e);
-      } finally {
-        prepend ? setIsRefreshing(false) : setIsLoading(false);
-      }
-    },
-    []
-  );
+  const loadChatForDate = useCallback(async (dateStr, prepend = false) => {
+    try {
+      prepend ? setIsRefreshing(true) : setIsLoading(true);
+      const chatArray = await fetchChatHistory(dateStr);
+      const formatted = chatArray.map((item) => ({
+        mine: item.chatType === "USER",
+        content: item.content,
+        createdAt: item.sendingTime,
+      }));
+      setMessages((prev) => (prepend ? [...formatted, ...prev] : formatted));
+    } catch (e) {
+      Sentry.withScope((scope) => {
+        scope.setLevel("error");
+        scope.setTag("type", "api");
+        scope.setTag("api", "fetchChat");
+        Sentry.captureException(e);
+      });
+      console.warn("채팅 불러오기 실패:", e);
+    } finally {
+      prepend ? setIsRefreshing(false) : setIsLoading(false);
+    }
+  }, []);
 
   // 초기 로드 (오늘)
   useEffect(() => {
     loadChatForDate(currentDate, false);
   }, []);
 
+  // // 메시지 자동 스크롤
+  // useEffect(() => {
+  //   flatListRef.current?.scrollToEnd({ animated: true });
+  // }, [messages]);
   // 메시지 자동 스크롤
   useEffect(() => {
-    flatListRef.current?.scrollToEnd({ animated: true });
-  }, [messages]);
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 200);
+  }, []);
 
   // 키보드 이벤트 처리
   useEffect(() => {
-    const show = Keyboard.addListener("keyboardDidShow", () =>
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 200)
-    );
-    const hide = Keyboard.addListener("keyboardDidHide", () =>
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 400)
-    );
+    const show = Keyboard.addListener("keyboardDidShow", () => {
+      InteractionManager.runAfterInteractions(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      });
+    });
+
+    const hide = Keyboard.addListener("keyboardDidHide", () => {
+      InteractionManager.runAfterInteractions(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      });
+    });
+
     return () => {
       show.remove();
       hide.remove();
@@ -94,41 +108,80 @@ const Message = () => {
 
   // 더미 메시지 전송 로직 (변경 없음)
   const [newMessage, setNewMessage] = useState("");
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
+    Keyboard.dismiss();
+
+    InteractionManager.runAfterInteractions(() => {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 400);
+    });
+
     if (!newMessage.trim()) return;
     const now = new Date();
-    const hh = (`0${now.getHours()}`).slice(-2);
-    const mi = (`0${now.getMinutes()}`).slice(-2);
+    const hh = `0${now.getHours()}`.slice(-2);
+    const mi = `0${now.getMinutes()}`.slice(-2);
     const sendingTime = `${hh}:${mi}:00`;
+    console.log(sendingTime);
 
     const userMessage = {
       mine: true,
       content: newMessage,
       sendingTime,
-      createdAt: now.toISOString(),
+      createdAt: sendingTime,
     };
     const emptyAI = {
       mine: false,
       content: "",
       sendingTime,
-      createdAt: now.toISOString(),
+      createdAt: sendingTime,
       loading: true,
     };
 
     setNewMessage("");
     setMessages((prev) => [...prev, userMessage, emptyAI]);
     setIsLoading(true);
-    setTimeout(() => {
+
+    // setTimeout(() => {
+    //   setMessages((prev) =>
+    //     prev.map((m, i) =>
+    //       i === prev.length - 1 ? { ...m, content: "끝", loading: false } : m
+    //     )
+    //   );
+    //   setIsLoading(false);
+    //   dispatch(chatGrowExp());
+    // }, 2000);
+
+    try {
+      const response = await sendChat(newMessage); // 실제 서버 전송
       setMessages((prev) =>
         prev.map((m, i) =>
           i === prev.length - 1
-            ? { ...m, content: "끝", loading: false }
+            ? { ...m, content: response, loading: false }
             : m
         )
       );
-      setIsLoading(false);
       dispatch(chatGrowExp());
-    }, 2000);
+    } catch (e) {
+      Sentry.withScope((scope) => {
+        scope.setLevel("error");
+        scope.setTag("type", "api");
+        scope.setTag("api", "sendChat");
+        Sentry.captureException(e);
+      });
+      // 실패 시 에러 메시지로 대체
+      setTimeout(() => {
+        setMessages((prev) =>
+          prev.map((m, i) =>
+            i === prev.length - 1
+              ? { ...m, content: "오류가 발생했어요.", loading: false }
+              : m
+          )
+        );
+      }, 2000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Pull-to-Refresh 핸들러
@@ -155,7 +208,6 @@ const Message = () => {
                 data={messages}
                 keyExtractor={(_, idx) => idx.toString()}
                 renderItem={({ item }) => <MessageItem message={item} />}
-
                 // 방법 1: Pull-to-Refresh 추가
                 refreshControl={
                   <RefreshControl
