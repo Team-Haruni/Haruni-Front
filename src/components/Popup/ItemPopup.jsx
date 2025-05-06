@@ -96,8 +96,6 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
             if (hatIndex !== -1) {
               // 모자의 선택 상태를 활성화하는 액션 디스패치
               dispatch({ type: 'hat/toggleSelect', payload: hatIndex });
-              
-              // 선택된 모자 개수 업데이트
               setHatCount(prev => prev + 1);
             }
           } else if (item.type === "landscape") {
@@ -190,18 +188,6 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
         const finalSend4 = JSON.stringify([currentPlaneIndex]);
         sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
       }
-
-      // 필요한 경우 여기에서 서버에 데이터를 저장할 수 있습니다
-      // 예시:
-      // const saveData = {
-      //   selectedItems: [
-      //     { type: "hat", indices: selectedHatImageIds },
-      //     { type: "landscape", indices: selectedLandscapeImageIds },
-      //     { type: "structure", indices: selectedStructureImageIds },
-      //     { type: "plane", index: currentPlaneIndex }
-      //   ]
-      // };
-      // await saveItemsApi(saveData);
       
       onClose();
     } catch (err) {
