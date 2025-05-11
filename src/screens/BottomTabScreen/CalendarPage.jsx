@@ -31,11 +31,11 @@ const CalendarPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const moodToEmoji = {
-    HAPPY:
+    happy:
       "https://i.pinimg.com/736x/c1/c3/f0/c1c3f0084bdd7919579adf56cba8a4cd.jpg",
-    SAD: "https://i.pinimg.com/736x/cc/0e/a0/cc0ea0f10d01f23d5570104577f6766b.jpg",
-    NORMAL:
-      "https://i.pinimg.com/736x/fc/72/4b/fc724ba3dda6977eb410fc3e456252ba.jpg",
+    normal:
+      "https://i.pinimg.com/736x/cc/0e/a0/cc0ea0f10d01f23d5570104577f6766b.jpg",
+    sad: "https://i.pinimg.com/736x/fc/72/4b/fc724ba3dda6977eb410fc3e456252ba.jpg",
   };
 
   const now = new Date();

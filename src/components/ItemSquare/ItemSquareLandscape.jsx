@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import Colors from "../../../styles/color";
 import LockIcon from "../../../assets/lock-icon.svg";
 import { useDispatch } from "react-redux";
-import { toggleSelect } from "../../../redux/slices/landscapeSlice";
+import { toggleSelectLandscape } from "../../../redux/slices/landscapeSlice";
 import Toast, { BaseToast } from "react-native-toast-message";
 
 const ItemSquareLandScape = ({ image, lock, index, setCount, count }) => {
@@ -29,7 +29,8 @@ const ItemSquareLandScape = ({ image, lock, index, setCount, count }) => {
       if (selected) {
         setCount(count - 1);
         setSelected(!selected);
-        dispatch(toggleSelect(index));
+        console.log(index);
+        dispatch(toggleSelectLandscape(index));
       } else {
         if (count == 5) {
           return Toast.show({
@@ -41,8 +42,8 @@ const ItemSquareLandScape = ({ image, lock, index, setCount, count }) => {
         } else {
           setCount(count + 1);
           setSelected(!selected);
-          //console.log(index);
-          dispatch(toggleSelect(index));
+          console.log(index);
+          dispatch(toggleSelectLandscape(index));
         }
       }
     }

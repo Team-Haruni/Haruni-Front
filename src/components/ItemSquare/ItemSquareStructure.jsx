@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import Colors from "../../../styles/color";
 import LockIcon from "../../../assets/lock-icon.svg";
 import { useDispatch } from "react-redux";
-import { toggleSelect } from "../../../redux/slices/structureSlice";
+import { toggleSelectStructure } from "../../../redux/slices/structureSlice";
 import Toast, { BaseToast } from "react-native-toast-message";
 
 const ItemSquareStructure = ({ image, lock, index, setCount, count }) => {
@@ -29,7 +29,7 @@ const ItemSquareStructure = ({ image, lock, index, setCount, count }) => {
       if (selected) {
         setCount(count - 1);
         setSelected(!selected);
-        dispatch(toggleSelect(index));
+        dispatch(toggleSelectStructure(index));
       } else {
         if (count == 5) {
           return Toast.show({
@@ -42,7 +42,7 @@ const ItemSquareStructure = ({ image, lock, index, setCount, count }) => {
           setCount(count + 1);
           setSelected(!selected);
           //console.log(index);
-          dispatch(toggleSelect(index));
+          dispatch(toggleSelectStructure(index));
         }
       }
     }

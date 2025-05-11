@@ -1,21 +1,12 @@
-// src/api/message.js
 import { get, post } from "./index";
 
-/**
- * 지정한 날짜의 채팅 내역을 조회합니다.
- * @param {string} date - "YYYY-MM-DD" 형식의 조회 날짜
- * @returns {Promise<Array<{chatType: string, content: string, sendingTime: string}>>}
- */
-
-export const fetchChatHistory = async (date) => {
+export const loadItem = async () => {
   try {
-    console.log("채팅 조회 요청 날짜:", date);
-    const response = await get(`/v1/haruni/chats?date=${date}`);
-    console.log("채팅 내역 응답:", response.data);
-    // 서버 응답 구조: { data: [ ... ], message: "채팅 내역 조회 완료" }
+    const response = await get(`/v1/items`);
+    console.log("아이템템 내역 응답:", response.data);
     return response.data.data;
   } catch (error) {
-    console.log("fetchChatHistory 오류:", error);
+    console.log("loadItem 오류:", error);
     if (error.response) {
       console.error("응답 오류 데이터:", error.response.data);
       console.error("응답 상태 코드:", error.response.status);
@@ -25,21 +16,21 @@ export const fetchChatHistory = async (date) => {
     } else {
       console.error("오류 메시지:", error.message);
     }
-    throw new Error("채팅 내역을 불러오는데 실패했습니다.");
+    throw new Error("아이템 내역을 불러오는데 실패했습니다.");
   }
 };
 
-export const sendChat = async (data) => {
+export const modifyItem = async (data) => {
   try {
     const requestData = {
-      content: data, // 전달받은 data 객체의 내용
+      items: data, // 전달받은 data 객체의 내용
     };
     console.log("보내는 메시지:", JSON.stringify(requestData));
-    const response = await post(`/v1/haruni/chats`, requestData);
+    const response = await post(`/v1/items`, requestData);
     console.log("채팅 응답:", response.data);
-    return response.data.data.content;
+    return response.data.data;
   } catch (error) {
-    console.log("sendChat 오류:", error);
+    console.log("modifyItem 오류:", error);
 
     if (error.response) {
       console.error("응답 오류 데이터:", error.response.data);
@@ -50,6 +41,6 @@ export const sendChat = async (data) => {
     } else {
       console.error("오류 메시지:", error.message);
     }
-    throw new Error("채팅 내역을 불러오는데 실패했습니다.");
+    throw new Error("아이템템 수정하하는데 실패했습니다.");
   }
 };

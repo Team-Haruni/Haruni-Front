@@ -5,9 +5,10 @@ const landscapeSlice = createSlice({
   name: "landscape",
   initialState: {
     landscapeImages: landscapeImages,
+    fixLandscapeImages: landscapeImages,
   },
   reducers: {
-    toggleSelect: (state, action) => {
+    toggleSelectLandscape: (state, action) => {
       const index = action.payload;
 
       const updatedImages = state.landscapeImages.map((image, idx) =>
@@ -18,11 +19,18 @@ const landscapeSlice = createSlice({
       state.landscapeImages = updatedImages;
       //console.log(state.landscapeImages);
     },
-    resetImages: (state) => {
-      state.landscapeImages = landscapeImages;
+    submitLandscapeImages: (state) => {
+      state.fixLandscapeImages = state.landscapeImages;
+    },
+    resetLandscapeImages: (state) => {
+      state.landscapeImages = state.fixLandscapeImages;
     },
   },
 });
 
-export const { toggleSelect, resetImages } = landscapeSlice.actions;
+export const {
+  toggleSelectLandscape,
+  submitLandscapeImages,
+  resetLandscapeImages,
+} = landscapeSlice.actions;
 export default landscapeSlice.reducer;

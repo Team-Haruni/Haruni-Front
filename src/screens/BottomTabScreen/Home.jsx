@@ -5,25 +5,21 @@ import {
   ImageBackground,
   SafeAreaView,
   Platform,
-  Text,
   TouchableOpacity,
-  Pressable,
 } from "react-native";
 import UnityWebView from "../../components/UnityWebView";
 import LoadingBar from "../../components/Loadingbar";
 import SettingIcon from "../../../assets/setting-icon.svg";
-import ListIcon from "../../../assets/list-icon.svg";
 import ItemIcon from "../../../assets/item-icon.svg";
 import LevelBar from "../../components/LevelBar";
 import MainScreenChat from "../../components/MainScreenChat";
 import SettingPopup from "../../components/Popup/SettingPopup/SettingPopup";
-import ListPopup from "../../components/Popup/ListPopup";
 import Itempopup from "../../components/Popup/ItemPopup";
 import VoiceButton from "../../components/VoiceButton";
 import TouchArea from "../../components/TouchArea";
 import LevelPopup from "../../components/Popup/LevelPopup";
 import characterData from "../../data/characterData";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import LeafIcon from "../../../assets/leaf-icon.svg";
 import Colors from "../../../styles/color";
 import { sendMessageToUnity } from "../../utils/unityBridge";
@@ -32,18 +28,32 @@ import { mainApi } from "../../api/main";
 import * as Sentry from "@sentry/react-native";
 import ErrorBoundary from "react-native-error-boundary";
 import CustomWebviewErrorFallback from "../../components/ErrorFallback/CustomWebviewErrorFallback";
+import {
+  toggleSelectLandscape,
+  submitLandscapeImages,
+} from "../../../redux/slices/landscapeSlice";
+import {
+  toggleSelectStructure,
+  submitStructureImages,
+} from "../../../redux/slices/structureSlice";
+import {
+  toggleSelectHat,
+  submitHatImages,
+} from "../../../redux/slices/hatSlice";
+import { setCurrentPlaneIndex } from "../../../redux/slices/planeSlice";
 
 const Home = ({ navigation }) => {
+  const dispatch = useDispatch();
   const userName = useSelector((state) => state.exp.userName);
   const webviewRef = useRef(null);
   const [chat, setChat] = useState(`안녕 ${userName} 오늘 하루도 힘내자!`);
   const [isLoading, setIsLoading] = useState(true); // 로딩 상태 추가 (나중 수정)
   const [settingModalVisible, setSettingModalVisible] = useState(false);
   const [itemModalVisible, setItemModalVisible] = useState(false);
-  const [listModalVisible, setListModalVisible] = useState(false);
   const [levelModalVisible, setLevelModalVisible] = useState(false);
   const [leafEffect, setLeafEffect] = useState(false);
   const [auraEffect, setAuraEffect] = useState(false);
+  const loadedRef = useRef(false);
 
   //케릭터관련
   const characterVersion = useSelector((state) => state.exp.characterVersion);
@@ -51,16 +61,60 @@ const Home = ({ navigation }) => {
   const exp = useSelector((state) => state.exp.exp);
   const level = useSelector((state) => state.exp.level);
 
+  /*장난감*/
+  const structureImages = useSelector(
+    (state) => state.structure.structureImages
+  );
+  /*모자*/
+  const hatImages = useSelector((state) => state.hat.hatImages);
+  /*구조물*/
+  const landscapeImages = useSelector(
+    (state) => state.landscape.landscapeImages
+  );
+  /*배경*/
+  const currentPlaneIndex = useSelector((state) => state.plane.currentIndex);
+
   // // 버전 증가
   // setCharacterVersion((prev) => prev + 1);
 
   useEffect(() => {
+    if (loadedRef.current) return;
+    loadedRef.current = true;
     const fetchGreeting = async () => {
       try {
         const res = await mainApi(); // mainApi 호출
-        const greeting = res.data.greetingMessage;
-        if (greeting) {
-          setChat(greeting); // 첫 화면 로딩 시 인삿말 표시
+        if (res) {
+          const greeting = res.data.greetingMessage;
+          if (greeting) {
+            setChat(greeting); // 첫 화면 로딩 시 인삿말 표시
+          }
+
+          const itemArray = res.data.itemIndexes;
+          console.log(itemArray);
+          // type에 따른 액션 매핑
+          const typeActionMap = {
+            landscape: toggleSelectLandscape,
+            plane: setCurrentPlaneIndex,
+            structure: toggleSelectStructure,
+            hat: toggleSelectHat,
+          };
+
+          itemArray.forEach((item) => {
+            const actionCreator = typeActionMap[item.type];
+            if (actionCreator) {
+              dispatch(actionCreator(item.index));
+              console.log(item.index, item.type);
+              if (item.type == "landscape") {
+                dispatch(submitLandscapeImages());
+              } else if (item.type == "structure") {
+                dispatch(submitStructureImages());
+              } else if (item.type == "hat") {
+                dispatch(submitHatImages());
+              }
+            } else {
+              console.warn(`Unknown type: ${item.type}`);
+            }
+          });
         }
       } catch (err) {
         Sentry.withScope((scope) => {
@@ -72,8 +126,21 @@ const Home = ({ navigation }) => {
         console.error("Greeting 로딩 실패", err);
       }
     };
+
     fetchGreeting();
   }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const selectedLandscapeImageIds = landscapeImages
+        .filter((image) => image.selected)
+        .map((image) => image.id);
+
+      sendMessageToUnity(webviewRef, "landscape", {
+        action: JSON.stringify(selectedLandscapeImageIds),
+      });
+    }
+  }, [landscapeImages]);
 
   //캐릭터 레벨에 따른 버전 증가
   useEffect(() => {
@@ -100,25 +167,71 @@ const Home = ({ navigation }) => {
     setAuraEffect(!auraEffect);
   };
 
-  //맨처음 캐릭터 버전 설정
+  //맨처음 캐릭터 버전 및 아이템 설정
   const handleWebViewLoadEnd = () => {
     console.log("WebView loaded, waiting for 5 seconds...");
+
+    //선택된 구조물
+    const selectedLandscapeImageIds = landscapeImages
+      .filter((image) => image.selected)
+      .map((image) => image.id);
+    console.log(selectedLandscapeImageIds);
+    const finalSend1 = JSON.stringify(selectedLandscapeImageIds);
+
+    console.log(finalSend1);
+
+    //선택된 장난감
+    const selectedStructureImageIds = structureImages
+      .filter((image) => image.selected)
+      .map((image) => image.id);
+    console.log(selectedStructureImageIds);
+    const finalSend2 = JSON.stringify(selectedStructureImageIds);
+
+    console.log(finalSend2);
+
+    //선택된 모자
+    const selectedHatImageIds = hatImages
+      .filter((image) => image.selected)
+      .map((image) => image.id);
+    console.log(selectedHatImageIds);
+    const finalSend3 = JSON.stringify(selectedHatImageIds);
+
+    console.log(finalSend3);
+    //배경
+    const finalSend4 = JSON.stringify([currentPlaneIndex]);
+
+    console.log(finalSend4);
 
     setTimeout(() => {
       setIsLoading(false);
       sendMessageToUnity(webviewRef, "characterVersion", {
         action: `${characterVersion}`,
       });
+      sendMessageToUnity(webviewRef, "characterVersion", {
+        action: `${characterVersion}`,
+      });
+      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
     }, 10000);
     setTimeout(() => {
       sendMessageToUnity(webviewRef, "characterVersion", {
         action: `${characterVersion}`,
       });
+      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
     }, 15000);
     setTimeout(() => {
       sendMessageToUnity(webviewRef, "characterVersion", {
         action: `${characterVersion}`,
       });
+      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
     }, 20000);
   };
 
@@ -167,12 +280,12 @@ const Home = ({ navigation }) => {
               navigation={navigation}
             />
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.listIconContainer}
               onPress={() => setListModalVisible(true)}
             >
               <ListIcon />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {/* 나뭇잎 효과 */}
             <TouchableOpacity
               style={styles.leafIconContainer}
@@ -197,12 +310,12 @@ const Home = ({ navigation }) => {
               />
             </TouchableOpacity>
 
-            {/*리스트 팝업 컴포넌트 */}
+            {/* 리스트 팝업 컴포넌트
             <ListPopup
               visible={listModalVisible}
               onClose={() => setListModalVisible(false)}
               navigation={navigation}
-            />
+            /> */}
             <TouchableOpacity
               style={styles.itemIconContainer}
               onPress={() => setItemModalVisible(true)}
@@ -232,9 +345,9 @@ const Home = ({ navigation }) => {
             <View style={styles.chatContainer}>
               <MainScreenChat chat={chat} />
             </View>
-            <View style={styles.voiceButtonContainer}>
+            {/* <View style={styles.voiceButtonContainer}>
               <VoiceButton setChat={setChat} />
-            </View>
+            </View> */}
             <TouchArea
               // 제일 작은 버전
               width={characterData[characterVersion].width}
@@ -285,22 +398,22 @@ const styles = StyleSheet.create({
     top: 80,
     zIndex: 2,
   },
-  listIconContainer: {
-    position: "absolute",
-    left: 20,
-    top: 30,
-    zIndex: 2,
-  },
+  // listIconContainer: {
+  //   position: "absolute",
+  //   left: 20,
+  //   top: 30,
+  //   zIndex: 2,
+  // },
   auraIconContainer: {
     position: "absolute",
     left: 15,
-    top: 125,
+    top: 80,
     zIndex: 2,
   },
   leafIconContainer: {
     position: "absolute",
     left: 20,
-    top: 80,
+    top: 30,
     zIndex: 2,
   },
   levelContainer: {
@@ -322,15 +435,15 @@ const styles = StyleSheet.create({
     left: "50%",
     zIndex: 2,
   },
-  voiceButtonContainer: {
-    position: "absolute",
-    width: 80,
-    height: 80,
-    transform: [{ translateX: -35 }],
-    left: "50%",
-    bottom: "15%",
-    zIndex: 3,
-  },
+  // voiceButtonContainer: {
+  //   position: "absolute",
+  //   width: 80,
+  //   height: 80,
+  //   transform: [{ translateX: -35 }],
+  //   left: "50%",
+  //   bottom: "15%",
+  //   zIndex: 3,
+  // },
 });
 
 export default Home;

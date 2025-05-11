@@ -16,12 +16,31 @@ import ItemSquareHat from "../ItemSquare/ItemSquareHat";
 import CarouselComponent from "../CarouselComponent";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentPlaneIndex } from "../../../redux/slices/planeSlice";
-import { resetImages } from "../../../redux/slices/landscapeSlice";
+import {
+  resetLandscapeImages,
+  submitLandscapeImages,
+} from "../../../redux/slices/landscapeSlice";
+import {
+  resetHatImages,
+  submitHatImages,
+} from "../../../redux/slices/hatSlice";
+import {
+  resetStructureImages,
+  submitStructureImages,
+} from "../../../redux/slices/structureSlice";
 import { sendMessageToUnity } from "../../utils/unityBridge";
+import { modifyItem } from "../../api/item";
+import * as Sentry from "@sentry/react-native";
+import Toast from "react-native-toast-message";
 
 const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(resetLandscapeImages());
+    dispatch(resetStructureImages());
+    dispatch(resetHatImages());
+  }, [visible]);
   /*배경*/
   const planeImages = useSelector((state) => state.plane.planeImages);
   const currentPlaneIndex = useSelector((state) => state.plane.currentIndex);
@@ -44,13 +63,13 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
     (image) => image.selected
   ).length;
   const [structureCount, setStructureCount] = useState(initialStructureCount);
-  const [lockStartStructure, setLockStartStructure] = useState(6); //레벨에 따라 다르게 변경
+  const [lockStartStructure, setLockStartStructure] = useState(5); //레벨에 따라 다르게 변경
 
   /*모자*/
   const hatImages = useSelector((state) => state.hat.hatImages);
   const initialHatCount = hatImages.filter((image) => image.selected).length;
   const [hatCount, setHatCount] = useState(initialHatCount);
-  const [lockStartHat, setLockStartHat] = useState(3); //레벨에 따라 다르게 변경
+  const [lockStartHat, setLockStartHat] = useState(4); //레벨에 따라 다르게 변경
 
   /*구조물*/
   const landscapeImages = useSelector(
@@ -71,9 +90,6 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
     setLandScapeCount(initialLandScapeCount);
     setHatCount(initialHatCount);
     setStructureCount(initialStructureCount);
-
-    //나중에 서버 연결하면 할꺼
-    //dispatch(resetImages());
   }, [onClose]);
 
   const chunkArray = (array, size) => {
@@ -82,41 +98,76 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
     );
   };
 
-  const onSubmit = () => {
-    //api 전송
-    //unity화면 에다가 추가!
+  const onSubmit = async () => {
+    try {
+      //api 전송
+      //unity화면 에다가 추가!
+      const items = [];
 
-    //선택된 구조물
-    const selectedLandscapeImageIds = landscapeImages
-      .filter((image) => image.selected)
-      .map((image) => image.id);
-    console.log(selectedLandscapeImageIds);
-    const finalSend1 = JSON.stringify(selectedLandscapeImageIds);
-    sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 }); //유니티에 메시지 보내기
+      //선택된 구조물
+      const selectedLandscapeImageIds = landscapeImages
+        .filter((image) => image.selected)
+        .map((image) => image.id);
+      console.log(selectedLandscapeImageIds);
+      selectedLandscapeImageIds.forEach((idx) => {
+        items.push({ itemType: "landscape", itemIndex: idx });
+      });
+      const finalSend1 = JSON.stringify(selectedLandscapeImageIds);
 
-    //선택된 장난감
-    const selectedStructureImageIds = structureImages
-      .filter((image) => image.selected)
-      .map((image) => image.id);
-    console.log(selectedStructureImageIds);
-    const finalSend2 = JSON.stringify(selectedStructureImageIds);
-    sendMessageToUnity(webviewRef, "structure", { action: finalSend2 }); //유니티에 메시지 보내기
+      //선택된 장난감
+      const selectedStructureImageIds = structureImages
+        .filter((image) => image.selected)
+        .map((image) => image.id);
+      console.log(selectedStructureImageIds);
+      selectedStructureImageIds.forEach((idx) => {
+        items.push({ itemType: "structure", itemIndex: idx });
+      });
+      const finalSend2 = JSON.stringify(selectedStructureImageIds);
 
-    //선택된 모자
-    const selectedHatImageIds = hatImages
-      .filter((image) => image.selected)
-      .map((image) => image.id);
-    console.log(selectedHatImageIds);
-    const finalSend3 = JSON.stringify(selectedHatImageIds);
-    sendMessageToUnity(webviewRef, "hat", { action: finalSend3 }); //유니티에 메시지 보내기
+      //선택된 모자
+      const selectedHatImageIds = hatImages
+        .filter((image) => image.selected)
+        .map((image) => image.id);
+      console.log(selectedHatImageIds);
+      selectedHatImageIds.forEach((idx) => {
+        items.push({ itemType: "hat", itemIndex: idx });
+      });
+      const finalSend3 = JSON.stringify(selectedHatImageIds);
 
-    //배경
-    if (currentPlaneIndex < lockStartPlane) {
-      const finalSend4 = JSON.stringify([currentPlaneIndex]);
-      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
+      //배경
+      if (currentPlaneIndex < lockStartPlane) {
+        const finalSend4 = JSON.stringify([currentPlaneIndex]);
+        items.push({ itemType: "plane", itemIndex: currentPlaneIndex });
+        sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
+      }
+      // modifyItem 호출
+      await modifyItem(items);
+      console.log(items);
+
+      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 }); //유니티에 메시지 보내기
+      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 }); //유니티에 메시지 보내기
+      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 }); //유니티에 메시지 보내기
+
+      dispatch(submitLandscapeImages());
+      dispatch(submitStructureImages());
+      dispatch(submitHatImages());
+
+      onClose();
+    } catch (err) {
+      Sentry.withScope((scope) => {
+        scope.setLevel("error");
+        scope.setTag("type", "api");
+        scope.setTag("api", "modifyItem");
+        Sentry.captureException(err);
+      });
+      console.error("Greeting 로딩 실패", err);
+      return Toast.show({
+        type: "error",
+        text1: "서버 조건",
+        text2: "조건을 맞추세요!",
+        visibilityTime: 1500,
+      });
     }
-
-    onClose();
   };
 
   const categories = ["구조물", "장난감", "모자", "배경"];
@@ -125,7 +176,7 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       isVisible={visible} // 모달 표시 여부
       animationIn="slideInUp" // 나타날 때 애니메이션
       animationOut="slideOutDown" // 사라질 때 애니메이션
-      animationInTiming={400} // 나타나는 속도 (ms)
+      animationInTiming={800} // 나타나는 속도 (ms)
       animationOutTiming={400} // 사라지는 속도 (ms)
       backdropOpacity={0} // 배경 어두운 정도
       onBackdropPress={onClose} // 배경 클릭 시 닫기

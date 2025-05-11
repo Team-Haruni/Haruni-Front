@@ -83,8 +83,14 @@ const Message = () => {
   useEffect(() => {
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
-    }, 200);
+    }, 300);
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 300);
+  }, [flatListRef]);
 
   // 키보드 이벤트 처리
   useEffect(() => {
@@ -108,6 +114,7 @@ const Message = () => {
 
   // 더미 메시지 전송 로직 (변경 없음)
   const [newMessage, setNewMessage] = useState("");
+
   const handleSendMessage = async () => {
     Keyboard.dismiss();
 
@@ -162,6 +169,9 @@ const Message = () => {
         )
       );
       dispatch(chatGrowExp());
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 300);
     } catch (e) {
       Sentry.withScope((scope) => {
         scope.setLevel("error");

@@ -65,15 +65,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   LoadingBarContainer: {
+    position: "relative",
+    left: 0,
+    width: 300,
+    height: 300,
     flex: 1,
   },
   iconContainer: {
-    margin: 15,
     flex: 1,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Color.yellow500,
     borderRadius: 50,
   },
   resultText: {

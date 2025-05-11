@@ -5,9 +5,10 @@ const structureSlice = createSlice({
   name: "structure",
   initialState: {
     structureImages: structureImages,
+    fixStructureImages: structureImages,
   },
   reducers: {
-    toggleSelect: (state, action) => {
+    toggleSelectStructure: (state, action) => {
       const index = action.payload;
 
       const updatedImages = state.structureImages.map((image, idx) =>
@@ -18,11 +19,18 @@ const structureSlice = createSlice({
       state.structureImages = updatedImages;
       //console.log(state.structureImages);
     },
-    resetImages: (state) => {
+    resetStructureImages: (state) => {
       state.structureImages = structureImages;
+    },
+    submitStructureImages: (state) => {
+      state.fixStructureImages = state.structureImages;
     },
   },
 });
 
-export const { toggleSelect, resetImages } = structureSlice.actions;
+export const {
+  toggleSelectStructure,
+  resetStructureImages,
+  submitStructureImages,
+} = structureSlice.actions;
 export default structureSlice.reducer;

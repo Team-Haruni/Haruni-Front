@@ -5,9 +5,10 @@ const hatSlice = createSlice({
   name: "hat",
   initialState: {
     hatImages: hatImages,
+    fixHatImages: hatImages,
   },
   reducers: {
-    toggleSelect: (state, action) => {
+    toggleSelectHat: (state, action) => {
       const index = action.payload;
 
       const updatedImages = state.hatImages.map((image, idx) =>
@@ -18,11 +19,15 @@ const hatSlice = createSlice({
       state.hatImages = updatedImages;
       //console.log(state.hatImages);
     },
-    resetImages: (state) => {
+    resetHatImages: (state) => {
       state.hatImages = hatImages;
+    },
+    submitHatImages: (state) => {
+      state.fixHatImages = state.hatImages;
     },
   },
 });
 
-export const { toggleSelect, resetImages } = hatSlice.actions;
+export const { toggleSelectHat, resetHatImages, submitHatImages } =
+  hatSlice.actions;
 export default hatSlice.reducer;

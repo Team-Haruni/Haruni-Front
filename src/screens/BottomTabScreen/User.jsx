@@ -21,9 +21,9 @@ import { fetchWeeklyFeedback } from "../../api/weeklyFeedback";
 
 const screenWidth = Dimensions.get("window").width;
 const moodToValue = {
-  SAD: { value: 0, emoji: "😞" },
-  NORMAL: { value: 50, emoji: "😐" },
-  HAPPY: { value: 95, emoji: "😁" },
+  sad: { value: 0, emoji: "😞" },
+  normal: { value: 50, emoji: "😐" },
+  happy: { value: 95, emoji: "😁" },
 };
 const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -77,13 +77,14 @@ const User = () => {
     const loadWeeklyFeedback = async () => {
       try {
         const data = await fetchWeeklyFeedback();
+        console.log(data);
         const convertedLineData = convertToLineData(data.dayMoods);
         setWeekData(true);
         setLineData(convertedLineData);
-        setFeedback(data.feedback);
-        setWeekSummary(data.weekSummary);
-        setSuggestion(data.suggestion);
-        setRecommendation(data.recommendation);
+        setFeedback(data.feedback.replace(/\. /g, ".\n"));
+        setWeekSummary(data.weekSummary.replace(/\. /g, ".\n"));
+        setSuggestion(data.suggestion.replace(/\. /g, ".\n"));
+        setRecommendation(data.recommendation.replace(/\. /g, ".\n"));
       } catch (error) {
         Sentry.withScope((scope) => {
           scope.setLevel("error");
@@ -128,6 +129,8 @@ const User = () => {
                     rulesThickness={1}
                     rulesColor={Colors.pointColor}
                     data={lineData}
+                    curved={true}
+                    curveType="bezier"
                     initialSpacing={20}
                     spacing={40}
                     thickness={2}
