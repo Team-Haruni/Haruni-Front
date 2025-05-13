@@ -7,7 +7,13 @@ import CustomTextInput from "../../components/CustomTextInput";
 import BackIcon from "../../../assets/back-icon.svg";
 import ErrorMessage from "../../components/ErrorMessage";
 
-const SignupPage3 = ({ nickname, setNickname, handleNext, handleBack }) => {
+const SignupPage3 = ({
+  fromSocial,
+  nickname,
+  setNickname,
+  handleNext,
+  handleBack,
+}) => {
   const fontsLoaded = useCustomFonts();
   const [nicknameErrorMessage, setNicknameErrorMessage] = useState("");
 
@@ -32,9 +38,12 @@ const SignupPage3 = ({ nickname, setNickname, handleNext, handleBack }) => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.svgContainer} onPress={handleBack}>
-        <BackIcon />
-      </TouchableOpacity>
+      {fromSocial ? null : (
+        <TouchableOpacity style={styles.svgContainer} onPress={handleBack}>
+          <BackIcon />
+        </TouchableOpacity>
+      )}
+
       <View style={styles.contentContainer}>
         <Text style={styles.title}>닉네임을 설정해주세요</Text>
         <View style={styles.nicknameInputContainer}>

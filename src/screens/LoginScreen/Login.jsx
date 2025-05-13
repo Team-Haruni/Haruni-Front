@@ -11,8 +11,14 @@ import {
 import Colors from "../../../styles/color";
 import { loginApi } from "../../api/login";
 import * as Sentry from "@sentry/react-native";
+import { signInWithKaKao } from "../../api/kakaoOuth";
+import NaverIcon from "../../../assets/naver-icon.svg";
+import KakaoIcon from "../../../assets/kakao-icon.svg";
+import AppleIcon from "../../../assets/apple-icon.svg";
+import useCustomFonts from "../../hooks/useCustomFonts";
 
 const Login = ({ navigation }) => {
+  const fontsLoaded = useCustomFonts();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,6 +26,30 @@ const Login = ({ navigation }) => {
   const handleSignup = () => navigation.push("Signup");
   const handleFindID = () => Alert.alert("아이디 찾기 페이지 이동!");
   const handleFindPassword = () => Alert.alert("비밀번호 찾기 페이지 이동!");
+
+  const socialLogin = async (providerId) => {
+    try {
+      if (providerId === "KAKAO") {
+        const data = await signInWithKaKao();
+
+        console.log("카카오 로그인 응답:", data);
+
+        if (!data) {
+          throw new Error("서버 응답이 없습니다.");
+        }
+
+        if (data.needSignup === true) {
+          navigation.push("Signup", {
+            socialEmail: data.data,
+            fromSocial: true,
+            type: "kakao",
+          });
+        }
+      }
+    } catch (err) {
+      console.error("소셜 로그인 중 오류 발생:", err);
+    }
+  };
 
   const handleLogin = async () => {
     try {
@@ -72,49 +102,33 @@ const Login = ({ navigation }) => {
         />
 
         <View style={styles.checkboxContainer}>
-          <View style={styles.checkbox} />
-          <Text style={styles.checkboxLabel}>아이디 저장</Text>
+          {/* <View style={styles.checkbox} />
+          <Text style={styles.checkboxLabel}>아이디 저장</Text> */}
         </View>
 
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginButtonText}>로그인</Text>
         </TouchableOpacity>
 
-        <View style={styles.linkContainer}>
-          {/* 회원가입 버튼 */}
-          <TouchableOpacity onPress={handleSignup}>
-            <Text style={styles.link}>회원가입</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.separator}>|</Text>
-
-          {/* 아이디 찾기 버튼 */}
-          <TouchableOpacity onPress={handleFindID}>
-            <Text style={styles.link}>아이디 찾기</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.separator}>|</Text>
-
-          {/* 비밀번호 찾기 버튼 */}
-          <TouchableOpacity onPress={handleFindPassword}>
-            <Text style={styles.link}>비밀번호 찾기</Text>
-          </TouchableOpacity>
-        </View>
+        {/* 회원가입 버튼 */}
+        <TouchableOpacity onPress={handleSignup} style={styles.signupButton}>
+          <Text style={styles.link}>회원가입</Text>
+        </TouchableOpacity>
 
         <View style={styles.socialContainer}>
           <Text style={styles.socialText}>SNS 간편 로그인</Text>
           <View style={styles.socialButtons}>
             <TouchableOpacity style={styles.socialButton}>
-              <Text style={styles.socialButtonText}>N</Text>
+              <NaverIcon />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => navigation.push("KaKaoLogin")}
+              onPress={() => socialLogin("KAKAO")}
               style={styles.socialButton}
             >
-              <Text style={styles.socialButtonText}>K</Text>
+              <KakaoIcon />
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialButton}>
-              <Text style={styles.socialButtonText}>A</Text>
+              <AppleIcon />
             </TouchableOpacity>
           </View>
         </View>
@@ -136,14 +150,14 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontSize: 24,
-    fontFamily: "Cafe24Ssurroundair",
+    fontFamily: "Cafe24Ssurrond",
   },
   inputContainer: {
     padding: 20,
   },
   input: {
     backgroundColor: Colors.gray50,
-    fontFamily: "Cafe24Ssurroundair",
+    fontFamily: "Cafe24Ssurrondair",
     padding: 15,
     borderRadius: 12,
     marginBottom: 10,
@@ -151,7 +165,7 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 38,
+    marginBottom: 20,
     marginTop: 4,
   },
   checkbox: {
@@ -167,16 +181,26 @@ const styles = StyleSheet.create({
     // marginTop: 10,
   },
   loginButton: {
-    backgroundColor: "#FFB74D",
+    backgroundColor: Colors.pointColor,
     padding: 15,
     borderRadius: 12,
     alignItems: "center",
     marginBottom: 20,
   },
+  signupButton: {
+    backgroundColor: "white",
+    borderWidth: 1,
+    padding: 15,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 30,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
   loginButtonText: {
+    fontFamily: "Cafe24Ssurrond",
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
   },
   linkContainer: {
     flexDirection: "row",
@@ -184,9 +208,9 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   link: {
-    color: "#666",
-    padding: 10,
-    fontFamily: "Cafe24Ssurroundair",
+    fontFamily: "Cafe24Ssurrond",
+    color: "black",
+    fontSize: 16,
   },
   separator: {
     color: "#ddd",
@@ -196,6 +220,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   socialText: {
+    fontFamily: "Cafe24Ssurrondair",
     color: "#666",
     marginBottom: 15,
   },

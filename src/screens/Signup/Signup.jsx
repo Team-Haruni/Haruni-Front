@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Platform, Alert } from "react-native";
 import ProgressBar from "../../components/Signup/ProgressBar";
 import SignupPage1 from "./SignupPage1";
@@ -12,13 +12,23 @@ import { signupApi } from "../../api/signup"; // 방금 만든 회원가입 API 
 import { setUserName, setNickname } from "../../../redux/slices/expSlice";
 import { useDispatch } from "react-redux";
 import * as Sentry from "@sentry/react-native";
+import { useRoute } from "@react-navigation/native";
 
 const Signup = ({ navigation }) => {
   const dispatch = useDispatch();
+  const route = useRoute();
+  const { socialEmail, fromSocial, type } = route.params || {};
+
   const progressArray = [14, 28, 42, 57, 71, 85, 100];
-  const [progress, setProgress] = useState(progressArray[0]);
-  const [currentPage, setCurrentPage] = useState(3); //1로 설정
-  const [email, setEmail] = useState("");
+  const [progress, setProgress] = useState(
+    fromSocial ? progressArray[2] : progressArray[0]
+  );
+
+  console.log(socialEmail, fromSocial);
+  console.log(socialEmail, fromSocial);
+  console.log(socialEmail, fromSocial);
+  const [currentPage, setCurrentPage] = useState(fromSocial ? 3 : 1);
+  const [email, setEmail] = useState(fromSocial ? socialEmail : "");
   const [password, setPassword] = useState("");
   const [nickname, setNickname] = useState("");
   const [characterNickname, setCharacterNickname] = useState("");
@@ -51,7 +61,7 @@ const Signup = ({ navigation }) => {
       prompt: formattedHobby,
       alarmActiveTime: alertDate,
       alarmActive: true,
-      providerId: "NORMAL",
+      providerId: type ? type : "NORMAL",
     };
 
     try {
@@ -96,6 +106,7 @@ const Signup = ({ navigation }) => {
       case 3:
         return (
           <SignupPage3
+            fromSocial={fromSocial}
             nickname={nickname}
             setNickname={setNickname}
             handleNext={handleNext}

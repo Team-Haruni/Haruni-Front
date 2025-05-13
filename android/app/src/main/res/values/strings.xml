@@ -2,4 +2,5 @@
   <string name="app_name">Haruni</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
   <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
+  <string name="kakao_app_key">c14ae5c38bb8ab6e700006591c56994d</string>
 </resources>

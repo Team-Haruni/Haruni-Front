@@ -65,36 +65,42 @@ const SignupPage1 = ({ email, setEmail, handleNext }) => {
     //이메일 형식 검사
     if (!isValidEmail(email)) {
       setEmailErrorMessage(" * 올바른 이메일 형식을 입력해주세요.");
-      return;
+      return false;
     }
+    return true;
 
     // 서버로 인증 요청 보내기
     //중복 검사도 필요함
 
-    setIsLoading(true); // 인증 요청 시작(타이머)
+    // setIsLoading(true); // 인증 요청 시작(타이머)
 
-    verifyEmailCode(email, "123456")
-      .then(() => {
-        setShowCodeInput(true);
-        setTimer(180);
-        setEmailErrorMessage("");
-        setCheckEmailCode("");
-      })
-      .catch((error) => {
-        setEmailErrorMessage(error);
-      });
+    // verifyEmailCode(email, "123456")
+    //   .then(() => {
+    //     setShowCodeInput(true);
+    //     setTimer(180);
+    //     setEmailErrorMessage("");
+    //     setCheckEmailCode("");
+    //   })
+    //   .catch((error) => {
+    //     setEmailErrorMessage(error);
+    //   });
   };
 
   const handleSubmitCode = () => {
+    if (handleVerification()) {
+      setEmailErrorMessage(""); // 인증 성공 시 오류 메시지 초기화
+      handleNext(); // 다음 페이지로 이동
+    }
+
     // 실제 API 호출을 통해 코드 검증
-    verifyEmailCode(email, checkEmailCode)
-      .then(() => {
-        setCodeErrorMessage(""); // 인증 성공 시 오류 메시지 초기화
-        handleNext(); // 다음 페이지로 이동
-      })
-      .catch((error) => {
-        setCodeErrorMessage(error); // 인증 실패 시 오류 메시지 설정
-      });
+    // verifyEmailCode(email, checkEmailCode)
+    //   .then(() => {
+    //     setCodeErrorMessage(""); // 인증 성공 시 오류 메시지 초기화
+    //     handleNext(); // 다음 페이지로 이동
+    //   })
+    //   .catch((error) => {
+    //     setCodeErrorMessage(error); // 인증 실패 시 오류 메시지 설정
+    //   });
   };
   return (
     <View style={styles.container}>
@@ -108,9 +114,9 @@ const SignupPage1 = ({ email, setEmail, handleNext }) => {
             keyboardType="email-address"
             autoCapitalize="none"
             height={46}
-            width="75%"
+            width="100%"
           />
-          {isLoading ? (
+          {/* {isLoading ? (
             <CustomButton
               text={`${Math.floor(timer / 60)}:${timer % 60}`}
               onPress={handleVerification}
@@ -134,9 +140,12 @@ const SignupPage1 = ({ email, setEmail, handleNext }) => {
               disabled={!email}
               fontSize={12}
             />
-          )}
+          )} */}
         </View>
         {emailErrorMessage ? (
+          <ErrorMessage message={emailErrorMessage} />
+        ) : null}
+        {/* {emailErrorMessage ? (
           <ErrorMessage message={emailErrorMessage} />
         ) : null}
         <View style={{ height: 20 }}></View>
@@ -150,7 +159,7 @@ const SignupPage1 = ({ email, setEmail, handleNext }) => {
             width="100%"
           />
         )}
-        {codeErrorMessage ? <ErrorMessage message={codeErrorMessage} /> : null}
+        {codeErrorMessage ? <ErrorMessage message={codeErrorMessage} /> : null} */}
       </View>
 
       <View style={styles.buttonContainer}>
@@ -162,7 +171,8 @@ const SignupPage1 = ({ email, setEmail, handleNext }) => {
           textColor="white"
           backgroundColor={Colors.pointColor}
           borderRadius={12}
-          disabled={!email || !checkEmailCode}
+          disabled={!email}
+          // disabled={!email || !checkEmailCode}
         />
       </View>
     </View>

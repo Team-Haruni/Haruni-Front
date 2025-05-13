@@ -130,18 +130,6 @@ const Home = ({ navigation }) => {
     fetchGreeting();
   }, []);
 
-  useEffect(() => {
-    if (!isLoading) {
-      const selectedLandscapeImageIds = landscapeImages
-        .filter((image) => image.selected)
-        .map((image) => image.id);
-
-      sendMessageToUnity(webviewRef, "landscape", {
-        action: JSON.stringify(selectedLandscapeImageIds),
-      });
-    }
-  }, [landscapeImages]);
-
   //캐릭터 레벨에 따른 버전 증가
   useEffect(() => {
     if (level == 15) {

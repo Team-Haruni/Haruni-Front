@@ -98,8 +98,9 @@ const SettingPopup = ({ visible, onClose, navigation }) => {
             "로그아웃할 경우 처음 화면으로 돌아갑니다! 진행하시겠습니까?",
           ]}
           onCancel={() => setLogoutModalVisible(false)}
-          onConfirm={() => {
+          onConfirm={async () => {
             setLogoutModalVisible(false);
+            await SecureStore.deleteItemAsync("userTokens");
             navigation.replace("Login");
           }}
         />
