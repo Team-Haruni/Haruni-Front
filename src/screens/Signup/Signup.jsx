@@ -25,8 +25,6 @@ const Signup = ({ navigation }) => {
   );
 
   console.log(socialEmail, fromSocial);
-  console.log(socialEmail, fromSocial);
-  console.log(socialEmail, fromSocial);
   const [currentPage, setCurrentPage] = useState(fromSocial ? 3 : 1);
   const [email, setEmail] = useState(fromSocial ? socialEmail : "");
   const [password, setPassword] = useState("");
@@ -52,9 +50,9 @@ const Signup = ({ navigation }) => {
 
   const handleSignup = async () => {
     const formattedHobby = characterHobby.join(", ");
-    const signupData = {
+    let signupData = {
       email,
-      password,
+      password: fromSocial ? null : password,
       nickname,
       gender,
       haruniName: characterNickname,

@@ -15,43 +15,94 @@ import ItemSquareStructure from "../ItemSquare/ItemSquareStructure";
 import ItemSquareHat from "../ItemSquare/ItemSquareHat";
 import CarouselComponent from "../CarouselComponent";
 import { useSelector, useDispatch } from "react-redux";
-import { setCurrentPlaneIndex } from "../../../redux/slices/planeSlice";
-import {
-  resetLandscapeImages,
-  submitLandscapeImages,
-} from "../../../redux/slices/landscapeSlice";
-import {
-  resetHatImages,
-  submitHatImages,
-} from "../../../redux/slices/hatSlice";
-import {
-  resetStructureImages,
-  submitStructureImages,
-} from "../../../redux/slices/structureSlice";
 import { sendMessageToUnity } from "../../utils/unityBridge";
 import { modifyItem } from "../../api/item";
 import * as Sentry from "@sentry/react-native";
 import Toast from "react-native-toast-message";
+import { loadItem } from "../../api/item";
+import {
+  toggleSelectLandscape,
+  resetLandscapeImages,
+} from "../../../redux/slices/landscapeSlice";
+import {
+  toggleSelectHat,
+  resetHatImages,
+} from "../../../redux/slices/hatSlice";
+import {
+  toggleSelectStructure,
+  resetStructureImages,
+} from "../../../redux/slices/structureSlice";
+import {
+  setCurrentPlaneIndex,
+  resetImages,
+} from "../../../redux/slices/planeSlice";
 
 const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    const fetchItem = async () => {
+      try {
+        const res = await loadItem(); // mainApi 호출
+        if (res) {
+          const itemArray = res;
+
+          const groupedIndexes = itemArray.reduce((acc, item) => {
+            const { type, index } = item;
+
+            if (!acc[type]) {
+              acc[type] = [];
+            }
+
+            acc[type].push(index - 1);
+            return acc;
+          }, {});
+
+          const itemArray2 = groupedIndexes;
+
+          dispatch(
+            toggleSelectLandscape(
+              itemArray2.landscape ? itemArray2.landscape : null
+            )
+          );
+          dispatch(
+            toggleSelectStructure(
+              itemArray2.structure ? itemArray2.structure : null
+            )
+          );
+          dispatch(toggleSelectHat(itemArray2.hat ? itemArray2.hat : null));
+          dispatch(
+            setCurrentPlaneIndex(itemArray2.plane ? itemArray2.plane[0] + 1 : 0)
+          );
+
+          setLandScapeCount(itemArray2.landscape?.length || 0);
+          setStructureCount(itemArray2.structure?.length || 0);
+          setHatCount(itemArray2.hat?.length || 0);
+        }
+      } catch (err) {
+        Sentry.withScope((scope) => {
+          scope.setLevel("error");
+          scope.setTag("type", "api");
+          scope.setTag("api", "item");
+          Sentry.captureException(err);
+        });
+        console.error("Item 로딩 실패", err);
+      }
+    };
+
+    fetchItem();
+  }, [visible]);
+
+  useEffect(() => {
+    dispatch(resetHatImages());
     dispatch(resetLandscapeImages());
     dispatch(resetStructureImages());
-    dispatch(resetHatImages());
-  }, [visible]);
+    dispatch(resetImages());
+  }, [onClose]);
+
   /*배경*/
   const planeImages = useSelector((state) => state.plane.planeImages);
   const currentPlaneIndex = useSelector((state) => state.plane.currentIndex);
-  useEffect(() => {
-    for (let i = 0; i < planeImages.length; i++) {
-      if (planeImages[i].selected) {
-        dispatch(setCurrentPlaneIndex(i));
-        break;
-      }
-    }
-  }, []);
 
   const [lockStartPlane, setLockStartPlane] = useState(3); //레벨에 따라 다르게 변경
 
@@ -59,38 +110,25 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const structureImages = useSelector(
     (state) => state.structure.structureImages
   );
-  const initialStructureCount = structureImages.filter(
-    (image) => image.selected
-  ).length;
-  const [structureCount, setStructureCount] = useState(initialStructureCount);
+  const [structureCount, setStructureCount] = useState(0);
   const [lockStartStructure, setLockStartStructure] = useState(5); //레벨에 따라 다르게 변경
 
   /*모자*/
   const hatImages = useSelector((state) => state.hat.hatImages);
-  const initialHatCount = hatImages.filter((image) => image.selected).length;
-  const [hatCount, setHatCount] = useState(initialHatCount);
+  const [hatCount, setHatCount] = useState(0);
   const [lockStartHat, setLockStartHat] = useState(4); //레벨에 따라 다르게 변경
 
   /*구조물*/
   const landscapeImages = useSelector(
     (state) => state.landscape.landscapeImages
   );
-  const initialLandScapeCount = landscapeImages.filter(
-    (image) => image.selected
-  ).length;
-  const [landScapeCount, setLandScapeCount] = useState(initialLandScapeCount);
+  const [landScapeCount, setLandScapeCount] = useState(0);
   const [lockStartLandScape, setLockStartLandScape] = useState(12); //레벨에 따라 다르게 변경
 
   /////////////////////////////////////
 
   const [menu, setMenu] = useState(0);
   const fontsLoaded = useCustomFonts();
-
-  useEffect(() => {
-    setLandScapeCount(initialLandScapeCount);
-    setHatCount(initialHatCount);
-    setStructureCount(initialStructureCount);
-  }, [onClose]);
 
   const chunkArray = (array, size) => {
     return Array.from({ length: Math.ceil(array.length / size) }, (_, i) =>
@@ -134,11 +172,13 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       });
       const finalSend3 = JSON.stringify(selectedHatImageIds);
 
+      let finalSend4 = [];
       //배경
       if (currentPlaneIndex < lockStartPlane) {
-        const finalSend4 = JSON.stringify([currentPlaneIndex]);
-        items.push({ itemType: "plane", itemIndex: currentPlaneIndex });
-        sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
+        finalSend4 = JSON.stringify([currentPlaneIndex]);
+        if (currentPlaneIndex != 0) {
+          items.push({ itemType: "plane", itemIndex: currentPlaneIndex });
+        }
       }
       // modifyItem 호출
       await modifyItem(items);
@@ -147,10 +187,7 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 }); //유니티에 메시지 보내기
       sendMessageToUnity(webviewRef, "structure", { action: finalSend2 }); //유니티에 메시지 보내기
       sendMessageToUnity(webviewRef, "hat", { action: finalSend3 }); //유니티에 메시지 보내기
-
-      dispatch(submitLandscapeImages());
-      dispatch(submitStructureImages());
-      dispatch(submitHatImages());
+      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 }); //유니티에 메시지 보내기
 
       onClose();
     } catch (err) {

@@ -16,6 +16,7 @@ import PromptPopup from "./SettingPopupPopup/PromptPopup";
 import NoticePopup from "./SettingPopupPopup/NoticePopup";
 import RequestPopup from "./SettingPopupPopup/RequestPoup";
 import ConfirmPopup from "../ConfirmPopup";
+import * as SecureStore from "expo-secure-store";
 
 const SettingPopup = ({ visible, onClose, navigation }) => {
   const fontsLoaded = useCustomFonts();

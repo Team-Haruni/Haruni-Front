@@ -42,7 +42,7 @@ const Login = ({ navigation }) => {
           navigation.push("Signup", {
             socialEmail: data.data,
             fromSocial: true,
-            type: "kakao",
+            type: "KAKAO",
           });
         }
       }

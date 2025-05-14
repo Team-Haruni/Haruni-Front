@@ -15,8 +15,10 @@ import Toast, { BaseToast } from "react-native-toast-message";
 const ItemSquareStructure = ({ image, lock, index, setCount, count }) => {
   const dispatch = useDispatch();
 
-  //이건 로컬 seleted로 redux랑은 별개
-  const [selected, setSelected] = useState(image.selected);
+  // ✅ selected 초기값 설정
+  const [selected, setSelected] = useState(() => {
+    return image.selected;
+  });
   const handlePress = () => {
     if (lock) {
       return Toast.show({

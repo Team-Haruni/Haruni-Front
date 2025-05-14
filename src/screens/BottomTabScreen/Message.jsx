@@ -118,12 +118,6 @@ const Message = () => {
   const handleSendMessage = async () => {
     Keyboard.dismiss();
 
-    InteractionManager.runAfterInteractions(() => {
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 400);
-    });
-
     if (!newMessage.trim()) return;
     const now = new Date();
     const hh = `0${now.getHours()}`.slice(-2);
@@ -148,17 +142,6 @@ const Message = () => {
     setNewMessage("");
     setMessages((prev) => [...prev, userMessage, emptyAI]);
     setIsLoading(true);
-
-    // setTimeout(() => {
-    //   setMessages((prev) =>
-    //     prev.map((m, i) =>
-    //       i === prev.length - 1 ? { ...m, content: "끝", loading: false } : m
-    //     )
-    //   );
-    //   setIsLoading(false);
-    //   dispatch(chatGrowExp());
-    // }, 2000);
-
     try {
       const response = await sendChat(newMessage); // 실제 서버 전송
       setMessages((prev) =>
@@ -169,9 +152,6 @@ const Message = () => {
         )
       );
       dispatch(chatGrowExp());
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 300);
     } catch (e) {
       Sentry.withScope((scope) => {
         scope.setLevel("error");

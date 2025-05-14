@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import Colors from "../../../styles/color";
 import Modal from "react-native-modal";
+import useCustomFonts from "../../hooks/useCustomFonts";
 
 const ConfirmPopup = ({
   isVisible,
@@ -12,6 +13,7 @@ const ConfirmPopup = ({
   cancelText = "취소",
   confirmText = "확인",
 }) => {
+  const fontsLoaded = useCustomFonts();
   return (
     <Modal
       isVisible={isVisible}
