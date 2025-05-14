@@ -18,7 +18,7 @@ import Itempopup from "../../components/Popup/ItemPopup";
 import TouchArea from "../../components/TouchArea";
 import LevelPopup from "../../components/Popup/LevelPopup";
 import characterData from "../../data/characterData";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import LeafIcon from "../../../assets/leaf-icon.svg";
 import Colors from "../../../styles/color";
 import { sendMessageToUnity } from "../../utils/unityBridge";
@@ -27,8 +27,10 @@ import { mainApi } from "../../api/main";
 import * as Sentry from "@sentry/react-native";
 import ErrorBoundary from "react-native-error-boundary";
 import CustomWebviewErrorFallback from "../../components/ErrorFallback/CustomWebviewErrorFallback";
+import { setInitialExp, setInitialLevel } from "../../../redux/slices/expSlice";
 
 const Home = ({ navigation }) => {
+  const dispatch = useDispatch();
   const userName = useSelector((state) => state.exp.userName);
   const webviewRef = useRef(null);
   const [chat, setChat] = useState(`안녕 ${userName} 오늘 하루도 힘내자!`);
@@ -42,6 +44,7 @@ const Home = ({ navigation }) => {
   const [structureIndex, setStructureIndex] = useState([]);
   const [hatIndex, setHatIndex] = useState([]);
   const [planeIndex, setPlaneIndex] = useState([]);
+  const [error, setError] = useState(null);
 
   // console.log(landscapeIndex);
   // console.log(structureIndex);
@@ -50,10 +53,9 @@ const Home = ({ navigation }) => {
 
   //케릭터관련
   const characterVersion = useSelector((state) => state.exp.characterVersion);
-  const nickName = useSelector((state) => state.exp.nickName);
   const exp = useSelector((state) => state.exp.exp);
   const level = useSelector((state) => state.exp.level);
-
+  console.log(exp);
   // // 버전 증가
   // setCharacterVersion((prev) => prev + 1);
 
@@ -66,6 +68,10 @@ const Home = ({ navigation }) => {
           if (greeting) {
             setChat(greeting); // 첫 화면 로딩 시 인삿말 표시
           }
+          const level = res.data.haruniLevelInteger;
+          const exp = res.data.haruniLevelDecimal;
+          dispatch(setInitialExp(exp));
+          dispatch(setInitialLevel(level));
 
           const itemArray = res.data.itemIndexes;
 
@@ -82,7 +88,7 @@ const Home = ({ navigation }) => {
 
           const itemArray2 = groupedIndexes;
 
-          console.log(itemArray2.landscape, "변형 리스트");
+          // console.log(itemArray2.landscape, "변형 리스트");
           setLandscapeIndex(itemArray2.landscape ? itemArray2.landscape : []);
           setStructureIndex(itemArray2.structure ? itemArray2.structure : []);
           setHatIndex(itemArray2.hat ? itemArray2.hat : []);
@@ -96,11 +102,16 @@ const Home = ({ navigation }) => {
           Sentry.captureException(err);
         });
         console.error("Greeting 로딩 실패", err);
+        setError(err);
       }
     };
 
     fetchGreeting();
   }, []);
+
+  if (error) {
+    throw new Error("로그인 중 문제가 발생했습니다.");
+  }
 
   //캐릭터 레벨에 따른 버전 증가
   useEffect(() => {
@@ -293,6 +304,7 @@ const Home = ({ navigation }) => {
               top={characterData[characterVersion].top}
               webviewRef={webviewRef}
               setChat={setChat}
+              level={level}
             />
           </>
         )}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import NaverIcon from "../../../assets/naver-icon.svg";
 import KakaoIcon from "../../../assets/kakao-icon.svg";
 import AppleIcon from "../../../assets/apple-icon.svg";
 import useCustomFonts from "../../hooks/useCustomFonts";
+import * as SecureStore from "expo-secure-store";
 
 const Login = ({ navigation }) => {
   const fontsLoaded = useCustomFonts();
@@ -26,6 +27,25 @@ const Login = ({ navigation }) => {
   const handleSignup = () => navigation.push("Signup");
   const handleFindID = () => Alert.alert("아이디 찾기 페이지 이동!");
   const handleFindPassword = () => Alert.alert("비밀번호 찾기 페이지 이동!");
+
+  //자동로그인
+  useEffect(() => {
+    const checkTokenAndLogin = async () => {
+      try {
+        const tokenString = await SecureStore.getItemAsync("userTokens");
+        if (tokenString) {
+          const tokens = JSON.parse(tokenString);
+          console.log("토큰 있음, 자동 로그인 시도:", tokens);
+
+          navigation.replace("Bottom");
+        }
+      } catch (error) {
+        console.error("토큰 확인 중 오류:", error);
+      }
+    };
+
+    checkTokenAndLogin();
+  }, []);
 
   const socialLogin = async (providerId) => {
     try {
@@ -44,6 +64,17 @@ const Login = ({ navigation }) => {
             fromSocial: true,
             type: "KAKAO",
           });
+        } else if (data.needSignup == false) {
+          if (data.data.accessToken && data.data.refreshToken) {
+            const tokenData = JSON.stringify({
+              accessToken: data.data.accessToken,
+              refreshToken: data.data.refreshToken,
+            });
+
+            console.log("토큰 데이터:", tokenData);
+            await SecureStore.setItemAsync("userTokens", tokenData);
+            navigation.replace("Bottom");
+          }
         }
       }
     } catch (err) {

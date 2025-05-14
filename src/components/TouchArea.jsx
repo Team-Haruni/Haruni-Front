@@ -4,6 +4,7 @@ import { sendMessageToUnity } from "../utils/unityBridge";
 import characterDialogues from "../data/characterDialogues";
 import { useDispatch } from "react-redux";
 import { touchGrowExp } from "../../redux/slices/expSlice";
+import { sendExpApi } from "../api/sendExp";
 
 const TouchArea = ({
   width = 200,
@@ -11,6 +12,7 @@ const TouchArea = ({
   top = "40%",
   webviewRef,
   setChat,
+  level,
 }) => {
   const dispatch = useDispatch();
   const [disabled, setDisabled] = useState(false);
@@ -24,7 +26,7 @@ const TouchArea = ({
       : "";
   };
 
-  const handleDoubleTap = () => {
+  const handleDoubleTap = async () => {
     const now = Date.now();
     if (now - lastTapRef.current < 300) {
       clearTimeout(tapTimeoutRef.current); // 기존 싱글 탭 취소
@@ -39,9 +41,18 @@ const TouchArea = ({
     }
     lastTapRef.current = now;
     dispatch(touchGrowExp());
+    try {
+      let expGain = 5;
+      if (level >= 15 && level < 30) expGain = 3;
+      else if (level >= 30) expGain = 1;
+
+      await sendExpApi(expGain); // ✅ 비동기 처리
+    } catch (err) {
+      console.error("경험치 전송 실패", err);
+    }
   };
 
-  const handlePress = () => {
+  const handlePress = async () => {
     if (disabled) return; // 터치가 비활성화되었으면 실행하지 않음
 
     setDisabled(true); // 터치 비활성화
@@ -54,6 +65,15 @@ const TouchArea = ({
       setDisabled(false); // 1초 후 다시 터치 활성화
     }, 300);
     dispatch(touchGrowExp());
+    try {
+      let expGain = 5;
+      if (level >= 15 && level < 30) expGain = 3;
+      else if (level >= 30) expGain = 1;
+
+      await sendExpApi(expGain); // ✅ 비동기 처리
+    } catch (err) {
+      console.error("경험치 전송 실패", err);
+    }
   };
 
   return (

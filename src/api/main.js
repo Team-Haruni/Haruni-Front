@@ -13,16 +13,6 @@ export const mainApi = async (data) => {
     const response = await get(`/v1/haruni`);
     console.log("main 응답:", response.data);
 
-    if (response.data.data.accessToken && response.data.data.refreshToken) {
-      const tokenData = JSON.stringify({
-        accessToken: response.data.data.accessToken,
-        refreshToken: response.data.data.refreshToken,
-      });
-
-      console.log("토큰 데이터:", tokenData);
-      await SecureStore.setItemAsync("userTokens", tokenData);
-    }
-
     return response.data;
   } catch (error) {
     console.log("main API 오류:", error);

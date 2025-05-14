@@ -11,6 +11,7 @@ import {
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
 import * as Sentry from "@sentry/react-native";
+import * as SecureStore from "expo-secure-store";
 
 const CustomGlobalErrorFallback = ({ error, resetError }) => {
   const fontsLoaded = useCustomFonts();
@@ -22,6 +23,15 @@ const CustomGlobalErrorFallback = ({ error, resetError }) => {
         Sentry.captureException(error);
       });
     }
+
+    // 비동기 로직 처리
+    const handleTokenCleanup = async () => {
+      if (error.message === "로그인 중 문제가 발생했습니다.") {
+        await SecureStore.deleteItemAsync("userTokens");
+      }
+    };
+
+    handleTokenCleanup();
   }, [error]);
 
   return (

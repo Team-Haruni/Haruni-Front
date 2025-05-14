@@ -13,6 +13,7 @@ import { setUserName, setNickname } from "../../../redux/slices/expSlice";
 import { useDispatch } from "react-redux";
 import * as Sentry from "@sentry/react-native";
 import { useRoute } from "@react-navigation/native";
+import * as SecureStore from "expo-secure-store";
 
 const Signup = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -56,7 +57,8 @@ const Signup = ({ navigation }) => {
       nickname,
       gender,
       haruniName: characterNickname,
-      prompt: formattedHobby,
+      haruniPersonality: formattedHobby,
+      mbti: "ENFP",
       alarmActiveTime: alertDate,
       alarmActive: true,
       providerId: type ? type : "NORMAL",
@@ -79,6 +81,7 @@ const Signup = ({ navigation }) => {
         Sentry.captureException(error);
       });
       Alert.alert("회원가입 실패", error.message);
+      console.log(error.message);
     }
   };
 

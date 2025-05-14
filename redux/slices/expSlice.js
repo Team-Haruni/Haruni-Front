@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { act } from "react";
 
 //레벨당 겨험치
 // 15레벨 이전 10씩
@@ -75,7 +74,7 @@ const expSlice = createSlice({
       let characterLevel = state.level;
       // 레벨에 따른 경험치 증가량 설정
       let expGain = 0.5; // 기본 증가량
-      if (characterLevel < 15) expGain = 5; //0.5;
+      if (characterLevel < 15) expGain = 10; //0.5;
       else if (characterLevel < 30) expGain = 3;
       else expGain = 1; // 최고 레벨
 

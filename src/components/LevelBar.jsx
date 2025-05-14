@@ -2,38 +2,20 @@ import { React, useEffect, useState } from "react";
 import { View, StyleSheet, Text, Animated } from "react-native";
 import Colors from "../../styles/color";
 import useCustomFonts from "../hooks/useCustomFonts";
-import { mainApi } from "../api/main";
+import { preconnect } from "react-dom";
 
-const LevelBar = () => {
+const LevelBar = ({ progress, level }) => {
+  //console.log(progress, "zzz");
   const fontsLoaded = useCustomFonts();
-  const [level, setLevel] = useState(1); 
-  const [progress, setProgress] = useState(0);
   const [animatedValue] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    const fetchMainLevel = async() => {
-      try {
-        const responseData = await mainApi();
-
-        if (responseData && responseData.data) {
-          const { haruniLevelInteger, haruniLevelDecimal } = responseData.data;
-
-          setLevel(haruniLevelInteger);
-          setProgress(haruniLevelDecimal*100);
-
-          Animated.timing(animatedValue, {
-            toValue: haruniLevelDecimal,
-            duration: 1000,
-            useNativeDriver: false,
-          }).start();
-        }
-      } catch (err) {
-        console.error("level data failed", err);
-      }
-    };
-
-    fetchMainLevel();
-  }, []);
+    Animated.timing(animatedValue, {
+      toValue: progress,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  }, [progress]);
 
   const barWidth = animatedValue.interpolate({
     inputRange: [0, 100],

@@ -137,7 +137,6 @@ const App = () => {
             <NavigationContainer>
               <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="Login" component={Login} />
-                <Stack.Screen name="KaKaoLogin" component={KakaoLogin} />
                 <Stack.Screen name="Signup" component={Signup} />
                 <Stack.Screen name="Bottom" component={BottomTabScreen} />
               </Stack.Navigator>
