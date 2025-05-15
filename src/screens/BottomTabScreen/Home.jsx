@@ -88,7 +88,7 @@ const Home = ({ navigation }) => {
 
           const itemArray2 = groupedIndexes;
 
-          // console.log(itemArray2.landscape, "변형 리스트");
+          console.log(itemArray2, "변형 리스트");
           setLandscapeIndex(itemArray2.landscape ? itemArray2.landscape : []);
           setStructureIndex(itemArray2.structure ? itemArray2.structure : []);
           setHatIndex(itemArray2.hat ? itemArray2.hat : []);
@@ -137,6 +137,29 @@ const Home = ({ navigation }) => {
     sendMessageToUnity(webviewRef, "effect", { action: "auraEffect" });
     setAuraEffect(!auraEffect);
   };
+
+  useEffect(() => {
+    const finalSend1 = JSON.stringify(landscapeIndex);
+    const finalSend2 = JSON.stringify(structureIndex);
+    const finalSend3 = JSON.stringify(hatIndex);
+    const finalSend4 = JSON.stringify(planeIndex);
+
+    console.log(finalSend1);
+    console.log(finalSend2);
+    console.log(finalSend3);
+    console.log(finalSend4);
+
+    sendMessageToUnity(webviewRef, "characterVersion", {
+      action: `${characterVersion}`,
+    });
+    sendMessageToUnity(webviewRef, "characterVersion", {
+      action: `${characterVersion}`,
+    });
+    sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+    sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+    sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+    sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+  }, [landscapeIndex, structureIndex, hatIndex, planeIndex]);
 
   //맨처음 캐릭터 버전 및 아이템 설정
   const handleWebViewLoadEnd = () => {

@@ -2,7 +2,6 @@ import { React, useEffect, useState } from "react";
 import { View, StyleSheet, Text, Animated } from "react-native";
 import Colors from "../../styles/color";
 import useCustomFonts from "../hooks/useCustomFonts";
-import { preconnect } from "react-dom";
 
 const LevelBar = ({ progress, level }) => {
   //console.log(progress, "zzz");
