@@ -25,7 +25,7 @@ const Signup = ({ navigation }) => {
     fromSocial ? progressArray[2] : progressArray[0]
   );
 
-  console.log(socialEmail, fromSocial);
+  //console.log(socialEmail, fromSocial);
   const [currentPage, setCurrentPage] = useState(fromSocial ? 3 : 1);
   const [email, setEmail] = useState(fromSocial ? socialEmail : "");
   const [password, setPassword] = useState("");
@@ -50,7 +50,31 @@ const Signup = ({ navigation }) => {
   };
 
   const handleSignup = async () => {
-    const formattedHobby = characterHobby.join(", ");
+    const mbtiList = [
+      "ENFP",
+      "ENTP",
+      "ESFP",
+      "ESTP",
+      "ENFJ",
+      "ENTJ",
+      "ESFJ",
+      "ESTJ",
+      "INFP",
+      "INTP",
+      "ISFP",
+      "ISTP",
+      "INFJ",
+      "INTJ",
+      "ISFJ",
+      "ISTJ",
+    ];
+
+    // MBTI 따로 추출
+    const mbti = characterHobby.find((trait) => mbtiList.includes(trait));
+    const personalityTraits = characterHobby.filter(
+      (trait) => !mbtiList.includes(trait)
+    );
+    const formattedHobby = personalityTraits.join(", ");
     let signupData = {
       email,
       password: fromSocial ? null : password,
@@ -58,7 +82,7 @@ const Signup = ({ navigation }) => {
       gender,
       haruniName: characterNickname,
       haruniPersonality: formattedHobby,
-      mbti: "ENFP",
+      mbti: mbti,
       alarmActiveTime: alertDate,
       alarmActive: true,
       providerId: type ? type : "NORMAL",

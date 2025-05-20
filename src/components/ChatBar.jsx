@@ -3,7 +3,12 @@ import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import Colors from "../../styles/color";
 import UpArrowIcon from "../../assets/upArrow-icon.svg";
 import VoiceButton from "./VoiceButton";
-const ChatBar = ({ newMessage, onChangeText, handleSendMessage }) => {
+const ChatBar = ({
+  newMessage,
+  onChangeText,
+  handleSendMessage,
+  isLoading,
+}) => {
   return (
     <View style={styles.inputContainer}>
       <TextInput
@@ -12,11 +17,16 @@ const ChatBar = ({ newMessage, onChangeText, handleSendMessage }) => {
         value={newMessage}
         onChangeText={onChangeText} // 부모에서 전달된 onChangeText 사용
         onSubmitEditing={handleSendMessage}
+        editable={!isLoading} // 입력 비활성화
       />
       <View style={styles.voiceButtonContainer}>
-        <VoiceButton setChat={onChangeText} />
+        <VoiceButton setChat={onChangeText} isLoading={isLoading} />
       </View>
-      <TouchableOpacity style={styles.submitButton} onPress={handleSendMessage}>
+      <TouchableOpacity
+        style={styles.submitButton}
+        onPress={handleSendMessage}
+        disabled={isLoading}
+      >
         <UpArrowIcon />
       </TouchableOpacity>
     </View>

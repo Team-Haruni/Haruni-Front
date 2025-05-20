@@ -139,72 +139,95 @@ const Home = ({ navigation }) => {
   };
 
   useEffect(() => {
-    const finalSend1 = JSON.stringify(landscapeIndex);
-    const finalSend2 = JSON.stringify(structureIndex);
-    const finalSend3 = JSON.stringify(hatIndex);
-    const finalSend4 = JSON.stringify(planeIndex);
+    if (webviewRef) {
+      const finalSend1 = JSON.stringify(landscapeIndex);
+      const finalSend2 = JSON.stringify(structureIndex);
+      const finalSend3 = JSON.stringify(hatIndex);
+      const finalSend4 = JSON.stringify(planeIndex);
 
-    console.log(finalSend1);
-    console.log(finalSend2);
-    console.log(finalSend3);
-    console.log(finalSend4);
+      console.log(finalSend1);
+      console.log(finalSend2);
+      console.log(finalSend3);
+      console.log(finalSend4);
 
-    sendMessageToUnity(webviewRef, "characterVersion", {
-      action: `${characterVersion}`,
-    });
-    sendMessageToUnity(webviewRef, "characterVersion", {
-      action: `${characterVersion}`,
-    });
-    sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
-    sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
-    sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
-    sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
-  }, [landscapeIndex, structureIndex, hatIndex, planeIndex]);
+      sendMessageToUnity(webviewRef, "characterVersion", {
+        action: `${characterVersion}`,
+      });
+      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+
+      setTimeout(() => {
+        sendMessageToUnity(webviewRef, "characterVersion", {
+          action: `${characterVersion}`,
+        });
+        sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+        sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+        sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+        sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+      }, 10000);
+      setTimeout(() => {
+        sendMessageToUnity(webviewRef, "characterVersion", {
+          action: `${characterVersion}`,
+        });
+        sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+        sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+        sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+        sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+      }, 15000);
+    }
+  }, [landscapeIndex, structureIndex, hatIndex, planeIndex, webviewRef]);
 
   //맨처음 캐릭터 버전 및 아이템 설정
   const handleWebViewLoadEnd = () => {
-    console.log("WebView loaded, waiting for 5 seconds...");
-    const finalSend1 = JSON.stringify(landscapeIndex);
-    const finalSend2 = JSON.stringify(structureIndex);
-    const finalSend3 = JSON.stringify(hatIndex);
-    const finalSend4 = JSON.stringify(planeIndex);
-
-    console.log(finalSend1);
-    console.log(finalSend2);
-    console.log(finalSend3);
-    console.log(finalSend4);
-
     setTimeout(() => {
       setIsLoading(false);
-      sendMessageToUnity(webviewRef, "characterVersion", {
-        action: `${characterVersion}`,
-      });
-      sendMessageToUnity(webviewRef, "characterVersion", {
-        action: `${characterVersion}`,
-      });
-      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
-      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
-      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
-      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
     }, 10000);
-    setTimeout(() => {
-      sendMessageToUnity(webviewRef, "characterVersion", {
-        action: `${characterVersion}`,
-      });
-      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
-      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
-      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
-      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
-    }, 15000);
-    setTimeout(() => {
-      sendMessageToUnity(webviewRef, "characterVersion", {
-        action: `${characterVersion}`,
-      });
-      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
-      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
-      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
-      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
-    }, 20000);
+
+    // console.log("WebView loaded, waiting for 5 seconds...");
+    // const finalSend1 = JSON.stringify(landscapeIndex);
+    // const finalSend2 = JSON.stringify(structureIndex);
+    // const finalSend3 = JSON.stringify(hatIndex);
+    // const finalSend4 = JSON.stringify(planeIndex);
+
+    // console.log(finalSend1);
+    // console.log(finalSend2);
+    // console.log(finalSend3);
+    // console.log(finalSend4);
+    // if (landscapeIndex || structureIndex || hatIndex || planeIndex) {
+    //   setTimeout(() => {
+    //     setIsLoading(false);
+    //     sendMessageToUnity(webviewRef, "characterVersion", {
+    //       action: `${characterVersion}`,
+    //     });
+    //     sendMessageToUnity(webviewRef, "characterVersion", {
+    //       action: `${characterVersion}`,
+    //     });
+    //     sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+    //     sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+    //     sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+    //     sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+    //   }, 10000);
+    //   setTimeout(() => {
+    //     sendMessageToUnity(webviewRef, "characterVersion", {
+    //       action: `${characterVersion}`,
+    //     });
+    //     sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+    //     sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+    //     sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+    //     sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+    //   }, 15000);
+    //   setTimeout(() => {
+    //     sendMessageToUnity(webviewRef, "characterVersion", {
+    //       action: `${characterVersion}`,
+    //     });
+    //     sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+    //     sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+    //     sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+    //     sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+    //   }, 20000);
+    // }
   };
 
   return (

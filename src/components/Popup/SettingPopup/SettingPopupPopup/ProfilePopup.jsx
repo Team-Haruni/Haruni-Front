@@ -16,6 +16,7 @@ import characterData from "../../../../data/characterData";
 import { useSelector, useDispatch } from "react-redux";
 import { setNickname } from "../../../../../redux/slices/expSlice";
 import ConfirmPopup from "../../ConfirmPopup";
+import { getUserApi } from "../../../../api/getUser";
 
 const ProfilePopup = ({ visible, onClose }) => {
   const dispatch = useDispatch();
@@ -43,16 +44,33 @@ const ProfilePopup = ({ visible, onClose }) => {
     /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\-_=+\\|[\]{};:'",<.>/?])(?=.*[a-z]).{8,15}$/;
 
   useEffect(() => {
-    setName(nicknameFromRedux);
-    setNicknameErrorMessage("");
-    setNewPwErrorMessage("");
-    setConfirmPwErrorMessage("");
-    setCurrentPwErrorMessage("");
-    setCurrentPw("");
-    setNewPw("");
-    setConfirmPw("");
-    setIsPwFocused(false);
-    setCurrentPwCorrect("");
+    const fetchUserInfo = async () => {
+      try {
+        const response = await getUserApi();
+        const { nickname, email } = response.data;
+
+        setName(nickname);
+        setEmail(email);
+        dispatch(setNickname(nickname));
+      } catch (error) {
+        console.error("유저 정보 조회 실패:", error);
+      } finally {
+        // 초기화
+        setNicknameErrorMessage("");
+        setNewPwErrorMessage("");
+        setConfirmPwErrorMessage("");
+        setCurrentPwErrorMessage("");
+        setCurrentPw("");
+        setNewPw("");
+        setConfirmPw("");
+        setIsPwFocused(false);
+        setCurrentPwCorrect("");
+      }
+    };
+
+    if (visible) {
+      fetchUserInfo();
+    }
   }, [visible]);
 
   const handleSave = () => {
@@ -87,7 +105,7 @@ const ProfilePopup = ({ visible, onClose }) => {
 
     if (!valid) return;
 
-    setNickname(name);
+    dispatch(setNickname(name));
     // 여기에 저장 API 호출 또는 로직 작성
     console.log("저장됨", { name, currentPw, newPw, confirmPw });
     onClose();
@@ -152,10 +170,11 @@ const ProfilePopup = ({ visible, onClose }) => {
                       style={styles.nickname}
                       value={name}
                       onChangeText={(text) => setName(text)}
-                      editable={isEditingNickname}
+                      // editable={isEditingNickname}
+                      editable={false}
                       textAlign="center"
                     />
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       onPress={() => {
                         setIsEditingNickname(true);
                         setTimeout(() => {
@@ -164,7 +183,7 @@ const ProfilePopup = ({ visible, onClose }) => {
                       }}
                     >
                       <Text style={styles.editText}>수정</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                   </View>
                 </View>
                 {nicknameErrorMessage ? (
@@ -303,6 +322,7 @@ const styles = StyleSheet.create({
   },
   nickname: {
     color: "#030303",
+    color: Colors.yellow400,
     fontSize: 18,
     fontFamily: "Cafe24Ssurrondair",
     flex: 1,

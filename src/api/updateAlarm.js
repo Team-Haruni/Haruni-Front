@@ -1,10 +1,10 @@
 // src/api/signup.js
 import { patch, post } from "./index"; // 기본 API 요청 함수 (axios 설정이 있는 index.js 파일)
 
-export const updateAlarmApi = async (data) => {
+export const updateAlarmApi = async (time) => {
   try {
     const requestData = {
-      alarmActiveTime: "17:30",
+      alarmActiveTime: time,
     };
     console.log(requestData);
     const response = await patch("/v1/users/me/alarm", requestData); // 조작한 requestData 전송

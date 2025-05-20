@@ -15,16 +15,18 @@ import {
 } from "react-native";
 import ChatBar from "../../components/ChatBar";
 import MessageItem from "../../components/MessageItem";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { chatGrowExp } from "../../../redux/slices/expSlice";
 import { fetchChatHistory, sendChat } from "../../api/message";
 import * as Sentry from "@sentry/react-native";
+import { sendExpApi } from "../../api/sendExp";
 
 const Message = () => {
   const dispatch = useDispatch();
   const flatListRef = useRef(null);
 
   // 상태
+  const level = useSelector((state) => state.exp.level);
   const [currentDate, setCurrentDate] = useState(getTodayString());
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -118,6 +120,17 @@ const Message = () => {
   const handleSendMessage = async () => {
     Keyboard.dismiss();
 
+    dispatch(chatGrowExp());
+    try {
+      let expGain = 10;
+      if (level >= 15 && level < 30) expGain = 5;
+      else if (level >= 30) expGain = 3;
+
+      await sendExpApi(expGain); // ✅ 비동기 처리
+    } catch (err) {
+      console.error("경험치 전송 실패", err);
+    }
+
     if (!newMessage.trim()) return;
     const now = new Date();
     const hh = `0${now.getHours()}`.slice(-2);
@@ -151,7 +164,6 @@ const Message = () => {
             : m
         )
       );
-      dispatch(chatGrowExp());
     } catch (e) {
       Sentry.withScope((scope) => {
         scope.setLevel("error");

@@ -33,10 +33,10 @@ const ItemSquareStructure = ({ image, lock, index, setCount, count }) => {
         setSelected(!selected);
         dispatch(toggleSelectStructure(index));
       } else {
-        if (count == 5) {
+        if (count == 3) {
           return Toast.show({
             type: "error",
-            text1: "최대 5개 까지 가능해요",
+            text1: "최대 3개 까지 가능해요",
             text2: "아이템 개수를 초과했어요",
             visibilityTime: 1500,
           });

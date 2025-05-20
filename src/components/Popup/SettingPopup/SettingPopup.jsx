@@ -64,13 +64,13 @@ const SettingPopup = ({ visible, onClose, navigation }) => {
             >
               <Text style={styles.listText}>로그아웃</Text>
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.listItem}
               onPress={() => setPromptModalVisible(true)}
             >
               <Text style={styles.listText}>성격 재설정</Text>
               <RightArrowIcon />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               style={styles.listItem}
               onPress={() => setNoticeModalVisible(true)}

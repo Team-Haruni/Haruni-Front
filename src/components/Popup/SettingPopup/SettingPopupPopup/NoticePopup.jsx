@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -9,13 +9,14 @@ import {
 import Modal from "react-native-modal";
 import Colors from "../../../../../styles/color";
 import { useDispatch, useSelector } from "react-redux";
-import { setAlarmTime } from "../../../../../redux/slices/alarmSlice";
 import TimePicker from "../../../../components/TimePicker";
 import {
   setPeriod,
   setHour,
   setMinutes,
+  resetAlarmTime,
 } from "../../../../../redux/slices/alarmSlice";
+import { updateAlarmApi } from "../../../../api/updateAlarm";
 
 const { width } = Dimensions.get("window");
 
@@ -32,11 +33,36 @@ const NoticePopup = ({ visible, onClose }) => {
   const selectedHour = useSelector((state) => state.alarm.hour);
   const selectedMinutes = useSelector((state) => state.alarm.minutes);
 
-  const handleConfirm = () => {
+  useEffect(() => {
+    dispatch(resetAlarmTime());
+  }, [visible]);
+
+  const handleConfirm = async () => {
     dispatch(setPeriod(selectedPeriod));
     dispatch(setHour(selectedHour));
     dispatch(setMinutes(selectedMinutes));
-    //나중에 api 추가
+    console.log(selectedHour, selectedMinutes, selectedPeriod);
+    // 문자열을 숫자로 변환
+    let realHour = parseInt(selectedHour, 10);
+    if (selectedPeriod === "오후" && realHour < 12) {
+      realHour += 12;
+    } else if (selectedPeriod === "오전" && realHour === 12) {
+      realHour = 0; // 오전 12시는 00시로 처리
+    }
+
+    const realMinutes =
+      selectedMinutes === "0" || selectedMinutes === 0
+        ? "00"
+        : selectedMinutes.toString().padStart(2, "0");
+
+    const time = `${realHour}:${realMinutes}`;
+
+    try {
+      await updateAlarmApi(time);
+      console.log("알람 시간 업데이트 성공");
+    } catch (error) {
+      console.error("알람 시간 업데이트 실패:", error);
+    }
     onClose();
   };
 

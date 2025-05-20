@@ -200,8 +200,8 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       console.error("Greeting 로딩 실패", err);
       return Toast.show({
         type: "error",
-        text1: "서버 조건",
-        text2: "조건을 맞추세요!",
+        text1: "아이템 조건",
+        text2: "아이템을 3개 이하로 맞춰주세요!",
         visibilityTime: 1500,
       });
     }

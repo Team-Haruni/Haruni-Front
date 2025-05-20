@@ -147,19 +147,46 @@ const Login = ({ navigation }) => {
         </TouchableOpacity>
 
         <View style={styles.socialContainer}>
-          <Text style={styles.socialText}>SNS 간편 로그인</Text>
+          <View style={styles.socialTextContainer}>
+            <View
+              style={{
+                position: "relative",
+                top: -8,
+                height: "100%",
+                flex: 1,
+                borderBottomColor: "#666",
+                borderBottomWidth: 1,
+              }}
+            />
+            <View
+              style={{
+                flex: 1.5,
+                width: "auto",
+                alignItems: "center",
+              }}
+            >
+              <Text style={styles.socialText}>SNS 간편 로그인</Text>
+            </View>
+            <View
+              style={{
+                position: "relative",
+                top: -8,
+                height: "100%",
+                flex: 1,
+                borderBottomColor: "#666",
+                borderBottomWidth: 1,
+              }}
+            />
+          </View>
           <View style={styles.socialButtons}>
-            <TouchableOpacity style={styles.socialButton}>
-              <NaverIcon />
-            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => socialLogin("KAKAO")}
               style={styles.socialButton}
             >
-              <KakaoIcon />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <AppleIcon />
+              <View style={styles.iconContainer}>
+                <KakaoIcon />
+              </View>
+              <Text style={styles.kakaoText}>카카오로 시작하기</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -248,22 +275,31 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   socialContainer: {
+    position: "relative",
+    top: 50,
     alignItems: "center",
+  },
+  socialTextContainer: {
+    flexDirection: "row",
+    marginBottom: 20,
+    height: 16,
   },
   socialText: {
     fontFamily: "Cafe24Ssurrondair",
     color: "#666",
-    marginBottom: 15,
   },
   socialButtons: {
+    width: "100%",
     flexDirection: "row",
     justifyContent: "center",
   },
   socialButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#ddd",
+    flexDirection: "row",
+    width: "100%",
+    paddingHorizontal: 50,
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: "#FEE500",
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 10,
@@ -271,6 +307,14 @@ const styles = StyleSheet.create({
   socialButtonText: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+  kakaoText: { fontSize: 16 },
+  iconContainer: {
+    position: "absolute",
+    left: 20,
+    justifyContent: "center",
+    width: 30,
+    height: "100%",
   },
 });
 

@@ -58,7 +58,7 @@ const expSlice = createSlice({
       // 레벨업 조건 (예제: 100 경험치마다 레벨업)
       if (state.exp >= 100) {
         state.level += 1;
-        state.exp = 0.0; // 레벨업 시 경험치 초기화
+        state.exp = state.exp - 100; // 레벨업 시 경험치 초기화
         if (state.level == 15) {
           state.characterVersion = 1;
           state.characterVersionArray = [true, true, false];
@@ -74,7 +74,7 @@ const expSlice = createSlice({
       let characterLevel = state.level;
       // 레벨에 따른 경험치 증가량 설정
       let expGain = 0.5; // 기본 증가량
-      if (characterLevel < 15) expGain = 10; //0.5;
+      if (characterLevel < 15) expGain = 5; //0.5;
       else if (characterLevel < 30) expGain = 3;
       else expGain = 1; // 최고 레벨
 
@@ -82,7 +82,7 @@ const expSlice = createSlice({
       // 레벨업 조건 (예제: 100 경험치마다 레벨업)
       if (state.exp >= 100) {
         state.level += 1;
-        state.exp = 0.0; // 레벨업 시 경험치 초기화
+        state.exp = state.exp - 100; // 레벨업 시 경험치 초기화
         if (state.level == 15) {
           state.characterVersion = 1;
           state.characterVersionArray = [true, true, false];

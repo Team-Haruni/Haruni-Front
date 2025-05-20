@@ -10,7 +10,7 @@ import {
 
 // import { updateAlarmApi } from "../api/updateAlarm";
 
-const VoiceButton = ({ setChat }) => {
+const VoiceButton = ({ setChat, isLoading }) => {
   const [recognizing, setRecognizing] = useState(false);
   const [text, setText] = useState("");
 
@@ -49,7 +49,11 @@ const VoiceButton = ({ setChat }) => {
             <LoadingBar />
           </View>
         ) : (
-          <TouchableOpacity style={styles.iconContainer} onPress={handleStart}>
+          <TouchableOpacity
+            style={styles.iconContainer}
+            onPress={handleStart}
+            disabled={isLoading}
+          >
             <VoiceIcon />
           </TouchableOpacity>
         )}
