@@ -40,13 +40,15 @@ const TouchArea = ({
       }, 50);
     }
     lastTapRef.current = now;
-    dispatch(touchGrowExp());
+
     try {
       let expGain = 5;
       if (level >= 15 && level < 30) expGain = 3;
       else if (level >= 30) expGain = 1;
 
-      await sendExpApi(expGain); // ✅ 비동기 처리
+      const responseData = await sendExpApi(expGain); // ✅ 비동기 처리
+      console.log(responseData);
+      dispatch(touchGrowExp(responseData.data.haruniLevelDecimal));
     } catch (err) {
       console.error("경험치 전송 실패", err);
     }

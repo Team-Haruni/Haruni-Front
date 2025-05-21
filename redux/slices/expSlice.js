@@ -6,8 +6,9 @@ import { createSlice } from "@reduxjs/toolkit";
 const expSlice = createSlice({
   name: "exp",
   initialState: {
-    userName: "저라뎃",
-    nickname: "하루니",
+    userName: "",
+    nickname: "",
+    userEmail: "",
     exp: 0.0,
     level: 1, // 기본 레벨
     characterVersion: 0, // 캐릭터의 진화 버전
@@ -26,7 +27,10 @@ const expSlice = createSlice({
       }
     },
     setNickname: (state, action) => {
-      state.nickName = action.payload; //캐리터 닉네임설정
+      state.nickname = action.payload; //캐리터 닉네임설정
+    },
+    setEmail: (state, action) => {
+      state.userEmail = action.payload; //캐리터 이메일설정
     },
     setUserName: (state, action) => {
       state.userName = action.payload; //유저네임 설정
@@ -70,19 +74,20 @@ const expSlice = createSlice({
     },
 
     // 터치 경험치 증가 로직
-    touchGrowExp: (state) => {
-      let characterLevel = state.level;
-      // 레벨에 따른 경험치 증가량 설정
-      let expGain = 0.5; // 기본 증가량
-      if (characterLevel < 15) expGain = 5; //0.5;
-      else if (characterLevel < 30) expGain = 3;
-      else expGain = 1; // 최고 레벨
-
-      state.exp += expGain;
+    touchGrowExp: (state, action) => {
+      // let characterLevel = state.level;
+      // // 레벨에 따른 경험치 증가량 설정
+      // let expGain = 0.5; // 기본 증가량
+      // if (characterLevel < 15) expGain = 5; //0.5;
+      // else if (characterLevel < 30) expGain = 3;
+      // else expGain = 1; // 최고 레벨
+      // console.log(action.payload);
+      const beforeExp = state.exp;
+      state.exp = action.payload;
       // 레벨업 조건 (예제: 100 경험치마다 레벨업)
-      if (state.exp >= 100) {
+      if (beforeExp > state.exp) {
         state.level += 1;
-        state.exp = state.exp - 100; // 레벨업 시 경험치 초기화
+        //state.exp = state.exp - 100; // 레벨업 시 경험치 초기화
         if (state.level == 15) {
           state.characterVersion = 1;
           state.characterVersionArray = [true, true, false];
@@ -103,5 +108,6 @@ export const {
   setNickname,
   setUserName,
   setCharacterVersion,
+  setEmail,
 } = expSlice.actions;
 export default expSlice.reducer;

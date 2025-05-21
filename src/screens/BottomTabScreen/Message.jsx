@@ -16,7 +16,7 @@ import {
 import ChatBar from "../../components/ChatBar";
 import MessageItem from "../../components/MessageItem";
 import { useDispatch, useSelector } from "react-redux";
-import { chatGrowExp } from "../../../redux/slices/expSlice";
+import { touchGrowExp } from "../../../redux/slices/expSlice";
 import { fetchChatHistory, sendChat } from "../../api/message";
 import * as Sentry from "@sentry/react-native";
 import { sendExpApi } from "../../api/sendExp";
@@ -31,6 +31,9 @@ const Message = () => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // 더미 메시지 전송 로직 (변경 없음)
+  const [newMessage, setNewMessage] = useState("");
 
   // 날짜 포맷 함수
   function formatDate(d) {
@@ -77,10 +80,13 @@ const Message = () => {
     loadChatForDate(currentDate, false);
   }, []);
 
-  // // 메시지 자동 스크롤
-  // useEffect(() => {
-  //   flatListRef.current?.scrollToEnd({ animated: true });
-  // }, [messages]);
+  // 새로운 메시지 자동 스크롤
+  useEffect(() => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 300);
+  }, [flatListRef]);
+
   // 메시지 자동 스크롤
   useEffect(() => {
     setTimeout(() => {
@@ -89,23 +95,25 @@ const Message = () => {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 300);
-  }, [flatListRef]);
+    if (!isLoading) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 300);
+    }
+  }, [isLoading]);
 
   // 키보드 이벤트 처리
   useEffect(() => {
     const show = Keyboard.addListener("keyboardDidShow", () => {
-      InteractionManager.runAfterInteractions(() => {
+      setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
-      });
+      }, 300);
     });
 
     const hide = Keyboard.addListener("keyboardDidHide", () => {
-      InteractionManager.runAfterInteractions(() => {
+      setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
-      });
+      }, 500);
     });
 
     return () => {
@@ -114,19 +122,16 @@ const Message = () => {
     };
   }, []);
 
-  // 더미 메시지 전송 로직 (변경 없음)
-  const [newMessage, setNewMessage] = useState("");
-
   const handleSendMessage = async () => {
     Keyboard.dismiss();
 
-    dispatch(chatGrowExp());
     try {
       let expGain = 10;
       if (level >= 15 && level < 30) expGain = 5;
       else if (level >= 30) expGain = 3;
 
-      await sendExpApi(expGain); // ✅ 비동기 처리
+      const responseData = await sendExpApi(expGain); // ✅ 비동기 처리
+      dispatch(touchGrowExp(responseData.data.haruniLevelDecimal));
     } catch (err) {
       console.error("경험치 전송 실패", err);
     }

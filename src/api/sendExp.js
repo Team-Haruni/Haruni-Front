@@ -8,9 +8,8 @@ export const sendExpApi = async (exp) => {
     };
     console.log(requestData);
     const response = await patch("/v1/haruni/exp", requestData); // 조작한 requestData 전송
-    console.log(response.data);
 
-    return response.status;
+    return response.data;
   } catch (error) {
     console.log(error);
 

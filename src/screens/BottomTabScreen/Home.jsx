@@ -27,7 +27,14 @@ import { mainApi } from "../../api/main";
 import * as Sentry from "@sentry/react-native";
 import ErrorBoundary from "react-native-error-boundary";
 import CustomWebviewErrorFallback from "../../components/ErrorFallback/CustomWebviewErrorFallback";
-import { setInitialExp, setInitialLevel } from "../../../redux/slices/expSlice";
+import {
+  setInitialExp,
+  setInitialLevel,
+  setUserName,
+  setNickname,
+  setEmail,
+} from "../../../redux/slices/expSlice";
+import { getUserApi } from "../../api/getUser";
 
 const Home = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -94,6 +101,11 @@ const Home = ({ navigation }) => {
           setHatIndex(itemArray2.hat ? itemArray2.hat : []);
           setPlaneIndex(itemArray2.plane ? itemArray2.plane : [0]);
         }
+        const res2 = await getUserApi(); // mainApi 호출
+        console.log(res2.data.haruniNickname);
+        dispatch(setNickname(res2.data.haruniNickname));
+        dispatch(setUserName(res2.data.userNickname));
+        dispatch(setEmail(res2.data.email));
       } catch (err) {
         Sentry.withScope((scope) => {
           scope.setLevel("error");
@@ -106,6 +118,25 @@ const Home = ({ navigation }) => {
       }
     };
 
+    const fetchInformation = async () => {
+      try {
+        const res2 = await getUserApi();
+        dispatch(setNickname(res2.data.haruniNickname));
+        dispatch(setUserName(res2.data.userNickname));
+        dispatch(setEmail(res2.data.email));
+      } catch (err) {
+        Sentry.withScope((scope) => {
+          scope.setLevel("error");
+          scope.setTag("type", "api");
+          scope.setTag("api", "mainInfo");
+          Sentry.captureException(err);
+        });
+        console.error("Greeting 로딩 실패", err);
+        setError(err);
+      }
+    };
+
+    fetchInformation();
     fetchGreeting();
   }, []);
 
@@ -167,15 +198,15 @@ const Home = ({ navigation }) => {
         sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
         sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
       }, 10000);
-      setTimeout(() => {
-        sendMessageToUnity(webviewRef, "characterVersion", {
-          action: `${characterVersion}`,
-        });
-        sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
-        sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
-        sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
-        sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
-      }, 15000);
+      // setTimeout(() => {
+      //   sendMessageToUnity(webviewRef, "characterVersion", {
+      //     action: `${characterVersion}`,
+      //   });
+      //   sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+      //   sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+      //   sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+      //   sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+      // }, 15000);
     }
   }, [landscapeIndex, structureIndex, hatIndex, planeIndex, webviewRef]);
 
@@ -209,24 +240,6 @@ const Home = ({ navigation }) => {
     //     sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
     //     sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
     //   }, 10000);
-    //   setTimeout(() => {
-    //     sendMessageToUnity(webviewRef, "characterVersion", {
-    //       action: `${characterVersion}`,
-    //     });
-    //     sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
-    //     sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
-    //     sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
-    //     sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
-    //   }, 15000);
-    //   setTimeout(() => {
-    //     sendMessageToUnity(webviewRef, "characterVersion", {
-    //       action: `${characterVersion}`,
-    //     });
-    //     sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
-    //     sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
-    //     sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
-    //     sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
-    //   }, 20000);
     // }
   };
 

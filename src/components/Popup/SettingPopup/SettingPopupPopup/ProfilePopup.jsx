@@ -21,12 +21,13 @@ import { getUserApi } from "../../../../api/getUser";
 const ProfilePopup = ({ visible, onClose }) => {
   const dispatch = useDispatch();
   const nicknameInputRef = useRef(null);
-  const nicknameFromRedux = useSelector((state) => state.exp.nickname);
+  const name = useSelector((state) => state.exp.userName);
+  const emailFromRedux = useSelector((state) => state.exp.userEmail);
   const fontsLoaded = useCustomFonts();
   const characterVersion = useSelector((state) => state.exp.characterVersion);
-  const [name, setName] = useState(nicknameFromRedux);
+  //const [name, setName] = useState(nicknameFromRedux);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
-  const [email, setEmail] = useState("mallang@inu.co.kr");
+  const [email, setEmail] = useState(emailFromRedux);
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
@@ -42,36 +43,6 @@ const ProfilePopup = ({ visible, onClose }) => {
 
   const passwordRegex =
     /^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\-_=+\\|[\]{};:'",<.>/?])(?=.*[a-z]).{8,15}$/;
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await getUserApi();
-        const { nickname, email } = response.data;
-
-        setName(nickname);
-        setEmail(email);
-        dispatch(setNickname(nickname));
-      } catch (error) {
-        console.error("유저 정보 조회 실패:", error);
-      } finally {
-        // 초기화
-        setNicknameErrorMessage("");
-        setNewPwErrorMessage("");
-        setConfirmPwErrorMessage("");
-        setCurrentPwErrorMessage("");
-        setCurrentPw("");
-        setNewPw("");
-        setConfirmPw("");
-        setIsPwFocused(false);
-        setCurrentPwCorrect("");
-      }
-    };
-
-    if (visible) {
-      fetchUserInfo();
-    }
-  }, [visible]);
 
   const handleSave = () => {
     let valid = true;
@@ -105,7 +76,7 @@ const ProfilePopup = ({ visible, onClose }) => {
 
     if (!valid) return;
 
-    dispatch(setNickname(name));
+    //dispatch(setNickname(name));
     // 여기에 저장 API 호출 또는 로직 작성
     console.log("저장됨", { name, currentPw, newPw, confirmPw });
     onClose();
@@ -169,7 +140,7 @@ const ProfilePopup = ({ visible, onClose }) => {
                       ref={nicknameInputRef}
                       style={styles.nickname}
                       value={name}
-                      onChangeText={(text) => setName(text)}
+                      //onChangeText={(text) => setName(text)}
                       // editable={isEditingNickname}
                       editable={false}
                       textAlign="center"
@@ -263,9 +234,9 @@ const ProfilePopup = ({ visible, onClose }) => {
               <Text style={styles.saveText}>저장</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleWithdraw}>
+            {/* <TouchableOpacity onPress={handleWithdraw}>
               <Text style={styles.withdrawText}>회원탈퇴</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
 
           {/* 회원탈퇴 확인 팝업 */}
