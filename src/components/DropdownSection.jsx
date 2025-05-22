@@ -48,8 +48,11 @@ const styles = StyleSheet.create({
     color: "black", // 헤더 타이틀 색상 (배경색과 대비되도록 myColor 사용)
   },
   dropdownContent: {
+    position: "relative",
+    top: -14,
     backgroundColor: Colors.pointColor,
-    borderRadius: 20,
+    borderBottomRightRadiusRadius: 20,
+    borderBottomLeftRadius: 8,
     padding: 12,
   },
 });

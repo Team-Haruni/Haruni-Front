@@ -55,7 +55,8 @@ const NoticePopup = ({ visible, onClose }) => {
         ? "00"
         : selectedMinutes.toString().padStart(2, "0");
 
-    const time = `${realHour}:${realMinutes}`;
+    const time = `${realHour.toString().padStart(2, "0")}:${realMinutes}`;
+    console.log(time);
 
     try {
       await updateAlarmApi(time);
