@@ -18,6 +18,8 @@ import useCustomFonts from "../../hooks/useCustomFonts";
 import { LineChart } from "react-native-gifted-charts";
 import * as Sentry from "@sentry/react-native";
 import { fetchWeeklyFeedback } from "../../api/weeklyFeedback";
+import DropdownSection from "../../components/DropdownSection";
+import { getApp } from "@react-native-firebase/app";
 
 const screenWidth = Dimensions.get("window").width;
 const moodToValue = {
@@ -25,7 +27,7 @@ const moodToValue = {
   normal: { value: 50, emoji: "😐" },
   happy: { value: 95, emoji: "😁" },
 };
-const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+const weekdays = ["월", "화", "수", "목", "금", "토", "일"];
 
 const User = () => {
   const characterVersion = useSelector((state) => state.exp.characterVersion);
@@ -43,19 +45,25 @@ const User = () => {
   const [feedback, setFeedback] = useState("");
   const [weekSummary, setWeekSummary] = useState("");
   const [suggestion, setSuggestion] = useState("");
+  const [suggestion1, setSuggestion1] = useState("");
+  const [suggestion2, setSuggestion2] = useState("");
+  const [suggestion3, setSuggestion3] = useState("");
   const [recommendation, setRecommendation] = useState("");
+  const [recommendation1, setRecommendation1] = useState("");
+  const [recommendation2, setRecommendation2] = useState("");
+  const [recommendation3, setRecommendation3] = useState("");
   const fontsLoaded = useCustomFonts();
 
   const convertToLineData = (dayMoods) => {
     // 요일별 기본값 설정 (null 처리)
     const weekMap = {
-      일: { value: null, dataPointText: "", label: "일" },
       월: { value: null, dataPointText: "", label: "월" },
       화: { value: null, dataPointText: "", label: "화" },
       수: { value: null, dataPointText: "", label: "수" },
       목: { value: null, dataPointText: "", label: "목" },
       금: { value: null, dataPointText: "", label: "금" },
       토: { value: null, dataPointText: "", label: "토" },
+      일: { value: null, dataPointText: "", label: "일" },
     };
     dayMoods.forEach(({ date, mood }, index) => {
       const day = index; // 0=일요일, ..., 6=토요일
@@ -68,7 +76,7 @@ const User = () => {
         };
       }
     });
-    return ["일", "월", "화", "수", "목", "금", "토"].map(
+    return ["월", "화", "수", "목", "금", "토", "일"].map(
       (label) => weekMap[label]
     );
   };
@@ -81,10 +89,55 @@ const User = () => {
         const convertedLineData = convertToLineData(data.dayMoods);
         setWeekData(true);
         setLineData(convertedLineData);
-        setFeedback(data.feedback.replace(/\. /g, ".\n"));
-        setWeekSummary(data.weekSummary.replace(/\. /g, ".\n"));
-        setSuggestion(data.suggestion.replace(/\. /g, ".\n"));
-        setRecommendation(data.recommendation.replace(/\. /g, ".\n"));
+        setFeedback(
+          data.feedback
+            .split(". ")
+            .map((sentence, idx, arr) => {
+              const isLast = idx === arr.length - 1;
+              const finalSentence = sentence.endsWith(".")
+                ? sentence
+                : sentence + ".";
+              return idx % 2 === 0 || isLast
+                ? finalSentence
+                : finalSentence + "\n\n";
+            })
+            .join(" ")
+            .trim()
+        );
+        setWeekSummary(
+          data.weekSummary
+            .split(". ")
+            .map((sentence, idx, arr) => {
+              const isLast = idx === arr.length - 1;
+              const finalSentence = sentence.endsWith(".")
+                ? sentence
+                : sentence + ".";
+              return idx % 2 === 0 || isLast
+                ? finalSentence
+                : finalSentence + "\n\n";
+            })
+            .join(" ")
+            .trim()
+        );
+
+        const extractItems = (text) => {
+          return text
+            .split(/\d\.\s/)
+            .map((item) => item.trim())
+            .filter((item) => item.length > 0);
+        };
+        const suggestionItems = extractItems(data.suggestion);
+        const recommendationItems = extractItems(data.recommendation);
+
+        setSuggestion(data.suggestion);
+        setSuggestion1(suggestionItems[0] || "");
+        setSuggestion2(suggestionItems[1] || "");
+        setSuggestion3(suggestionItems[2] || "");
+
+        setRecommendation(data.recommendation);
+        setRecommendation1(recommendationItems[0] || "");
+        setRecommendation2(recommendationItems[1] || "");
+        setRecommendation3(recommendationItems[2] || "");
       } catch (error) {
         Sentry.withScope((scope) => {
           scope.setLevel("error");
@@ -106,110 +159,161 @@ const User = () => {
       <SafeAreaView style={styles.safeContainer}>
         <View style={styles.container}>
           {/* 상단 프로필 */}
-          <View style={styles.topSection}>
-            <View style={styles.imgContainer}>
-              <Image
-                resizeMode="resize"
-                source={characterData[characterVersion].url}
-                style={styles.profileImage}
-              />
-            </View>
-            <Text style={styles.nickname}>{nickname}</Text>
-          </View>
-
-          {/* 피드백 섹션: 세로 스크롤 */}
           <ScrollView style={styles.commentsWrapper}>
+            <View style={styles.topSection}>
+              <View style={styles.imgContainer}>
+                <Image
+                  resizeMode="resize"
+                  source={characterData[characterVersion].url}
+                  style={styles.profileImage}
+                />
+              </View>
+              <Text style={styles.nickname}>{nickname}</Text>
+            </View>
+
+            {/* 피드백 섹션: 세로 스크롤 */}
             {/* 주간 감정 흐름 차트 */}
-            <View style={styles.chartContainer}>
+            <View style={styles.outerContainer}>
               <Text style={styles.chartTitle}>이번 주 감정흐름</Text>
-              <View style={styles.chartInner}>
-                {weekData ? (
-                  <LineChart
-                    rulesType="dashed"
-                    rulesThickness={1}
-                    rulesColor={Colors.pointColor}
-                    data={lineData}
-                    curved={true}
-                    curveType="bezier"
-                    initialSpacing={20}
-                    spacing={40}
-                    thickness={2}
-                    width={screenWidth - 120}
-                    isAnimated
-                    areaChart
-                    height={120}
-                    animationDuration={1200}
-                    color={Colors.pointColor}
-                    dataPointsColor={Colors.pointColor}
-                    dataPointRadius={10}
-                    startFillColor={Colors.pointColor}
-                    startOpacity={0.7}
-                    endOpacity={0}
-                    maxValue={100}
-                    noOfSections={2}
-                    hideYAxisText
-                    yAxisLabelWidth={15}
-                    textShiftY={0}
-                    textShiftX={-10}
-                    xAxisColor={Colors.pointColor}
-                    yAxisColor={Colors.pointColor}
-                    yAxisLabelTexts={["Bad", "Normal", "Good"]}
-                    yAxisTextStyle={styles.axisText}
-                    xAxisLabelTextStyle={styles.axisText}
-                  />
-                ) : (
-                  <Text style={styles.comment}>데이터가 충분하지 않습니다</Text>
-                )}
+              <View style={styles.chartContainer}>
+                <View style={styles.chartInner}>
+                  {weekData ? (
+                    <LineChart
+                      rulesType="dashed"
+                      rulesThickness={1}
+                      rulesColor={Colors.pointColor}
+                      data={lineData}
+                      curved={true}
+                      curveType="bezier"
+                      initialSpacing={20}
+                      spacing={35}
+                      thickness={2}
+                      width={screenWidth - 150}
+                      isAnimated
+                      areaChart
+                      height={120}
+                      animationDuration={1200}
+                      color={Colors.pointColor}
+                      dataPointsColor={Colors.pointColor}
+                      dataPointRadius={10}
+                      startFillColor={Colors.pointColor}
+                      startOpacity={0.7}
+                      endOpacity={0}
+                      maxValue={100}
+                      noOfSections={2}
+                      hideYAxisText
+                      yAxisLabelWidth={15}
+                      textShiftY={0}
+                      textShiftX={-10}
+                      xAxisColor={Colors.pointColor}
+                      yAxisColor={Colors.pointColor}
+                      yAxisLabelTexts={["Bad", "Normal", "Good"]}
+                      yAxisTextStyle={styles.axisText}
+                      xAxisLabelTextStyle={styles.axisText}
+                    />
+                  ) : (
+                    <Text style={styles.comment}>
+                      데이터가 충분하지 않습니다
+                    </Text>
+                  )}
+                </View>
               </View>
             </View>
 
             {/* 주간 피드백 */}
-            <View style={styles.commentContainer}>
-              <Text style={styles.commentTitle}>주간 피드백</Text>
-              <ScrollView>
+            <DropdownSection title="주간 피드백">
+              <View
+                style={{
+                  width: "100%",
+                  backgroundColor: Colors.myColor,
+                  borderRadius: 8,
+                  padding: 12,
+                  minHeight: 200,
+                }}
+              >
+                {/* 최소 높이 유지 */}
                 <Text style={styles.comment}>
                   {weekData
                     ? feedback
                     : "나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!"}
                 </Text>
-              </ScrollView>
-            </View>
+              </View>
+            </DropdownSection>
 
             {/* 이번 주 돌아보기 */}
-            <View style={styles.commentContainer}>
-              <Text style={styles.commentTitle}>이번 주 돌아보기</Text>
-              <ScrollView>
+            <DropdownSection title="이번 주 돌아보기">
+              <View
+                style={{
+                  width: "100%",
+                  backgroundColor: Colors.myColor,
+                  borderRadius: 8,
+                  padding: 12,
+                  minHeight: 200,
+                }}
+              >
+                {/* 최소 높이 유지 */}
                 <Text style={styles.comment}>
                   {weekData
                     ? weekSummary
-                    : "나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!"}
+                    : "나랑 더 얘기해줘! 일주일의 돌아봐줄게!!"}
                 </Text>
-              </ScrollView>
-            </View>
+              </View>
+            </DropdownSection>
 
             {/* 다음 주를 위한 작은 제안 */}
-            <View style={styles.commentContainer}>
-              <Text style={styles.commentTitle}>다음 주를 위한 작은 제안</Text>
-              <ScrollView>
-                <Text style={styles.comment}>
-                  {weekData
-                    ? suggestion
-                    : "나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!"}
-                </Text>
-              </ScrollView>
-            </View>
+            <DropdownSection title="다음 주를 위한 작은 제안">
+              <View style={{ minHeight: 150 }}>
+                {weekData ? (
+                  <>
+                    {[suggestion1, suggestion2, suggestion3].map(
+                      (item, idx) =>
+                        item && (
+                          <View key={idx} style={styles.suggestionBox}>
+                            <Text style={styles.suggestionNumber}>
+                              {idx + 1}.
+                            </Text>
+                            <Text style={styles.suggestionText}>{item}</Text>
+                          </View>
+                        )
+                    )}
+                  </>
+                ) : (
+                  <View style={styles.sBox}>
+                    <Text style={styles.comment}>
+                      나랑 더 얘기해줘! 작은 제안을 해줄게!!
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </DropdownSection>
 
             {/* 다음 주 추천 */}
-            <View style={styles.commentContainer}>
-              <Text style={styles.commentTitle}>다음 주 추천</Text>
-              <ScrollView>
-                <Text style={styles.comment}>
-                  {weekData
-                    ? recommendation
-                    : "나랑 더 얘기해줘! 일주일의 기분을 분석해줄게!!"}
-                </Text>
-              </ScrollView>
-            </View>
+
+            <DropdownSection title="다음 주 추천">
+              <View style={{ minHeight: 150 }}>
+                {weekData ? (
+                  <>
+                    {[recommendation1, recommendation2, recommendation3].map(
+                      (item, idx) =>
+                        item && (
+                          <View key={idx} style={styles.suggestionBox}>
+                            <Text style={styles.suggestionNumber}>
+                              {idx + 1}.
+                            </Text>
+                            <Text style={styles.suggestionText}>{item}</Text>
+                          </View>
+                        )
+                    )}
+                  </>
+                ) : (
+                  <View style={styles.sBox}>
+                    <Text style={styles.comment}>
+                      나랑 더 얘기해줘! 다음 주를 위해 추천해줄게!!
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </DropdownSection>
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -250,25 +354,29 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: "Cafe24Ssurrond",
   },
+  outerContainer: {
+    width: "100%",
+    backgroundColor: Colors.pointColor,
+    borderRadius: 8,
+    padding: 12,
+    minHeight: 200,
+    marginBottom: 20,
+  },
   chartContainer: {
     backgroundColor: Colors.myColor,
     borderRadius: 20,
-    padding: 10,
-    paddingTop: 20,
-    minHeight: 200,
-    marginBottom: 20,
-    borderColor: Colors.pointColor,
-    borderWidth: 1,
-    alignItems: "center",
+    height: 200,
+    textAlign: "center",
   },
   chartTitle: {
     width: "100%",
     paddingLeft: 10,
-    marginBottom: 30,
+    marginBottom: 20,
     fontFamily: "Cafe24Ssurrond",
     fontSize: 15,
   },
   chartInner: {
+    paddingLeft: 10,
     width: "100%",
     height: 200,
     justifyContent: "center",
@@ -278,31 +386,64 @@ const styles = StyleSheet.create({
   commentsWrapper: {
     flex: 1,
   },
-  commentContainer: {
-    width: "100%", // 전체 폭
-    minHeight: 100,
-    maxHeight: 200,
+  commentContainer2: {
+    width: "100%",
     marginBottom: 16,
     padding: 12,
-    borderRadius: 20,
-    backgroundColor: Colors.myColor,
-    borderColor: Colors.pointColor,
-    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: Colors.pointColor,
   },
   commentTitle: {
+    marginTop: 5,
     fontFamily: "Cafe24Ssurrond",
     fontSize: 15,
-    marginBottom: 8,
+    marginBottom: 15,
   },
   comment: {
     fontFamily: "Cafe24Ssurrondair",
     fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.3,
   },
 
   axisText: {
     fontFamily: "Cafe24Ssurrond",
     fontSize: 12,
     color: Colors.pointColor,
+  },
+  suggestionBox: {
+    backgroundColor: Colors.myColor, // 반투명 배경
+    borderRadius: 12,
+    padding: 12,
+    minHeight: 50,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 10,
+  },
+  sBox: {
+    backgroundColor: Colors.myColor, // 반투명 배경
+    borderRadius: 12,
+    padding: 12,
+    minHeight: 150,
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+
+  suggestionNumber: {
+    fontSize: 16,
+    color: "black",
+    fontFamily: "Cafe24Ssurrondair",
+    marginTop: 2,
+  },
+
+  suggestionText: {
+    flex: 1,
+    color: "#black",
+    fontFamily: "Cafe24Ssurrondair",
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: 0.3,
+    lineHeight: 22,
   },
 });
 

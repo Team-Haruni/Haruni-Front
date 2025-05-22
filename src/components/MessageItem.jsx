@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   messageContentContainer: {
     position: "relative",
     minWidth: 50,
-    maxWidth: 275,
+    maxWidth: 270,
     backgroundColor: "white",
     minHeight: 40,
     flexDirection: "row",
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   otherMessageContentContainer: {
     position: "relative",
     minWidth: 50,
-    maxWidth: 275,
+    maxWidth: 270,
     backgroundColor: "#ffd166",
     minHeight: 40,
     flexDirection: "row",

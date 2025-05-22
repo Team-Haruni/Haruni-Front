@@ -181,14 +181,23 @@ const Home = ({ navigation }) => {
       console.log(finalSend3);
       console.log(finalSend4);
 
-      sendMessageToUnity(webviewRef, "characterVersion", {
-        action: `${characterVersion}`,
-      });
-      sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
-      sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
-      sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
-      sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+      // sendMessageToUnity(webviewRef, "characterVersion", {
+      //   action: `${characterVersion}`,
+      // });
+      // sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+      // sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+      // sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+      // sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
 
+      setTimeout(() => {
+        sendMessageToUnity(webviewRef, "characterVersion", {
+          action: `${characterVersion}`,
+        });
+        sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 });
+        sendMessageToUnity(webviewRef, "structure", { action: finalSend2 });
+        sendMessageToUnity(webviewRef, "hat", { action: finalSend3 });
+        sendMessageToUnity(webviewRef, "plane", { action: finalSend4 });
+      }, 5000);
       setTimeout(() => {
         sendMessageToUnity(webviewRef, "characterVersion", {
           action: `${characterVersion}`,

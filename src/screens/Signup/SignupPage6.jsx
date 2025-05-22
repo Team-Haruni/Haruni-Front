@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   },
   counter: {
     fontFamily: "Cafe24Ssurrondair",
-    fontSize: 17,
+    fontSize: 16,
   },
   svgContainer: {
     position: "absolute",

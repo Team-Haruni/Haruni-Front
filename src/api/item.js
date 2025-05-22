@@ -3,7 +3,6 @@ import { get, post } from "./index";
 export const loadItem = async () => {
   try {
     const response = await get(`/v1/items`);
-    console.log("아이템템 내역 응답:", response.data);
     return response.data.data;
   } catch (error) {
     console.log("loadItem 오류:", error);

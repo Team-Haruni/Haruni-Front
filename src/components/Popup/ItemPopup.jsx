@@ -40,7 +40,42 @@ import {
 const ItemPopup = ({ visible, onClose, webviewRef }) => {
   const dispatch = useDispatch();
 
+  const level = useSelector((state) => state.exp.level);
+
+  /*배경*/
+  const planeImages = useSelector((state) => state.plane.planeImages);
+  const currentPlaneIndex = useSelector((state) => state.plane.currentIndex);
+
+  const [lockStartPlane, setLockStartPlane] = useState(3); //레벨에 따라 다르게 변경
+
+  /*장난감*/
+  const structureImages = useSelector(
+    (state) => state.structure.structureImages
+  );
+  const [structureCount, setStructureCount] = useState(0);
+  const [lockStartStructure, setLockStartStructure] = useState(5); //레벨에 따라 다르게 변경
+
+  /*모자*/
+  const hatImages = useSelector((state) => state.hat.hatImages);
+  const [hatCount, setHatCount] = useState(0);
+  const [lockStartHat, setLockStartHat] = useState(4); //레벨에 따라 다르게 변경
+
+  /*구조물*/
+  const landscapeImages = useSelector(
+    (state) => state.landscape.landscapeImages
+  );
+  const [landScapeCount, setLandScapeCount] = useState(0);
+  const [lockStartLandScape, setLockStartLandScape] = useState(12); //레벨에 따라 다르게 변경
+
+  /////////////////////////////////////
+
   useEffect(() => {
+    if (level >= 15) {
+      setLockStartPlane(99);
+      setLockStartStructure(99);
+      setLockStartHat(99);
+      setLockStartLandScape(99);
+    }
     const fetchItem = async () => {
       try {
         const res = await loadItem(); // mainApi 호출
@@ -100,33 +135,6 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
     dispatch(resetImages());
   }, [onClose]);
 
-  /*배경*/
-  const planeImages = useSelector((state) => state.plane.planeImages);
-  const currentPlaneIndex = useSelector((state) => state.plane.currentIndex);
-
-  const [lockStartPlane, setLockStartPlane] = useState(3); //레벨에 따라 다르게 변경
-
-  /*장난감*/
-  const structureImages = useSelector(
-    (state) => state.structure.structureImages
-  );
-  const [structureCount, setStructureCount] = useState(0);
-  const [lockStartStructure, setLockStartStructure] = useState(5); //레벨에 따라 다르게 변경
-
-  /*모자*/
-  const hatImages = useSelector((state) => state.hat.hatImages);
-  const [hatCount, setHatCount] = useState(0);
-  const [lockStartHat, setLockStartHat] = useState(4); //레벨에 따라 다르게 변경
-
-  /*구조물*/
-  const landscapeImages = useSelector(
-    (state) => state.landscape.landscapeImages
-  );
-  const [landScapeCount, setLandScapeCount] = useState(0);
-  const [lockStartLandScape, setLockStartLandScape] = useState(12); //레벨에 따라 다르게 변경
-
-  /////////////////////////////////////
-
   const [menu, setMenu] = useState(0);
   const fontsLoaded = useCustomFonts();
 
@@ -146,7 +154,6 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       const selectedLandscapeImageIds = landscapeImages
         .filter((image) => image.selected)
         .map((image) => image.id);
-      console.log(selectedLandscapeImageIds);
       selectedLandscapeImageIds.forEach((idx) => {
         items.push({ itemType: "landscape", itemIndex: idx });
       });
@@ -156,7 +163,6 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       const selectedStructureImageIds = structureImages
         .filter((image) => image.selected)
         .map((image) => image.id);
-      console.log(selectedStructureImageIds);
       selectedStructureImageIds.forEach((idx) => {
         items.push({ itemType: "structure", itemIndex: idx });
       });
@@ -166,7 +172,6 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       const selectedHatImageIds = hatImages
         .filter((image) => image.selected)
         .map((image) => image.id);
-      console.log(selectedHatImageIds);
       selectedHatImageIds.forEach((idx) => {
         items.push({ itemType: "hat", itemIndex: idx });
       });
@@ -182,7 +187,6 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
       }
       // modifyItem 호출
       await modifyItem(items);
-      console.log(items);
 
       sendMessageToUnity(webviewRef, "landscape", { action: finalSend1 }); //유니티에 메시지 보내기
       sendMessageToUnity(webviewRef, "structure", { action: finalSend2 }); //유니티에 메시지 보내기

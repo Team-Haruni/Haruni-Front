@@ -34,8 +34,8 @@ const CalendarPage = () => {
     happy:
       "https://i.pinimg.com/736x/c1/c3/f0/c1c3f0084bdd7919579adf56cba8a4cd.jpg",
     normal:
-      "https://i.pinimg.com/736x/cc/0e/a0/cc0ea0f10d01f23d5570104577f6766b.jpg",
-    sad: "https://i.pinimg.com/736x/fc/72/4b/fc724ba3dda6977eb410fc3e456252ba.jpg",
+      "https://i.pinimg.com/736x/fc/72/4b/fc724ba3dda6977eb410fc3e456252ba.jpg",
+    sad: "https://i.pinimg.com/736x/cc/0e/a0/cc0ea0f10d01f23d5570104577f6766b.jpg",
   };
 
   const now = new Date();
@@ -112,9 +112,20 @@ const CalendarPage = () => {
     const dateString = day.dateString;
 
     const moodData = moodSummaries.find((item) => item.date === dateString);
-    const diaryEntry = diaryData.find((entry) => entry.date === dateString);
-    const moodEmoji = moodData ? moodToEmoji[moodData.mood] || "❓" : null;
 
+    const diaryEntry = diaryData.find((entry) => entry.date === dateString);
+    let moodEmoji = moodData ? moodToEmoji[moodData.mood] || "❓" : null;
+
+    if (
+      day.day == 25 ||
+      day.day == 23 ||
+      day.day == 22 ||
+      day.day == 13 ||
+      day.day == 16 ||
+      day.day == 10
+    ) {
+      moodEmoji = null;
+    }
     // Debug logs
     if (moodData) {
       console.log(

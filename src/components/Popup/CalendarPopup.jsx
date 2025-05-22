@@ -22,8 +22,8 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
     if (diary.images && diary.images.length > 0) {
       return (
         <View style={styles.imageContainer}>
-          <Image 
-            source={diary.images[0]} 
+          <Image
+            source={diary.images[0]}
             style={styles.mainImage}
             resizeMode="cover"
           />
@@ -40,7 +40,7 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
       animationOut="fadeOut" // 사라질 때 애니메이션
       animationInTiming={400} // 나타나는 속도 (ms)
       animationOutTiming={400} // 사라지는 속도 (ms)
-      backdropOpacity={0.3} // 배경 어두운 정도
+      backdropOpacity={0.65} // 배경 어두운 정도
       onBackdropPress={onClose} // 배경 클릭 시 닫기
       useNativeDriver={true} // 성능 최적화
       style={{
@@ -52,11 +52,11 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
       <View style={styles.modalContent}>
         {/* Emoji & Date */}
         <View style={styles.header}>
-        <Image
-          source={{ uri: diary.emoji }}
-          style={{ width: 30, height: 30, marginHorizontal: 10 }}
-        />
-        <Text style={styles.place}>{diary.place}</Text>
+          <Image
+            source={{ uri: diary.emoji }}
+            style={{ width: 30, height: 30, marginHorizontal: 10 }}
+          />
+          <Text style={styles.place}>{diary.place}</Text>
         </View>
         <View
           style={{
@@ -67,12 +67,12 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
           <View style={{ height: "100%" }}>
             {/* Main Image */}
             {renderImage()}
-            
+
             {/* Diary Text */}
             <View style={styles.textContainer}>
               <FlatList
                 data={diary.text}
-                numColumns={10}
+                numColumns={14}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item }) => (
                   <View style={styles.textBox}>
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   modalContent: {
     position: "relative",
     width: 350,
-    height: 450,
+    height: 500,
     backgroundColor: "white",
     flexDirection: "column",
     borderRadius: 10,
@@ -137,16 +137,17 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   textBox: {
-    width: 31,
-    height: 31,
+    width: 22,
+    height: 22,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
     borderColor: Colors.yellow400,
     marginVertical: 4,
+    padding: 4,
   },
   text: {
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.black,
     fontFamily: "Cafe24Ssurrondair",
   },

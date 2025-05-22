@@ -93,7 +93,6 @@ const Login = ({ navigation }) => {
           if (status === 200) {
             navigation.replace("Bottom");
           }
-          return res;
         }
       );
       console.log("Login result:", result);
@@ -109,6 +108,7 @@ const Login = ({ navigation }) => {
       });
       navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
     }
+    //navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
   };
 
   return (
