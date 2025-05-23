@@ -116,14 +116,7 @@ const CalendarPage = () => {
     const diaryEntry = diaryData.find((entry) => entry.date === dateString);
     let moodEmoji = moodData ? moodToEmoji[moodData.mood] || "❓" : null;
 
-    if (
-      day.day == 25 ||
-      day.day == 23 ||
-      day.day == 22 ||
-      day.day == 13 ||
-      day.day == 16 ||
-      day.day == 10
-    ) {
+    if (day.day == 25 || day.day == 13 || day.day == 16 || day.day == 10) {
       moodEmoji = null;
     }
     // Debug logs

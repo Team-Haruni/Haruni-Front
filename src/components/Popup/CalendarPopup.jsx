@@ -1,18 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   Image,
   FlatList,
   StyleSheet,
-  ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import Modal from "react-native-modal";
 import Colors from "../../../styles/color";
 import useCustomFonts from "../../hooks/useCustomFonts";
+import ImageDetailPopup from "./ImageDetailPopup";
 
 const CalendarPopup = ({ visible, onClose, diary }) => {
   const fontsLoaded = useCustomFonts();
+  const [isPopupVisible, setPopupVisible] = useState(false);
+  console.log(diary);
 
   if (!diary) {
     return null;
@@ -22,11 +25,13 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
     if (diary.images && diary.images.length > 0) {
       return (
         <View style={styles.imageContainer}>
-          <Image
-            source={diary.images[0]}
-            style={styles.mainImage}
-            resizeMode="cover"
-          />
+          <TouchableOpacity onPress={() => setPopupVisible(true)}>
+            <Image
+              source={diary.images[0]}
+              style={styles.mainImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
         </View>
       );
     }
@@ -83,6 +88,11 @@ const CalendarPopup = ({ visible, onClose, diary }) => {
             </View>
           </View>
         </View>
+        <ImageDetailPopup
+          isVisible={isPopupVisible}
+          diaryImg={diary.images[0]}
+          onCancel={() => setPopupVisible(false)}
+        />
       </View>
     </Modal>
   );
@@ -130,6 +140,8 @@ const styles = StyleSheet.create({
     width: 300,
     height: 180,
     borderRadius: 10,
+    aspectRatio: 16 / 10, // 너비 대비 높이 비율 유지
+    resizeMode: "cover", // 필요 시 추가
   },
   textContainer: {
     flex: 1,

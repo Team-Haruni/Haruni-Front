@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import Colors from "../../styles/color";
 
-const DropdownSection = ({ title, children, initialExpanded = true }) => {
+const DropdownSection = ({ title, children, initialExpanded = false }) => {
   const [expanded, setExpanded] = useState(initialExpanded);
 
   return (

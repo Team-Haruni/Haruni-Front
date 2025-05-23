@@ -1,14 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import Colors from "../../styles/color";
 import UpArrowIcon from "../../assets/upArrow-icon.svg";
 import VoiceButton from "./VoiceButton";
+import VoiceIcon from "../../assets/voice-icon.svg";
+import MakingDiaryPopup from "./Popup/MakingDiaryPopup";
 const ChatBar = ({
+  message,
   newMessage,
   onChangeText,
   handleSendMessage,
   isLoading,
 }) => {
+  const [isPopupVisible, setPopupVisible] = useState(false);
+
   return (
     <View style={styles.inputContainer}>
       <TextInput
@@ -20,7 +25,15 @@ const ChatBar = ({
         editable={!isLoading} // 입력 비활성화
       />
       <View style={styles.voiceButtonContainer}>
-        <VoiceButton setChat={onChangeText} isLoading={isLoading} />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={() => setPopupVisible(true)}
+            style={styles.iconContainer}
+          >
+            <VoiceIcon />
+          </TouchableOpacity>
+        </View>
+        {/* <VoiceButton setChat={onChangeText} isLoading={isLoading} /> */}
       </View>
       <TouchableOpacity
         style={styles.submitButton}
@@ -29,6 +42,16 @@ const ChatBar = ({
       >
         <UpArrowIcon />
       </TouchableOpacity>
+      <MakingDiaryPopup
+        isVisible={isPopupVisible}
+        title="그림 일기를 생성할까요?"
+        contextLines="지금까지의 대화를 바탕으로 그림 일기를 만들어드릴게요."
+        onCancel={() => setPopupVisible(false)}
+        onConfirm={() => {
+          setPopupVisible(false);
+        }}
+        message={message}
+      />
     </View>
   );
 };
@@ -67,6 +90,29 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  buttonContainer: {
+    flex: 1,
+  },
+  LoadingBarContainer: {
+    position: "relative",
+    left: 0,
+    width: 300,
+    height: 300,
+    flex: 1,
+  },
+  iconContainer: {
+    flex: 1,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 50,
+  },
+  resultText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: "#333",
   },
 });
 

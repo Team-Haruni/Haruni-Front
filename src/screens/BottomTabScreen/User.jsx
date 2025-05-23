@@ -203,8 +203,8 @@ const User = () => {
                       noOfSections={2}
                       hideYAxisText
                       yAxisLabelWidth={15}
-                      textShiftY={0}
-                      textShiftX={-10}
+                      textShiftY={3}
+                      textShiftX={-2}
                       xAxisColor={Colors.pointColor}
                       yAxisColor={Colors.pointColor}
                       yAxisLabelTexts={["Bad", "Normal", "Good"]}

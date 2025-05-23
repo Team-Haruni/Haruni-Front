@@ -228,6 +228,7 @@ const Message = () => {
 
           <View style={styles.inputContainer}>
             <ChatBar
+              message={messages}
               newMessage={newMessage}
               onChangeText={setNewMessage}
               handleSendMessage={handleSendMessage}
