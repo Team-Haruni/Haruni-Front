@@ -54,30 +54,23 @@
 ```bash
 git clone [프로젝트 저장소 URL]
 cd [프로젝트 디렉토리]
+```
 
-📥 2. 라이브러리 설치
-bash
-복사
-편집
+### 📥 2. 라이브러리 설치
+```
 npm install
 React Native prebuild 기준
+```
 
-▶️ 3. 에뮬레이터로 실행 (Metro 서버)
-첫 번째 터미널에서 Metro 번들러 실행:
+### ▶️ 3. 에뮬레이터로 실행 
 
-bash
-복사
-편집
-npm start
-두 번째 터미널에서 앱 실행:
-
-bash
-복사
-편집
+```
 npm run android
 안드로이드 에뮬레이터 또는 연결된 디바이스 필요
+```
 
-📦 4. APK 빌드 (Release)
+### 📦 4. APK 빌드 (Release)
+```
 Android Studio 사용:
 android/ 디렉토리를 Android Studio로 열기
 
@@ -91,24 +84,9 @@ APK → Next
 Build Type: release → Finish
 
 CLI 명령어:
-bash
-복사
-편집
 cd android
 ./gradlew assembleRelease
-Windows의 경우:
-
-bash
-복사
-편집
-gradlew.bat assembleRelease
 빌드 완료 후 아래 경로에서 APK 확인:
-
-swift
-복사
-편집
 android/app/build/outputs/apk/release/app-release.apk
-📮 문의 및 기여
-이 프로젝트에 대한 피드백이나 기여를 환영합니다.
-
-AI 챗봇 또는 그림 생성 엔진 관련 사항은 별도 기술 문서에서 설명될 예정입니다.
+```
+### Frontend 위주의 별도 설명입니다!
