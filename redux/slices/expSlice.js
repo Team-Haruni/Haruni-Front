@@ -1,8 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 //레벨당 겨험치
-// 15레벨 이전 10씩
-// 30레벨 이전 5씩(30레벨 최종 진화화)
 const expSlice = createSlice({
   name: "exp",
   initialState: {
@@ -18,12 +16,12 @@ const expSlice = createSlice({
     // ✅ 초기 레벨을 설정하는 함수 (게임 시작 시 1회만 실행)
     setInitialLevel: (state, action) => {
       state.level = action.payload; // 캐릭터의 초기 레벨 설정
-      if (action.payload >= 15) {
-        state.characterVersion = 1;
-        state.characterVersionArray = [true, true, false];
-      } else if (action.payload >= 30) {
+      if (action.payload >= 4) {
         state.characterVersion = 2;
         state.characterVersionArray = [true, true, true];
+      } else if (action.payload >= 2) {
+        state.characterVersion = 1;
+        state.characterVersionArray = [true, true, false];
       }
     },
     setNickname: (state, action) => {
@@ -54,8 +52,8 @@ const expSlice = createSlice({
       let characterLevel = state.level;
       // 레벨에 따른 경험치 증가량 설정
       let expGain = 10; // 기본 증가량
-      if (characterLevel < 15) expGain = 10;
-      else if (characterLevel < 30) expGain = 5;
+      if (characterLevel < 2) expGain = 10;
+      else if (characterLevel < 4) expGain = 5;
       else expGain = 3; // 최고 레벨
 
       state.exp += expGain;
@@ -63,10 +61,10 @@ const expSlice = createSlice({
       if (state.exp >= 100) {
         state.level += 1;
         state.exp = state.exp - 100; // 레벨업 시 경험치 초기화
-        if (state.level == 15) {
+        if (state.level == 2) {
           state.characterVersion = 1;
           state.characterVersionArray = [true, true, false];
-        } else if (state.level == 30) {
+        } else if (state.level == 4) {
           state.characterVersion = 2;
           state.characterVersionArray = [true, true, true];
         }
@@ -88,10 +86,10 @@ const expSlice = createSlice({
       if (beforeExp > state.exp) {
         state.level += 1;
         //state.exp = state.exp - 100; // 레벨업 시 경험치 초기화
-        if (state.level == 15) {
+        if (state.level == 2) {
           state.characterVersion = 1;
           state.characterVersionArray = [true, true, false];
-        } else if (state.level == 30) {
+        } else if (state.level == 4) {
           state.characterVersion = 2;
           state.characterVersionArray = [true, true, true];
         }

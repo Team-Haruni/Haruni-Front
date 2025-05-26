@@ -66,8 +66,9 @@ const User = () => {
       일: { value: null, dataPointText: "", label: "일" },
     };
     dayMoods.forEach(({ date, mood }, index) => {
-      const day = index; // 0=일요일, ..., 6=토요일
-      const label = weekdays[day];
+      const originalDay = new Date(date).getDay(); // 0 (일) ~ 6 (토)
+      const adjustedDay = (originalDay + 6) % 7; // 0 (월) ~ 6 (일)
+      const label = weekdays[adjustedDay];
       if (moodToValue[mood]) {
         weekMap[label] = {
           value: moodToValue[mood].value,

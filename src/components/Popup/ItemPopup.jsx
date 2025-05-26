@@ -70,11 +70,16 @@ const ItemPopup = ({ visible, onClose, webviewRef }) => {
   /////////////////////////////////////
 
   useEffect(() => {
-    if (level >= 15) {
+    if (level >= 4) {
       setLockStartPlane(99);
       setLockStartStructure(99);
       setLockStartHat(99);
       setLockStartLandScape(99);
+    } else if (level >= 2) {
+      setLockStartPlane(4);
+      setLockStartStructure(8);
+      setLockStartHat(5);
+      setLockStartLandScape(14);
     }
     const fetchItem = async () => {
       try {

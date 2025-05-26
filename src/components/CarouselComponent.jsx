@@ -24,8 +24,8 @@ const CarouselComponent = ({ planeImages, lockStartPlane }) => {
   const handlePress = () => {
     return Toast.show({
       type: "error",
-      text1: "15LV 이상",
-      text2: "레벨을 더 올리세요!",
+      text1: "레벨을 더 올리세요!",
+      // text2: "레벨을 더 올리세요!",
       visibilityTime: 1500,
     });
   };

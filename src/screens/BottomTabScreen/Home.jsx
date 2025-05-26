@@ -77,6 +77,7 @@ const Home = ({ navigation }) => {
           }
           const level = res.data.haruniLevelInteger;
           const exp = res.data.haruniLevelDecimal;
+          console.log(level);
           dispatch(setInitialExp(exp));
           dispatch(setInitialLevel(level));
 
@@ -146,11 +147,11 @@ const Home = ({ navigation }) => {
 
   //캐릭터 레벨에 따른 버전 증가
   useEffect(() => {
-    if (level == 15) {
+    if (level == 2) {
       sendMessageToUnity(webviewRef, "characterVersion", {
         action: `${characterVersion}`,
       });
-    } else if (level == 30) {
+    } else if (level == 4) {
       sendMessageToUnity(webviewRef, "characterVersion", {
         action: `${characterVersion}`,
       });

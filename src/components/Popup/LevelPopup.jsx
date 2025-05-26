@@ -39,14 +39,14 @@ const LevelPopup = ({ webviewRef, visible, onClose }) => {
     if (version == 1) {
       return Toast.show({
         type: "error",
-        text1: "15LV 이상",
+        text1: "2LV 이상",
         text2: "레벨을 더 올리세요!",
         visibilityTime: 1500,
       });
     } else if (version == 2) {
       return Toast.show({
         type: "error",
-        text1: "30LV 이상",
+        text1: "4LV 이상",
         text2: "레벨을 더 올리세요!",
         visibilityTime: 1500,
       });
