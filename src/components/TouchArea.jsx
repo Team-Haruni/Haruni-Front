@@ -48,7 +48,7 @@ const TouchArea = ({
 
       const responseData = await sendExpApi(expGain); // ✅ 비동기 처리
       console.log(responseData);
-      dispatch(touchGrowExp());
+      dispatch(touchGrowExp(responseData.data.haruniLevelDecimal));
     } catch (err) {
       console.error("경험치 전송 실패", err);
     }
@@ -74,7 +74,7 @@ const TouchArea = ({
 
       const responseData = await sendExpApi(expGain); // ✅ 비동기 처리
       console.log(responseData);
-      dispatch(touchGrowExp());
+      dispatch(touchGrowExp(responseData.data.haruniLevelDecimal));
     } catch (err) {
       console.error("경험치 전송 실패", err);
     }
