@@ -29,7 +29,7 @@ const Signup = ({ navigation }) => {
   const [currentPage, setCurrentPage] = useState(fromSocial ? 3 : 1);
   const [email, setEmail] = useState(fromSocial ? socialEmail : "");
   const [password, setPassword] = useState("");
-  const [nickname, setNickname] = useState("");
+  const [nickname, setNick1name] = useState("");
   const [characterNickname, setCharacterNickname] = useState("");
   const [characterHobby, setCharacterHobby] = useState();
   const [alertDate, setAlertDate] = useState("01:00");
@@ -133,7 +133,7 @@ const Signup = ({ navigation }) => {
           <SignupPage3
             fromSocial={fromSocial}
             nickname={nickname}
-            setNickname={setNickname}
+            setNickname={setNick1name}
             handleNext={handleNext}
             handleBack={handleBack}
           />
