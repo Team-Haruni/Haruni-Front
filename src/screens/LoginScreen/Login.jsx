@@ -78,6 +78,7 @@ const Login = ({ navigation }) => {
         }
       }
     } catch (err) {
+      Alert.alert("카카오 로그인 실패!");
       console.error("소셜 로그인 중 오류 발생:", err);
     }
   };
@@ -106,7 +107,8 @@ const Login = ({ navigation }) => {
         scope.setTag("api", "login");
         Sentry.captureException(error);
       });
-      navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
+      Alert.alert("아이디 비밀번호를 다시한번 확인해 주세요!");
+      //navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
     }
     //navigation.replace("Bottom"); // 로그인 성공 후 페이지 이동
   };
